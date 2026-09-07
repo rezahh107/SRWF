@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://srwf.local/schemas/repository-manifest.schema.json",
+  "title": "SRWF Repository Manifest logical schema",
+  "type": "object",
+  "required": ["repository", "acceptance", "external_runtime_state", "architecture", "active_documents", "contracts", "validation", "release", "security", "integrity"],
+  "properties": {
+    "repository": {"type": "object"},
+    "acceptance": {"type": "object"},
+    "external_runtime_state": {"type": "object"},
+    "architecture": {"type": "object"},
+    "security": {"type": "object"}
+  },
+  "additionalProperties": true
+}
