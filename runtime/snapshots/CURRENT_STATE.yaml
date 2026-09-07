@@ -1,20 +1,21 @@
 snapshot:
   authority: NON_CANONICAL
-  source: Google Sheet SRWF_RUNTIME_STATE / CURRENT_STATE
-  captured_at: 2026-09-07T21:46:00+04:00
-  warning: "Read live Sheet for current progress; this file is review/provenance only."
+  live_ssot: Google Sheet SRWF_RUNTIME_STATE / CURRENT_STATE
+  rule: "Read live state before progress-dependent work when connector is available. This file never overrides the live Sheet."
+  captured_for: repository_baseline_structure_only
+  stale_by_design: true
 
-current_stage: STAGE_0_IN_PROGRESS
-current_gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_CLOSED
-current_decision: OWNER_REPO_CANONICAL_DOCUMENTATION_CORPUS
-current_candidate: REPO_DOCUMENTATION_BASELINE_NEXT
-last_observed_result: DOC_CORPUS_REVIEW_FOUND_POINTER_DRIFT_AND_STANDALONE_CONTRACT_GAP
-open_blocker:
-  - Privacy/retention OPEN; blocks real PII, not synthetic scaffold/migration.
-  - Environment inventory PARTIAL but Owner-authorized for progression.
-next_action: "Complete and Owner-review/migrate SRWF repository documentation baseline before resuming authoritative scaffold."
-notes:
-  - home_phone must exist in public form but value is optional.
-  - father_name and student_mobile omissions were summary defects; underlying Owner decisions are explicit.
-  - Scanner current release deferred; seven Sayad fields hidden/future-reserved.
-  - finance/manual-cheque fields current release optional/non-public/Registration-Officer-only.
+repository_baseline_context:
+  documentation_home: rezahh107/SRWF after accepted main merge/read-back
+  runtime_state_home: SRWF_RUNTIME_STATE Google Sheet
+  architecture_change_from_repo_migration: false
+  real_pii_in_git: forbidden
+
+implementation_truth:
+  semantic_field_contract: OWNER_APPROVED_CLOSED
+  authoritative_scaffold: NOT_PROVEN_BY_THIS_SNAPSHOT
+  implementation_mapping: UNBOUND_IN_REPOSITORY_BASELINE
+  v01_to_v06: NOT_PROVEN_BY_THIS_SNAPSHOT
+  privacy_retention: MUST_READ_LIVE_STATE
+
+warning: "This snapshot is intentionally insufficient for deciding the current next implementation action."
