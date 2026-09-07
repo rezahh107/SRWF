@@ -44,14 +44,14 @@ Generated test/report بدون execution واقعی proof نیست.
 Stage 0 = environment/version inventory + Owner-approved Semantic Field Contract. authoritative scaffold قبل از SFC ممنوع. بعد scaffold، Implementation Mapping فقط با ID واقعی bind شود. `V-01..V-06` تا اجرای واقعی `UNEXECUTED/NOT_PROVEN`. قبل از privacy/retention sign-off هیچ PII واقعی وارد staging/UAT/production نشود؛ synthetic only. paid dependency قبل از POC برنده ممنوع. D-17 renderer POC-gated. Officer editing/approval native Gravity Flow. Scanner current release deferred.
 
 ## Conditional Runtime Authorities
-- **Architecture/semantic/Lock/Stage** → `00_MASTER_AUTHORITY.md` سپس `01_EXECUTION_PLAYBOOK.md` و contract مرتبط. اگر governing content قابل‌تثبیت نیست: affected unit `INCOMPLETE/BLOCKED` و کوچک‌ترین recovery؛ invent نکن.
-- **Field semantics** → `04_SEMANTIC_FIELD_CONTRACT.yaml`. `include_in_form` را از `value_required` جدا نگه دار؛ legacy presence requirement نیست.
-- **Workflow/access** → `05_WORKFLOW_CONTRACT.md` و `06_ACCESS_CONTROL_CONTRACT.md`.
-- **Actual IDs/bindings** → `07_IMPLEMENTATION_MAPPING.yaml`; null/UNBOUND را ID فرض نکن.
-- **Environment/privacy** → `08_ENVIRONMENT_MANIFEST.md` و `09_PRIVACY_RETENTION_CONTRACT.md`; privacy OPEN یعنی real PII ممنوع.
-- **Validation/release** → `10_TEST_MATRIX.md`, `11_DEFINITION_OF_DONE.md`, `12_RELEASE_MANIFEST.md`, `13_ROLLBACK_RUNBOOK.md` فقط هنگام Gate مرتبط؛ test تعریف‌شده = executed test نیست.
-- **Owner explanation** → `03_OWNER_COMPREHENSION_PROTOCOL.md` فقط برای شیوهٔ توضیح، نه architecture claim.
-- **Product capability/composition** → `KNOWLEDGE/05_PRODUCT_KNOWLEDGE_NORMALIZED.txt` → `16_CONSTRUCTABILITY_APPLICABILITY_OVERLAY.md` → `KNOWLEDGE/04_SRWF_CONSTRUCTABILITY_RUNTIME_KNOWLEDGE.txt` → deep `06..09` فقط در صورت نیاز. source presence≠retrieval/use/runtime proof. اگر evidence local ناکافی/کهنه/version-sensitive است Fresh Check از docs رسمی vendor؛ web Lock را override نمی‌کند.
+- **Architecture/semantic/Lock/Stage** → `PROJECT_SOURCES/00_MASTER_AUTHORITY.md` سپس `PROJECT_SOURCES/01_EXECUTION_PLAYBOOK.md` و contract مرتبط. اگر governing content قابل‌تثبیت نیست: affected unit `INCOMPLETE/BLOCKED` و کوچک‌ترین recovery؛ invent نکن.
+- **Field semantics** → `PROJECT_SOURCES/04_SEMANTIC_FIELD_CONTRACT.yaml`. `include_in_form` را از `value_required` جدا نگه دار؛ legacy presence requirement نیست.
+- **Workflow/access** → `PROJECT_SOURCES/05_WORKFLOW_CONTRACT.md` و `PROJECT_SOURCES/06_ACCESS_CONTROL_CONTRACT.md`.
+- **Actual IDs/bindings** → `PROJECT_SOURCES/07_IMPLEMENTATION_MAPPING.yaml`; null/UNBOUND را ID فرض نکن.
+- **Environment/privacy** → `PROJECT_SOURCES/08_ENVIRONMENT_MANIFEST.md` و `PROJECT_SOURCES/09_PRIVACY_RETENTION_CONTRACT.md`; privacy OPEN یعنی real PII ممنوع.
+- **Validation/release** → `PROJECT_SOURCES/10_TEST_MATRIX.md`, `PROJECT_SOURCES/11_DEFINITION_OF_DONE.md`, `PROJECT_SOURCES/12_RELEASE_MANIFEST.md`, `PROJECT_SOURCES/13_ROLLBACK_RUNBOOK.md` فقط هنگام Gate مرتبط؛ test تعریف‌شده = executed test نیست.
+- **Owner explanation** → `PROJECT_SOURCES/03_OWNER_COMPREHENSION_PROTOCOL.md` فقط برای شیوهٔ توضیح، نه architecture claim.
+- **Product capability/composition** → `PROJECT_SOURCES/KNOWLEDGE/05_PRODUCT_KNOWLEDGE_NORMALIZED.txt` → `PROJECT_SOURCES/16_CONSTRUCTABILITY_APPLICABILITY_OVERLAY.md` → `PROJECT_SOURCES/KNOWLEDGE/04_SRWF_CONSTRUCTABILITY_RUNTIME_KNOWLEDGE.txt` → deep `06..09` فقط در صورت نیاز. source presence≠retrieval/use/runtime proof. اگر evidence local ناکافی/کهنه/version-sensitive است Fresh Check از docs رسمی vendor؛ web Lock را override نمی‌کند.
 
 اگر Runtime Source لازم unavailable/not retrieved باشد، claim را از evidence قوی‌تر نکن؛ `NOT_INSPECTED/NOT_PROVEN` را صریح نگه دار و فقط recovery لازم را بده.
 
