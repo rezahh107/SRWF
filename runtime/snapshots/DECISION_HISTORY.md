@@ -1,9 +1,9 @@
-# Runtime Decision History Mirror
+# NON_CANONICAL Runtime Decision Snapshot
 
-Status: `NON_CANONICAL / GENERATED_MIRROR_PENDING`
+This file is a review/provenance projection only. It is **not** the live decision-state SSOT and may be stale.
 
-The live operational decision history remains the `DECISION_HISTORY` tab of the external `SRWF_RUNTIME_STATE` Google Sheet.
+Live operational decision history is in Google Sheet `SRWF_RUNTIME_STATE` → `DECISION_HISTORY`.
 
-This repository file is intentionally not populated with a hand-copied ledger because that would create a second operational SSOT and would drift. Durable accepted decisions that govern repository semantics are recorded in `docs/governance/DECISION_LEDGER.md`.
+Repository durable decisions belong in `docs/governance/DECISION_LEDGER.md`; runtime progress/results belong in the live Sheet.
 
-When an automated snapshot/export path is introduced, this file may be replaced by a generated snapshot that records its source timestamp and source identity. Until then, consult the live sheet for operational progression.
+Do not infer current Gate, current candidate, implementation completion, staging validation, or Owner authorization from this snapshot without reading the live state when available.
