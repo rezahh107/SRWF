@@ -15,7 +15,8 @@ SRWF سامانهٔ ثبت‌نام دانش‌آموز و گردش‌کار ب�
 - Stage: `STAGE_0_IN_PROGRESS`
 - Semantic Field Contract: `OWNER APPROVED / CLOSED`
 - Environment Inventory: `PARTIAL / OWNER_ACCEPTED_FOR_PROGRESS`
-- Next implementation unit: authoritative Gravity Forms/Gravity Flow scaffold با **synthetic data only**؛ سپس bind کردن IDهای واقعی در Implementation Mapping.
+- Repository documentation baseline: `READY_FOR_MERGE / ACCEPT_ONLY_AFTER_MAIN_READBACK`
+- Next implementation unit after repository acceptance: authoritative Gravity Forms/Gravity Flow scaffold با **synthetic data only**؛ سپس bind کردن IDهای واقعی در Implementation Mapping.
 - تا بسته‌شدن privacy/retention هیچ PII واقعی وارد staging/UAT/production نمی‌شود.
 
 > وضعیت اجرایی زنده در Google Sheet `SRWF_RUNTIME_STATE` نگهداری می‌شود. این repository خانهٔ canonical اسناد/قراردادهاست؛ snapshotهای runtime داخل repo در صورت وجود `NON_CANONICAL` هستند.
@@ -39,6 +40,12 @@ SRWF سامانهٔ ثبت‌نام دانش‌آموز و گردش‌کار ب�
 - [`ENVIRONMENT_MANIFEST.md`](docs/contracts/ENVIRONMENT_MANIFEST.md)
 - [`PRIVACY_RETENTION_CONTRACT.md`](docs/contracts/PRIVACY_RETENTION_CONTRACT.md)
 
+## Provenance
+
+Exact pre-repository source corpus `01..11` در `history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz` نگهداری می‌شود. `evidence/provenance/SOURCE_MANIFEST.yaml` size/SHA-256 archive و هر source را ثبت می‌کند. برای retrieval محلی از `python scripts/materialize_archives.py` استفاده کن.
+
+وجود archive یا hash صحیح = runtime proof نیست؛ archive فقط provenance/reference است.
+
 ## وضعیت‌ها را قاطی نکن
 
 `plan != implementation != validation != review != authorization != publication != production-ready != completion`
@@ -54,7 +61,7 @@ SRWF سامانهٔ ثبت‌نام دانش‌آموز و گردش‌کار ب�
 3. در [`docs/governance/DECISION_LEDGER.md`](docs/governance/DECISION_LEDGER.md) ثبت شود؛
 4. تست/POC مرتبط را update کند؛
 5. در `CHANGELOG.md` ثبت شود؛
-6. integrity checks را پاس کند.
+6. integrity checks را پاس کند یا، اگر CI infrastructure واقعاً اجرا نمی‌شود، همان checkها با manual equivalent evidence انجام و صریحاً ثبت شوند.
 
 ## امنیت داده
 
