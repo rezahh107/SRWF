@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Byte-exact provenance archives must never be newline-normalized.
+*.xz -text
