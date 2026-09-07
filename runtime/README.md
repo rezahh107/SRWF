@@ -1,25 +1,58 @@
-# Runtime State Boundary
+# Runtime State — GitHub SSOT
 
-## Live SSOT
+## Simple rule
 
-Google Sheet `SRWF_RUNTIME_STATE` is the live operational-state SSOT.
+`main` in `rezahh107/SRWF` is the single project/runtime SSOT.
 
-- `CURRENT_STATE`: current stage/gate/decision/candidate/last result/blocker/next action.
-- `DECISION_HISTORY`: material probe/decision history.
+- Current execution position: `runtime/CURRENT_STATE.yaml`
+- Append-only material history: `runtime/DECISION_HISTORY.jsonl`
+- Durable business/governance decisions: `docs/governance/DECISION_LEDGER.md`
+- Historical pre-cutover Google Sheet: `history/pre-runtime-ssot/SRWF_RUNTIME_STATE_PRE_CUTOVER.xlsx`
 
-## Repository role
+The Google Sheet is a **DEPRECATED_READ_ONLY_MIGRATION_SOURCE** after cutover. Never update both stores.
 
-Git repository is the canonical home for durable documentation/contracts after accepted baseline merge. It does **not** replace the live Sheet for progress/current runtime status.
+## Session boot
 
-Any file under `runtime/snapshots/` is:
+For any progress-dependent task or `ادامه`:
 
-- `NON_CANONICAL`
-- timestamped
-- a read-only projection for review/provenance
-- stale as soon as the external Sheet changes
+1. read `repository.manifest.yaml`
+2. read `docs/authority/MASTER.md`
+3. read `runtime/CURRENT_STATE.yaml`
+4. read the last relevant events from `runtime/DECISION_HISTORY.jsonl`
+5. read `docs/operations/EXECUTION_PLAYBOOK.md`
+6. read only the contract/evidence needed for the current unit
 
-An agent must read live `CURRENT_STATE` before answering `ادامه` or making progress-dependent recommendations when the connector is available.
+Do not rely on chat memory when the repository is available.
 
-## No parallel state
+## Material state write protocol
 
-Do not build a second operational state machine in GitHub issues/YAML/DB. A durable Owner decision may be reflected in `docs/governance/DECISION_LEDGER.md`, but current execution progress remains in the Sheet.
+A material change includes an executed probe/result, Owner decision, Gate PASS/FAIL, stage transition, confirmed environment/version/license fact, accepted artifact change, or material blocker open/close.
+
+For each material change:
+
+1. read the current `main` blob SHA for `runtime/CURRENT_STATE.yaml` and `runtime/DECISION_HISTORY.jsonl`
+2. perform the real action and collect evidence
+3. increment `state_version`
+4. append exactly one new JSONL event with the next contiguous `event_seq`
+5. update `history.last_event_seq` and `history.last_event_id` in `CURRENT_STATE.yaml`
+6. commit both state files in the **same accepted Git commit**
+7. read them back from `main`
+8. only then claim persistence
+
+Runtime-only state/history commits may go directly to `main` when repository policy permits. Code, contract, architecture, or documentation changes use branch + PR; after merge/read-back, record the resulting runtime event.
+
+If concurrent state changed since the initial read, stop and re-read. Never force-overwrite newer runtime state.
+
+## Integrity
+
+- `DECISION_HISTORY.jsonl` is append-only.
+- `event_seq` is contiguous and strictly increasing.
+- `CURRENT_STATE.history.last_event_seq` must equal the final JSONL event.
+- `CURRENT_STATE.history.last_event_id` must equal the final JSONL `decision_id`.
+- `state_version` increases on every accepted material runtime-state commit.
+- `plan != implementation != validation`.
+- `NOT_PROVEN != PROVEN_ABSENT`.
+
+## Data safety
+
+Never put real student PII, real uploaded documents/images, credentials, payment data, or operational intake records in these runtime files.
