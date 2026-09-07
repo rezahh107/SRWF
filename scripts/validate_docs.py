@@ -26,7 +26,6 @@ EXPECTED_SOURCES = {
     "10_SRWF_OWNER_COMPREHENSION_PROTOCOL_v1.0.1.md": (12106, "966cf2500a91f82ba2774a57e1499badc7277220d3f33d19057d6d7282fb4e44"),
     "11_SRWF_CONSTRUCTABILITY_APPLICABILITY_OVERLAY_v1.0.1.md": (6346, "755f3aeeaf4dcd0314efe721184a59b8b1b2b6b931a12f4f5cbaee82d20332fd"),
 }
-
 REQUIRED = [
     "README.md", "AGENTS.md", "repository.manifest.yaml", "CHANGELOG.md", "CONTRIBUTING.md", ".gitignore",
     "docs/INDEX.md", "docs/authority/MASTER.md", "docs/operations/EXECUTION_PLAYBOOK.md",
@@ -76,8 +75,7 @@ def field_blocks(text: str) -> dict[str, str]:
 
 def check_sfc() -> None:
     p = require("docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml")
-    if not p.exists():
-        return
+    if not p.exists(): return
     text = p.read_text(encoding="utf-8")
     if "include_in_form" not in text or "value_required" not in text:
         fail("SFC must distinguish include_in_form and value_required")
@@ -106,8 +104,7 @@ def check_sfc() -> None:
 
 def check_mapping() -> None:
     p = require("docs/contracts/IMPLEMENTATION_MAPPING.yaml")
-    if not p.exists():
-        return
+    if not p.exists(): return
     text = p.read_text(encoding="utf-8")
     if "status: UNBOUND" in text:
         for key, value in re.findall(r"(?m)^\s*(form_id|field_id|step_id|route_or_page_id):\s*([^\s#]+)", text):
@@ -126,11 +123,9 @@ def check_ssot() -> None:
 
 def check_archive() -> None:
     archive = ROOT / ARCHIVE_REL
-    if not archive.is_file():
-        return
-    size = archive.stat().st_size
-    if size != ARCHIVE_SIZE:
-        fail(f"source archive size mismatch: {size}")
+    if not archive.is_file(): return
+    if archive.stat().st_size != ARCHIVE_SIZE:
+        fail(f"source archive size mismatch: {archive.stat().st_size}")
         return
     actual = hashlib.sha256(archive.read_bytes()).hexdigest()
     if actual != ARCHIVE_SHA256:
@@ -161,8 +156,7 @@ def check_archive() -> None:
 
 def check_manifest() -> None:
     p = require("evidence/provenance/SOURCE_MANIFEST.yaml")
-    if not p.exists():
-        return
+    if not p.exists(): return
     text = p.read_text(encoding="utf-8")
     for needle in [ARCHIVE_REL, ARCHIVE_SHA256, str(ARCHIVE_SIZE)]:
         if needle not in text:
@@ -176,8 +170,7 @@ def check_manifest() -> None:
 def check_forbidden() -> None:
     fragments = ["srwf_processing_ledger", "srwf_audit_ledger", "paper_intake_images", "/pii/", "/intake/real/", "/exports/real/"]
     for p in ROOT.rglob("*"):
-        if not p.is_file() or ".git" in p.parts:
-            continue
+        if not p.is_file() or ".git" in p.parts: continue
         rel = "/" + str(p.relative_to(ROOT)).lower().replace("\\", "/")
         for fragment in fragments:
             if fragment in rel:
@@ -186,8 +179,7 @@ def check_forbidden() -> None:
 
 def check_master() -> None:
     p = require("docs/authority/MASTER.md")
-    if not p.exists():
-        return
+    if not p.exists(): return
     text = p.read_text(encoding="utf-8")
     if "Gravity Forms = canonical data authority" not in text:
         fail("Master missing canonical data authority invariant")
@@ -195,12 +187,22 @@ def check_master() -> None:
         fail("Master missing Gravity Flow workflow authority invariant")
 
 
+def check_stale_pointers() -> None:
+    stale = ["srwf_pre_repository_sources.tar.gz.b64", "CONSTRUCTABILITY_RUNTIME_KNOWLEDGE.txt.gz"]
+    for path in ["README.md", "AGENTS.md", "docs/authority/MASTER.md", "repository.manifest.yaml", "history/pre-repository/README.md"]:
+        p = require(path)
+        if not p.exists(): continue
+        text = p.read_text(encoding="utf-8")
+        for needle in stale:
+            if needle in text:
+                fail(f"stale active pointer in {path}: {needle}")
+
+
 def main() -> int:
-    check_required(); check_sfc(); check_mapping(); check_ssot(); check_archive(); check_manifest(); check_forbidden(); check_master()
+    check_required(); check_sfc(); check_mapping(); check_ssot(); check_archive(); check_manifest(); check_forbidden(); check_master(); check_stale_pointers()
     if ERRORS:
         print("SRWF documentation integrity: FAIL")
-        for error in ERRORS:
-            print(f"- {error}")
+        for error in ERRORS: print(f"- {error}")
         return 1
     print("SRWF documentation integrity: PASS")
     return 0
