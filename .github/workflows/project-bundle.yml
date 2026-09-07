@@ -15,27 +15,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
       - name: Validate repository integrity
         run: python scripts/validate_docs.py
-
-      - name: Build project package
+      - name: Build v5 runtime-only project package
         run: python scripts/build_project_bundle.py
-
-      - name: Show package checksum
-        run: cat dist/SRWF_GPT_Project_Package_v$(cat bundle/VERSION).zip.sha256
-
-      - name: Upload project package
+      - name: Show package checksum and build report
+        run: |
+          cat dist/SRWF_GPT_Project_Package_v$(cat bundle/VERSION).zip.sha256
+          cat dist/SRWF_GPT_Project_Package_v$(cat bundle/VERSION).zip.build-report.json
+      - name: Upload project package and BUILD_ONLY evidence
         uses: actions/upload-artifact@v4
         with:
-          name: SRWF_GPT_Project_Package_v1.1.0
+          name: SRWF_GPT_Project_Package_v1.2.0
           path: |
-            dist/SRWF_GPT_Project_Package_v1.1.0.zip
-            dist/SRWF_GPT_Project_Package_v1.1.0.zip.sha256
+            dist/SRWF_GPT_Project_Package_v1.2.0.zip
+            dist/SRWF_GPT_Project_Package_v1.2.0.zip.sha256
+            dist/SRWF_GPT_Project_Package_v1.2.0.zip.build-report.json
           if-no-files-found: error
           retention-days: 30

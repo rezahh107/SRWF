@@ -164,7 +164,6 @@ def check_runtime_ssot() -> None:
     index_path = require("history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json")
     if not all(p.exists() for p in [current, active_history, manifest_path, index_path]):
         return
-
     current_text = current.read_text(encoding="utf-8")
     for needle in ["provider: GitHub", "repository: rezahh107/SRWF", "branch: main"]:
         if needle not in current_text:
@@ -172,7 +171,6 @@ def check_runtime_ssot() -> None:
     status = yaml_scalar(current_text, "runtime_ssot_status")
     if not status or not status.startswith("ACTIVE_ON_MAIN"):
         fail(f"CURRENT_STATE runtime_ssot_status must be ACTIVE_ON_MAIN*: {status}")
-
     events = parse_jsonl(active_history)
     if not events:
         fail("active runtime DECISION_HISTORY is empty")
@@ -186,7 +184,6 @@ def check_runtime_ssot() -> None:
             fail(f"CURRENT_STATE last_event_seq does not match active history tail: {last_seq} vs {seqs[-1]}")
         if last_id != events[-1].get("decision_id"):
             fail(f"CURRENT_STATE last_event_id does not match active history tail: {last_id} vs {events[-1].get('decision_id')}")
-
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         index = json.loads(index_path.read_text(encoding="utf-8"))
@@ -199,13 +196,11 @@ def check_runtime_ssot() -> None:
         fail("migration archive strategy must be TEXT_NATIVE_NORMALIZED_ARCHIVE")
     if index.get("event_count") != 72 or index.get("coverage", {}).get("contiguous") is not True:
         fail("pre-cutover decision index coverage invalid")
-
     index_meta = manifest.get("decision_index", {})
     if index_path.stat().st_size != index_meta.get("size"):
         fail("pre-cutover decision index size mismatch")
     if sha256_file(index_path) != index_meta.get("sha256"):
         fail("pre-cutover decision index SHA mismatch")
-
     all_pre_events: list[dict] = []
     chunk_meta = manifest.get("history_chunks", [])
     if len(chunk_meta) != len(RUNTIME_CHUNKS):
@@ -225,7 +220,6 @@ def check_runtime_ssot() -> None:
             fail(f"runtime migration chunk sequence boundary mismatch: {rel}")
     if [e.get("event_seq") for e in all_pre_events] != list(range(1, 73)):
         fail("pre-cutover runtime history is not exactly contiguous event_seq 1..72")
-
     active_paths = [
         "README.md", "AGENTS.md", "repository.manifest.yaml", "docs/INDEX.md",
         "docs/authority/MASTER.md", "docs/operations/EXECUTION_PLAYBOOK.md",
@@ -307,18 +301,39 @@ def check_package_contract() -> None:
     except json.JSONDecodeError as exc:
         fail(f"invalid bundle/project-package.json: {exc}")
         return
-    if version_path.read_text(encoding="utf-8").strip() != "1.1.0":
-        fail("bundle version must be 1.1.0")
-    if cfg.get("builder_profile") != "BUNDLE_PACKAGE_MAKER_5_COMPATIBILITY":
-        fail("bundle builder profile mismatch")
-    if cfg.get("formal_package_maker_5_spec_status") != "NOT_RETRIEVED":
-        fail("formal Package Maker 5 qualification must remain truthful")
-    if cfg.get("authority_rule") != "WHEN_REPOSITORY_AVAILABLE_GITHUB_MAIN_WINS":
-        fail("bundle authority rule must keep GitHub main as live SSOT")
-    instructions = inst_path.read_text(encoding="utf-8")
-    if len(instructions) > 8000:
-        fail(f"bundle Project Instructions exceed 8000 chars: {len(instructions)}")
-    for needle in ["runtime/CURRENT_STATE.yaml", "STATE_NOT_PERSISTED", "DEPRECATED_READ_ONLY_MIGRATION_SOURCE"]:
+    if version_path.read_text(encoding="utf-8").strip() != "1.2.0":
+        fail("bundle version must be 1.2.0")
+    expected = {
+        "governing_generator_standard": "GPT_PROJECT_DOCUMENTATION_STANDARD_v5.0.0_AIGOV_INSPIRED",
+        "governing_generator_standard_sha256": "f02b8bb19e781c00d0d0e70780de1bee2bd90bcf5e75a2246427ff6ef350cfa7",
+        "embedded_canonical_standard_sha256": "f13488a0bdb4a626ea89c78a59a420978cfd7cc945d74b53a5182a34474d59e8",
+        "generator_profile": "AIGOV_INSPIRED_V5_RUNTIME_ONLY",
+        "runtime_zip_rule": "ONLY_02_PROJECT_INSTRUCTIONS_AND_PROJECT_SOURCES",
+        "live_ssot": "GitHub main",
+    }
+    for key, value in expected.items():
+        if cfg.get(key) != value:
+            fail(f"bundle package contract mismatch: {key}")
+    if cfg.get("max_instruction_characters") != 7999:
+        fail("bundle v5 local Instructions budget must be 7999")
+    mappings = cfg.get("runtime_source_mappings") or {}
+    required_sources = {
+        "docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml": "PROJECT_SOURCES/04_SEMANTIC_FIELD_CONTRACT.yaml",
+        "runtime/CURRENT_STATE.yaml": "PROJECT_SOURCES/14_CURRENT_STATE.yaml",
+        "runtime/DECISION_HISTORY.jsonl": "PROJECT_SOURCES/15_DECISION_HISTORY.jsonl",
+    }
+    for src, dest in required_sources.items():
+        if mappings.get(src) != dest:
+            fail(f"bundle missing required Runtime Source mapping: {src}")
+    if any(not isinstance(dest, str) or not dest.startswith("PROJECT_SOURCES/") for dest in mappings.values()):
+        fail("all runtime source destinations must be under PROJECT_SOURCES/")
+    instructions = inst_path.read_text(encoding="utf-8").replace("\r\n", "\n")
+    if len(instructions) > 7999:
+        fail(f"bundle Project Instructions exceed 7999 chars: {len(instructions)}")
+    for needle in [
+        "شروع", "runtime/CURRENT_STATE.yaml", "STATE_NOT_PERSISTED",
+        "GitHub repository `rezahh107/SRWF`", "PROJECT_SOURCES/04_SEMANTIC_FIELD_CONTRACT.yaml",
+    ]:
         if needle not in instructions:
             fail(f"bundle Project Instructions missing: {needle}")
 

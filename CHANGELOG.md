@@ -2,7 +2,24 @@
 
 All material SRWF documentation/contract/runtime-governance changes are recorded here. Runtime evidence is canonical only when reflected in `runtime/CURRENT_STATE.yaml` and appended to `runtime/DECISION_HISTORY.jsonl`; documentation alone does not promote validation status.
 
-## Unreleased — portable project package v1.1.0
+## Unreleased — project package v1.2.0 / AIGOV-inspired v5 runtime topology
+
+### Changed
+- Owner-supplied governing generator: `GPT_PROJECT_DOCUMENTATION_STANDARD_v5.0.0_AIGOV_INSPIRED.zip`, SHA-256 `f02b8bb19e781c00d0d0e70780de1bee2bd90bcf5e75a2246427ff6ef350cfa7`.
+- Embedded canonical package-architecture authority observed in that bundle: `LLM-INSTRUCTION-PACKAGE-STANDARD@4.0.1`, SHA-256 `f13488a0bdb4a626ea89c78a59a420978cfd7cc945d74b53a5182a34474d59e8`.
+- Package version becomes `1.2.0`; builder profile becomes `AIGOV_INSPIRED_V5_RUNTIME_ONLY`.
+- Runtime ZIP topology is now exactly one package root containing `02_PROJECT_INSTRUCTIONS.md` and `PROJECT_SOURCES/**` only.
+- Build-only manifest/checksum/build-report/validation/provenance/governance surfaces no longer leak into the deployable runtime ZIP.
+- Project Instructions carry prepared standalone `شروع` Start Card, runtime-source activation rules, repository SSOT fallback behavior and remain within the local v5 `7999` Unicode-character budget.
+- Runtime Sources are reduced to decision-material authority/contracts/state/knowledge; repository governance, migration provenance, ledgers and generator evidence remain outside the install set.
+- Build report and SHA-256 remain external BUILD_ONLY evidence alongside the GitHub Actions artifact.
+
+### Preserved truth
+- GitHub `main` remains sole live Project/Runtime SSOT; ZIP state/history are build-time fallback snapshots only.
+- Package generation does not promote staging/runtime validation or any POC.
+- Product/Constructability source presence does not prove retrieval/use/causal influence.
+
+## Portable project package v1.1.0
 
 ### Added
 - Reproducible portable project-package profile under `bundle/`.
