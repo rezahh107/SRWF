@@ -4,23 +4,31 @@
 
 ## Archive
 
-`srwf_pre_repository_sources.tar.xz.b64.part00..part52`
+فایل canonical provenance archive:
 
-- تعداد partها: `53`
-- هر part به‌جز آخر: حداکثر `9000` بایت Base64
-- SHA-256 archive decoded: `82b0201ce3920214fe2ac7b9bd7defaa8769651fbbd1168abcd0a1ba91d32ed4`
+`srwf_pre_repository_sources.tar.xz`
 
-روش materialization:
+ویژگی‌های مورد انتظار:
+
+- size: `353740` bytes
+- SHA-256: `82b0201ce3920214fe2ac7b9bd7defaa8769651fbbd1168abcd0a1ba91d32ed4`
+- contents: exact source files `01..11`
+
+برای materialization:
 
 ```bash
 python scripts/materialize_archives.py
 ```
 
-Script تمام partها را concatenate می‌کند، Base64 decode می‌کند، SHA-256 archive را با `evidence/provenance/SOURCE_MANIFEST.yaml` مقایسه می‌کند، سپس tar.xz را در `.knowledge-materialized/pre-repository/` extract می‌کند.
+برای integrity check:
+
+```bash
+python scripts/validate_docs.py
+```
+
+Validator علاوه بر SHA کل archive، نام، size و SHA-256 هر ۱۱ source داخل tar را جداگانه بررسی می‌کند.
 
 ## Contents
-
-Exact source files 01..11:
 
 1. Master Authority v1.9.0
 2. Owner Knowledge & Composition Addendum v1.1.1
@@ -36,8 +44,6 @@ Exact source files 01..11:
 
 ## Authority warning
 
-Historical source presence does not make every old project-state projection current. Stable active docs under `docs/` plus current Owner decisions govern current project semantics. In particular, source `04` must be interpreted through `knowledge/constructability/APPLICABILITY_OVERLAY.md`.
+وجود source تاریخی، projectionهای project-state قدیمی را current نمی‌کند. مسیرهای active زیر `docs/` به‌همراه Owner Decisionهای جاری مرجع interpretation هستند. به‌طور خاص source `04` باید از طریق `knowledge/constructability/APPLICABILITY_OVERLAY.md` تفسیر شود.
 
-## Why encoded split parts?
-
-Connector transport for large single text payloads is bounded. Split parts preserve the complete compressed corpus byte-exact while allowing every part to be committed and independently visible. Parts are transport/storage artifacts only; they have no semantic authority by themselves.
+این archive فقط provenance/reference است؛ presence یا hash integrity آن runtime proof نیست.
