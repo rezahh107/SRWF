@@ -1,5 +1,5 @@
 schema_version: 1
-state_version: 8
+state_version: 9
 updated_at: '2026-09-08'
 ssot:
   provider: GitHub
@@ -16,11 +16,11 @@ ssot:
 current:
   stage: STAGE_0_IN_PROGRESS
   gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_AMENDMENT_IN_PROGRESS
-  decision: OWNER-20260908-DISCOUNT-CODE-CATALOG-NAME-CODE-ONLY
+  decision: OWNER-20260908-HEKMAT-SERVER-DERIVED-CLEAR-ON-EXIT
   candidate: LEGACY_GF_RULE_RECONCILIATION
-  last_observed_result: OWNER_DISCOUNT_CODE_CATALOG_LOCKED_41_NAME_CODE_ONLY / PERCENT_METADATA_EXCLUDED / FINANCIAL_DISCOUNT_FIELDS_CONFIRMED_SEPARATE
-  next_action_id: DECIDE_HEKMAT_RULE_FINAL
-  next_action: Confirm the final Hekmat conditional semantics and persistence rule before moving to school/gender and report-card ambiguities.
+  last_observed_result: OWNER_HEKMAT_RULE_LOCKED / FIXED_SERVER_DERIVATION / CLEAR_ON_EXIT / LEGACY_HEKMAT_CHOICES_EXCLUDED
+  next_action_id: DECIDE_SCHOOL_GENDER_COMPATIBILITY
+  next_action: Decide whether and how the new single canonical school selector must enforce student-gender compatibility with school choices.
 open_blockers:
 - id: PRIVACY_RETENTION_OPEN
   effect: blocks real PII in staging/UAT/production; synthetic work remains allowed
@@ -31,11 +31,11 @@ open_blockers:
 - id: FLOW_FINANCE_WHITELIST_NOT_PROVEN
   effect: finance fields are intended Registration-Officer-only/non-public, but the native Gravity Flow whitelist remains runtime-unproven
 - id: LEGACY_FINANCE_RULE_RECONCILIATION_INCOMPLETE
-  effect: foundation and coded-discount semantics are locked; remaining Hekmat and other legacy conditional-rule reconciliation is still under Owner review
+  effect: foundation, coded-discount and Hekmat semantics are locked; remaining school/report-card and other conditional-rule reconciliation is still under Owner review
 - id: SCHOOL_GENDER_RULE_UNRESOLVED
   effect: the legacy four-school-selector structure implicitly constrained school choices by gender; the canonical school snapshot currently exposes code/name only, so the new single-selector gender compatibility rule remains unresolved
 - id: SERVER_BINDINGS_INCOMPLETE
-  effect: DOB/mobile/group/status/school/report-card/discount/foundation/file-access server bindings and validation remain incomplete
+  effect: DOB/mobile/group/status/school/report-card/discount/foundation/Hekmat/file-access server bindings and validation remain incomplete; Hekmat semantics are closed but implementation is not proven
 - id: GP_NESTED_FORMS_POC_NOT_PROVEN
   effect: multi-cheque child composition is selected but not runtime-proven
 - id: GF_IMPORT_RUNTIME_UNEXECUTED
@@ -72,8 +72,8 @@ governance:
   - DOCUMENTED != OBSERVED_IN_STAGING
   - NOT_PROVEN != PROVEN_ABSENT
 history:
-  last_event_seq: 80
-  last_event_id: OWNER-20260908-DISCOUNT-CODE-CATALOG-NAME-CODE-ONLY
+  last_event_seq: 81
+  last_event_id: OWNER-20260908-HEKMAT-SERVER-DERIVED-CLEAR-ON-EXIT
   pre_cutover_event_count: 72
   pre_cutover_source: Google Sheet SRWF_RUNTIME_STATE / DECISION_HISTORY
   active_history_start_seq: 73
