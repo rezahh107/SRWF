@@ -1,11 +1,13 @@
 source_corpus:
   id: SRWF-PRE-REPOSITORY-SOURCES-01-11
   status: BYTE_EXACT_ARCHIVE_PENDING_BRANCH_ACCEPTANCE
-  archive_format: tar.gz -> base64 split parts
-  archive_sha256: d3aa23753aabae2db95381e57c5050c5d0429865c94b9c1a15b5e0b0d3eb27a8
-  archive_size_bytes: 569218
+  archive_format: tar.xz -> base64 split parts
+  archive_sha256: 82b0201ce3920214fe2ac7b9bd7defaa8769651fbbd1168abcd0a1ba91d32ed4
+  archive_size_bytes: 353740
+  archive_base64_bytes: 471656
   uncompressed_source_total_bytes: 7646866
-  parts: 16
+  parts: 53
+  part_size_bytes: 9000
   materialize_command: "python scripts/materialize_archives.py"
 
 files:
