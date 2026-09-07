@@ -9,7 +9,7 @@ repository:
 acceptance:
   accepted_current_ref: main
   feature_branch_is_authority: false
-  baseline_status: PENDING_MERGE_AND_READBACK
+  baseline_status: READY_FOR_MERGE__ACCEPT_ONLY_AFTER_MAIN_READBACK
 
 external_runtime_state:
   name: SRWF_RUNTIME_STATE
@@ -62,6 +62,7 @@ knowledge:
 provenance:
   source_manifest: evidence/provenance/SOURCE_MANIFEST.yaml
   pre_repository_history: history/pre-repository/README.md
+  source_archive: history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz
 
 security:
   real_pii_in_git: FORBIDDEN
@@ -73,6 +74,8 @@ security:
 integrity:
   validator: scripts/validate_docs.py
   workflow: .github/workflows/docs-integrity.yml
+  github_actions_runtime_status: PRE_RUN_INFRA_UNAVAILABLE_OBSERVED
+  manual_equivalent_validation_allowed_when_ci_infrastructure_unavailable: true
   required_root_files:
     - README.md
     - AGENTS.md
@@ -85,3 +88,4 @@ notes:
   - Active repository paths are stable; versions live in document metadata and Git history rather than version-suffixed active filenames.
   - The pre-repository Master source is preserved byte-exact in history as a compressed provenance artifact; the active Master is materialized as an ordered readable document set with a stable entrypoint.
   - Large Product Knowledge and Constructability snapshots are archived self-contained in Git as compressed reference evidence; they do not become current runtime proof or architecture authority.
+  - A feature branch or open PR is never Accepted Current. Acceptance requires merge to main plus read-back of the resulting main tree.
