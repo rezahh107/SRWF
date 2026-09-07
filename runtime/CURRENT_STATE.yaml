@@ -1,6 +1,6 @@
 schema_version: 1
-state_version: 5
-updated_at: '2026-09-08T01:48:00+04:00'
+state_version: 6
+updated_at: '2026-09-08'
 ssot:
   provider: GitHub
   repository: rezahh107/SRWF
@@ -15,27 +15,31 @@ ssot:
     migration_manifest: history/pre-runtime-ssot/MIGRATION_MANIFEST.json
 current:
   stage: STAGE_0_IN_PROGRESS
-  gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_CLOSED
-  decision: OWNER-20260907-FINANCE-STATUS-OFFICER-DEFAULT-NORMAL
-  candidate: GF_IMPORT_SCAFFOLD_V051_PROVISIONAL
-  last_observed_result: GF_V051_FINANCE_STATUS_PATCH_LOCAL_AUDIT_PASS / CONTROLLED_REFERENCE_RECOVERY_CONFIRMED
-  next_action_id: STAGING_IMPORT_GF_V051_SYNTHETIC
-  next_action: Import SRWF_GravityForms_Import_v0.5.1_PROVISIONAL.json into staging, keep the form inactive, use synthetic data only, and report the actual imported Form ID plus any Gravity Forms import warning/error.
+  gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_AMENDMENT_IN_PROGRESS
+  decision: OWNER-20260908-FOUNDATION-FIELDS-OFFICER-ONLY
+  candidate: LEGACY_GF_RULE_RECONCILIATION
+  last_observed_result: LEGACY_GF_AUDIT_FOUNDATION_FIELDS_CONFIRMED / OWNER_FOUNDATION_RULE_LOCKED
+  next_action_id: DECIDE_DISCOUNT_CATALOG_SEMANTICS
+  next_action: Decide whether the legacy coded discount catalog returns as a controlled Officer-only field separate from discount_amount.
 open_blockers:
 - id: PRIVACY_RETENTION_OPEN
   effect: blocks real PII in staging/UAT/production; synthetic work remains allowed
 - id: ENVIRONMENT_INVENTORY_PARTIAL
   effect: OWNER_ACCEPTED_FOR_PROGRESS; reopen only when a compatibility/deployment fact becomes decision-critical
 - id: SCHOOL_CHOICES_NOT_MATERIALIZED
-  effect: canonical school source is recovered and bound, but the full controlled school choices are not yet materialized into the current v0.5.1 import artifact
+  effect: canonical school source is recovered and bound, but the full controlled school choices are not yet materialized into the current import artifact
 - id: FLOW_FINANCE_WHITELIST_NOT_PROVEN
-  effect: v0.5.1 encodes finance_status as non-public/optional/default 0; Registration-Officer-only exposure/editability still requires the native Gravity Flow step whitelist and staging proof
+  effect: finance fields are intended Registration-Officer-only/non-public, but the native Gravity Flow whitelist remains runtime-unproven
+- id: LEGACY_FINANCE_RULE_RECONCILIATION_INCOMPLETE
+  effect: foundation field semantics are now locked, but coded discount semantics and remaining legacy finance conditional rules are still under Owner reconciliation
+- id: SCHOOL_GENDER_RULE_UNRESOLVED
+  effect: the legacy four-school-selector structure implicitly constrained school choices by gender; the canonical school snapshot currently exposes code/name only, so the new single-selector gender compatibility rule remains unresolved
 - id: SERVER_BINDINGS_INCOMPLETE
-  effect: DOB/mobile/group/status/school/report-card/discount/file-access server bindings and validation remain incomplete
+  effect: DOB/mobile/group/status/school/report-card/discount/foundation/file-access server bindings and validation remain incomplete
 - id: GP_NESTED_FORMS_POC_NOT_PROVEN
   effect: multi-cheque child composition is selected but not runtime-proven
 - id: GF_IMPORT_RUNTIME_UNEXECUTED
-  effect: v0.5.1 passed local semantic/structural audit only; actual Gravity Forms staging import has not been executed
+  effect: no new staging import should run until the legacy-rule reconciliation is closed and a superseding provisional import artifact is generated
 governance:
   repository_baseline: ACCEPTED_CURRENT
   runtime_ssot_decision: OWNER-20260907-REPOSITORY-RUNTIME-SSOT
@@ -68,8 +72,8 @@ governance:
   - DOCUMENTED != OBSERVED_IN_STAGING
   - NOT_PROVEN != PROVEN_ABSENT
 history:
-  last_event_seq: 77
-  last_event_id: OBS-20260908-PROJECT-PACKAGE-V120-AIGOV-V5-ACCEPTANCE
+  last_event_seq: 78
+  last_event_id: OWNER-20260908-FOUNDATION-FIELDS-OFFICER-ONLY
   pre_cutover_event_count: 72
   pre_cutover_source: Google Sheet SRWF_RUNTIME_STATE / DECISION_HISTORY
   active_history_start_seq: 73
