@@ -116,9 +116,9 @@ For the current decision unit:
 
 ## Knowledge retrieval order
 1. Project meaning/locks/order: `docs/authority/MASTER.md`, then `docs/governance/KNOWLEDGE_COMPOSITION_ADDENDUM.md`.
-2. Fast cross-product capability lookup: materialize `knowledge/normalized/PRODUCT_KNOWLEDGE_NORMALIZED.txt.gz` when needed.
-3. Project-specific constructability/composition details: apply `knowledge/constructability/APPLICABILITY_OVERLAY.md` first, then materialize `knowledge/constructability/CONSTRUCTABILITY_RUNTIME_KNOWLEDGE.txt.gz`. The overlay supersedes stale project-level Gate/status projections only; underlying technical evidence/provenance remains usable.
-4. Deep product details: materialize the corresponding archive under `knowledge/products/`.
+2. Apply `knowledge/constructability/APPLICABILITY_OVERLAY.md` before using constructability source `04`.
+3. When local Product Knowledge is needed, materialize the byte-exact corpus with `python scripts/materialize_archives.py`. The original files are written under `.knowledge-materialized/pre-repository/` with their source names: `05_PRODUCT_KNOWLEDGE_NORMALIZED.txt`, `04_SRWF_CONSTRUCTABILITY_RUNTIME_KNOWLEDGE.txt`, and deep product sources `06..09`.
+4. Retrieve only the decision-relevant materialized source(s); source presence/hash integrity is evidence provenance, not runtime proof or decision readiness.
 5. If local evidence is missing, stale, contradictory, or insufficient for a material decision, use fresh **official vendor documentation**. Official-source fallback is evidence gathering, not permission to override Owner locks.
 
 ## Interpretation rule for normalized knowledge
@@ -133,6 +133,7 @@ The Project Instructions govern when it must be read/written. This file does not
 ## Repository-baseline normalization
 - Active paths are stable repository paths; old version-suffixed source names are historical provenance only.
 - Current Overlay active path is `knowledge/constructability/APPLICABILITY_OVERLAY.md`.
+- Exact pre-repository sources `01..11` live in `history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz`; materialization is local-only and not committed.
 - No architecture, Stage/Gate order, candidate selection, PASS/FAIL contract or runtime evidence state is promoted by repository migration.
 
 ## v1.3.0 Owner-decision / Gate sync
