@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://srwf.local/schemas/semantic-field-contract.schema.json",
+  "title": "SRWF Semantic Field Contract logical schema",
+  "type": "object",
+  "required": ["contract", "semantics"],
+  "properties": {
+    "contract": {
+      "type": "object",
+      "required": ["id", "semantic_status", "binding_status"],
+      "properties": {
+        "id": {"const": "SRWF-SFC"},
+        "semantic_status": {"type": "string"},
+        "binding_status": {"type": "string"}
+      }
+    },
+    "semantics": {
+      "type": "object",
+      "required": ["include_in_form", "value_required"]
+    }
+  },
+  "additionalProperties": true,
+  "description": "The YAML contract is canonical. This JSON Schema documents top-level invariants; scripts/validate_docs.py performs repository-specific cross-file checks without external Python dependencies."
+}
