@@ -2,7 +2,30 @@
 
 All material SRWF documentation/contract/runtime-governance changes are recorded here. Runtime evidence is canonical only when reflected in `runtime/CURRENT_STATE.yaml` and appended to `runtime/DECISION_HISTORY.jsonl`; documentation alone does not promote validation status.
 
-## Unreleased — repository runtime SSOT migration
+## Unreleased — portable project package v1.1.0
+
+### Added
+- Reproducible portable project-package profile under `bundle/`.
+- Repository-first `02_PROJECT_INSTRUCTIONS.md` for ChatGPT Projects / similar model environments.
+- Deterministic `scripts/build_project_bundle.py` with sorted ZIP paths, fixed metadata, per-file SHA-256 manifest/checksum, packaged validation evidence and exact-artifact handling.
+- GitHub Actions workflow `.github/workflows/project-bundle.yml` that validates the repository, builds the package and uploads the ZIP + SHA-256.
+- Product/Constructability sources `04..09` are materialized from the exact pre-repository archive into the portable package at build time.
+- Pre-cutover runtime history is included as immutable provenance; live runtime state remains GitHub `main`.
+
+### Package boundary
+- Package version: `1.1.0`.
+- Profile: `BUNDLE_PACKAGE_MAKER_5_COMPATIBILITY`.
+- Formal Package Maker 5 specification: `NOT_RETRIEVED`; compatibility is based on observed GPT Project package and repository-first portable-bundle conventions, not a false claim of formal conformance.
+- ZIP/runtime snapshot never supersedes GitHub `main` when the repository is available.
+- An artifact named/hash-recorded in runtime history is embedded only when exact hash-matching bytes exist in the repository; otherwise it remains `REFERENCED_NOT_EMBEDDED`.
+
+### Current runtime truth at package work start
+- `GF_IMPORT_SCAFFOLD_V051_PROVISIONAL` is the current candidate.
+- v0.5.1 `finance_status` local semantic/structural audit = PASS.
+- Actual Gravity Forms staging import remains `UNEXECUTED`.
+- Current next action is synthetic-data staging import of `SRWF_GravityForms_Import_v0.5.1_PROVISIONAL.json` while the form remains inactive.
+
+## Repository runtime SSOT migration
 
 ### Added
 - Canonical `runtime/CURRENT_STATE.yaml` for current Stage/Gate/decision/candidate/result/blockers/next action.
@@ -12,17 +35,17 @@ All material SRWF documentation/contract/runtime-governance changes are recorded
 - Repository-first agent boot/read/write rules so a future session can continue from GitHub `main` without relying on chat memory or Google Sheets.
 
 ### Changed
-- GitHub `main` becomes the sole project/runtime SSOT after accepted migration merge + read-back.
-- Google Sheet `SRWF_RUNTIME_STATE` becomes `DEPRECATED_READ_ONLY_MIGRATION_SOURCE` after cutover; no dual-write is allowed.
-- `README.md`, `AGENTS.md`, `repository.manifest.yaml`, Master, Playbook, Decision Ledger and documentation index now point current execution work to `runtime/CURRENT_STATE.yaml`.
+- GitHub `main` is the sole project/runtime SSOT after accepted migration merge + read-back.
+- Google Sheet `SRWF_RUNTIME_STATE` is `DEPRECATED_READ_ONLY_MIGRATION_SOURCE`; no dual-write is allowed.
+- `README.md`, `AGENTS.md`, `repository.manifest.yaml`, Master, Playbook, Decision Ledger and documentation index point current execution work to `runtime/CURRENT_STATE.yaml`.
 - Runtime state writes require updating `CURRENT_STATE` and appending the corresponding decision/probe event in the same accepted Git change, followed by main read-back.
 
 ### Removed
-- Old `runtime/snapshots/` state files that identified Google Sheets as live SSOT and would create a stale parallel-state surface after cutover.
+- Old `runtime/snapshots/` state files that identified Google Sheets as live SSOT.
 
-### Preserved truth
-- This governance migration does not promote `V-01..V-06`, staging validation, production readiness, or any POC.
-- Current implementation resumes at the existing `v0.5` `finance_status` semantic mismatch; privacy/retention and residual environment/server-binding gaps remain open.
+### Validation
+- PR #3 GitHub Actions integrity run `34160923750` executed and passed.
+- This governance validation does not promote `V-01..V-06`, staging validation, production readiness, or any POC.
 
 ## Repository documentation baseline
 
@@ -40,11 +63,6 @@ All material SRWF documentation/contract/runtime-governance changes are recorded
 - Preserved explicit `father_name` and `student_mobile` field requirements.
 - Repaired stale Master/Playbook/Addendum/Owner-Comprehension/Overlay pointers by using stable repository paths.
 - Normalized Product Knowledge/Constructability retrieval to provenance archive materialization instead of nonexistent `.txt.gz` or `knowledge/products/` paths.
-
-### Validation note
-- GitHub Actions runs were observed failing before runner allocation (`runner_id=0`, no steps executed); this is classified as CI infrastructure unavailable, not validator failure.
-- Repository-baseline acceptance therefore used documented manual-equivalent integrity evidence.
-- This validation concerns repository integrity only. It does not promote runtime behavior or release readiness.
 
 ## Pre-repository history
 
