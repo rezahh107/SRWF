@@ -1,20 +1,36 @@
 #!/usr/bin/env python3
 """Repository integrity checks for SRWF documentation/contracts.
 
-Stdlib-only by design: this validator is a structural/drift guard, not a YAML
-or semantic theorem prover. It intentionally checks the specific invariants that
-previously caused SRWF documentation drift/field omission.
+Stdlib-only by design. This is a structural/drift/provenance guard and does not
+promote documentation presence to runtime proof.
 """
 from __future__ import annotations
 
-import base64
 import hashlib
 import re
 import sys
+import tarfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ERRORS: list[str] = []
+
+ARCHIVE_REL = "history/pre-repository/srwf_pre_repository_sources.tar.xz"
+ARCHIVE_SHA256 = "82b0201ce3920214fe2ac7b9bd7defaa8769651fbbd1168abcd0a1ba91d32ed4"
+ARCHIVE_SIZE = 353740
+EXPECTED_SOURCES = {
+    "01_SRWF_MASTER_AUTHORITY_v1.9.0-fa.md": (230874, "0f986c7104d3884e95ff4a5db7f125f6cf3eb639c745a55fcfef4abf3c0ad27a"),
+    "02_SRWF_OWNER_KNOWLEDGE_AND_COMPOSITION_ADDENDUM_v1.1.1.md": (8728, "83497b157328ba82d1b6900dbe05b4635e7acf22600cc3cbf35a8f92da89930d"),
+    "03_SRWF_EXECUTION_PLAYBOOK_v1.3.0.md": (13690, "0fb1979eadb3241161f5942278f05c27a0a60b8680f66fa1fa3f61b247dd3a47"),
+    "04_SRWF_CONSTRUCTABILITY_RUNTIME_KNOWLEDGE.txt": (924039, "0b9aa5208f2c3c5b3f12b196ec8a70de71d536dcb00d2ecc8c5e85d94f138f98"),
+    "05_PRODUCT_KNOWLEDGE_NORMALIZED.txt": (2305256, "7a4e93e3a2919e72b9e74fb78af553698fe320455049fee428e8d1c43170f112"),
+    "06_GRAVITY_FORMS_PRODUCT_KNOWLEDGE.txt": (2626276, "5c6777c951d4732bc7e2ce728582c8ce7191658f9a755aa0e03b9eeb100b4148"),
+    "07_GRAVITY_FLOW_PRODUCT_KNOWLEDGE.txt": (266287, "f3dfcfa294d94e5060af46d2ce38981ef7013123f71bf0a3eba6263f8ee9fe54"),
+    "08_GRAVITYVIEW_PRODUCT_KNOWLEDGE.txt": (601551, "f290ddd3b5a528ebf1213bf9c4247b202b3f86dda574b90b6e101f7c7051bd5f"),
+    "09_GRAVITY_PERKS_PRODUCT_KNOWLEDGE.txt": (651713, "afe196760396cd23c1ef9b29437689cabd6b21805c89a9bd18e714fe0d5cb319"),
+    "10_SRWF_OWNER_COMPREHENSION_PROTOCOL_v1.0.1.md": (12106, "966cf2500a91f82ba2774a57e1499badc7277220d3f33d19057d6d7282fb4e44"),
+    "11_SRWF_CONSTRUCTABILITY_APPLICABILITY_OVERLAY_v1.0.1.md": (6346, "755f3aeeaf4dcd0314efe721184a59b8b1b2b6b931a12f4f5cbaee82d20332fd"),
+}
 
 
 def fail(msg: str) -> None:
@@ -29,45 +45,32 @@ def require(path: str) -> Path:
 
 
 REQUIRED = [
-    "README.md",
-    "AGENTS.md",
-    "repository.manifest.yaml",
-    "CHANGELOG.md",
-    "CONTRIBUTING.md",
-    ".gitignore",
-    "docs/INDEX.md",
-    "docs/authority/MASTER.md",
-    "docs/operations/EXECUTION_PLAYBOOK.md",
+    "README.md", "AGENTS.md", "repository.manifest.yaml", "CHANGELOG.md",
+    "CONTRIBUTING.md", ".gitignore", "docs/INDEX.md",
+    "docs/authority/MASTER.md", "docs/operations/EXECUTION_PLAYBOOK.md",
     "docs/governance/KNOWLEDGE_COMPOSITION_ADDENDUM.md",
     "docs/governance/OWNER_COMPREHENSION_PROTOCOL.md",
-    "docs/governance/DECISION_LEDGER.md",
-    "docs/governance/RISK_REGISTER.md",
+    "docs/governance/DECISION_LEDGER.md", "docs/governance/RISK_REGISTER.md",
     "docs/governance/MINIMALITY_CHALLENGE.md",
     "docs/governance/REMAINING_OWNER_BINDINGS.md",
     "docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml",
     "docs/contracts/SEMANTIC_FIELD_CONTRACT.md",
-    "docs/contracts/WORKFLOW_CONTRACT.md",
-    "docs/contracts/ACCESS_CONTROL_CONTRACT.md",
+    "docs/contracts/WORKFLOW_CONTRACT.md", "docs/contracts/ACCESS_CONTROL_CONTRACT.md",
     "docs/contracts/IMPLEMENTATION_MAPPING.yaml",
     "docs/contracts/IMPLEMENTATION_MAPPING.md",
     "docs/contracts/ENVIRONMENT_MANIFEST.md",
     "docs/contracts/PRIVACY_RETENTION_CONTRACT.md",
-    "docs/validation/TEST_MATRIX.md",
-    "docs/validation/DEFINITION_OF_DONE.md",
-    "docs/validation/POC_REGISTER.md",
-    "docs/release/RELEASE_MANIFEST.md",
-    "docs/release/ROLLBACK_RUNBOOK.md",
-    "knowledge/README.md",
+    "docs/validation/TEST_MATRIX.md", "docs/validation/DEFINITION_OF_DONE.md",
+    "docs/validation/POC_REGISTER.md", "docs/release/RELEASE_MANIFEST.md",
+    "docs/release/ROLLBACK_RUNBOOK.md", "knowledge/README.md",
     "knowledge/constructability/APPLICABILITY_OVERLAY.md",
-    "evidence/provenance/SOURCE_MANIFEST.yaml",
-    "runtime/README.md",
-    "runtime/snapshots/CURRENT_STATE.yaml",
-    "history/pre-repository/README.md",
+    "evidence/provenance/SOURCE_MANIFEST.yaml", "runtime/README.md",
+    "runtime/snapshots/CURRENT_STATE.yaml", "history/pre-repository/README.md",
+    ARCHIVE_REL,
     "schemas/semantic-field-contract.schema.json",
     "schemas/implementation-mapping.schema.json",
     "schemas/repository-manifest.schema.json",
-    "scripts/materialize_archives.py",
-    "scripts/validate_docs.py",
+    "scripts/materialize_archives.py", "scripts/validate_docs.py",
 ]
 
 
@@ -132,42 +135,64 @@ def check_mapping() -> None:
 
 
 def check_ssot_boundary() -> None:
-    agents = require("AGENTS.md")
-    runtime = require("runtime/README.md")
-    for p in [agents, runtime]:
+    for p in [require("AGENTS.md"), require("runtime/README.md")]:
         if p.exists():
-            t = p.read_text(encoding="utf-8")
-            if "SRWF_RUNTIME_STATE" not in t or "SSOT" not in t:
+            text = p.read_text(encoding="utf-8")
+            if "SRWF_RUNTIME_STATE" not in text or "SSOT" not in text:
                 fail(f"runtime SSOT boundary missing in {p.relative_to(ROOT)}")
 
 
 def check_archive() -> None:
-    history = ROOT / "history" / "pre-repository"
-    parts = sorted(history.glob("srwf_pre_repository_sources.tar.xz.b64.part*"))
-    expected_parts = 53
-    if len(parts) != expected_parts:
-        fail(f"pre-repository source archive must have {expected_parts} parts; found {len(parts)}")
+    archive = ROOT / ARCHIVE_REL
+    if not archive.is_file():
+        return
+    if archive.stat().st_size != ARCHIVE_SIZE:
+        fail(f"source archive size mismatch: {archive.stat().st_size}")
+    raw_hash = hashlib.sha256(archive.read_bytes()).hexdigest()
+    if raw_hash != ARCHIVE_SHA256:
+        fail(f"source archive SHA mismatch: {raw_hash}")
         return
     try:
-        encoded = "".join(p.read_text(encoding="ascii").strip() for p in parts)
-        raw = base64.b64decode(encoded, validate=True)
-    except Exception as exc:
-        fail(f"source archive decode failed: {exc}")
+        with tarfile.open(archive, mode="r:xz") as tf:
+            members = [m for m in tf.getmembers() if m.isfile()]
+            names = [m.name for m in members]
+            if set(names) != set(EXPECTED_SOURCES):
+                fail(f"source archive member set mismatch: {names}")
+                return
+            for member in members:
+                expected_size, expected_sha = EXPECTED_SOURCES[member.name]
+                f = tf.extractfile(member)
+                if f is None:
+                    fail(f"cannot read archive member: {member.name}")
+                    continue
+                data = f.read()
+                if len(data) != expected_size:
+                    fail(f"{member.name} size mismatch: {len(data)}")
+                actual_sha = hashlib.sha256(data).hexdigest()
+                if actual_sha != expected_sha:
+                    fail(f"{member.name} SHA mismatch: {actual_sha}")
+    except (tarfile.TarError, OSError) as exc:
+        fail(f"source archive unreadable: {exc}")
+
+
+def check_manifest_alignment() -> None:
+    p = require("evidence/provenance/SOURCE_MANIFEST.yaml")
+    if not p.exists():
         return
-    expected = "82b0201ce3920214fe2ac7b9bd7defaa8769651fbbd1168abcd0a1ba91d32ed4"
-    actual = hashlib.sha256(raw).hexdigest()
-    if actual != expected:
-        fail(f"source archive SHA mismatch: {actual}")
+    text = p.read_text(encoding="utf-8")
+    for needle in [ARCHIVE_REL, ARCHIVE_SHA256, str(ARCHIVE_SIZE)]:
+        if needle not in text:
+            fail(f"SOURCE_MANIFEST missing archive invariant: {needle}")
+    for name, (size, sha) in EXPECTED_SOURCES.items():
+        for needle in [name, str(size), sha]:
+            if needle not in text:
+                fail(f"SOURCE_MANIFEST missing source invariant for {name}: {needle}")
 
 
 def check_forbidden_repo_paths() -> None:
     forbidden_fragments = [
-        "srwf_processing_ledger",
-        "srwf_audit_ledger",
-        "paper_intake_images",
-        "/pii/",
-        "/intake/real/",
-        "/exports/real/",
+        "srwf_processing_ledger", "srwf_audit_ledger", "paper_intake_images",
+        "/pii/", "/intake/real/", "/exports/real/",
     ]
     for p in ROOT.rglob("*"):
         if not p.is_file() or ".git" in p.parts:
@@ -180,18 +205,12 @@ def check_forbidden_repo_paths() -> None:
 
 def check_active_entrypoints() -> None:
     master = require("docs/authority/MASTER.md")
-    playbook = require("docs/operations/EXECUTION_PLAYBOOK.md")
-    overlay = require("knowledge/constructability/APPLICABILITY_OVERLAY.md")
-    for p in [master, playbook, overlay]:
-        if not p.exists():
-            continue
-        text = p.read_text(encoding="utf-8")
-        if "NOT_PROVEN != PROVEN_ABSENT" in text or p == master:
-            pass
-    if master.exists() and "Gravity Forms = canonical data authority" not in master.read_text(encoding="utf-8"):
-        fail("Master missing canonical data authority invariant")
-    if master.exists() and "Gravity Flow = تنها workflow/assignment/formal Approval authority" not in master.read_text(encoding="utf-8"):
-        fail("Master missing Gravity Flow workflow authority invariant")
+    if master.exists():
+        text = master.read_text(encoding="utf-8")
+        if "Gravity Forms = canonical data authority" not in text:
+            fail("Master missing canonical data authority invariant")
+        if "Gravity Flow = تنها workflow/assignment/formal Approval authority" not in text:
+            fail("Master missing Gravity Flow workflow authority invariant")
 
 
 def main() -> int:
@@ -200,6 +219,7 @@ def main() -> int:
     check_mapping()
     check_ssot_boundary()
     check_archive()
+    check_manifest_alignment()
     check_forbidden_repo_paths()
     check_active_entrypoints()
 
