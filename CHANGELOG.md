@@ -1,27 +1,30 @@
 # Changelog
 
-همهٔ تغییرات مادی SRWF در این فایل و Git history ثبت می‌شوند. این فایل جایگزین Decision Ledger نیست.
+All material SRWF documentation/contract changes are recorded here. Runtime implementation evidence remains in `SRWF_RUNTIME_STATE` and validation artifacts; this file does not promote runtime status.
 
-## Unreleased — Repository Baseline Migration
+## Unreleased — repository baseline
 
 ### Added
-- repository governance baseline (`README.md`, `AGENTS.md`, `repository.manifest.yaml`).
-- standalone Semantic Field Contract با تفکیک `include_in_form` از `value_required`.
-- standalone workflow/access/environment/privacy/implementation contracts.
-- validation/release artifact skeletons required by Master.
-- repository integrity checks and PII guardrails.
-- classified reference knowledge/provenance layout.
+- Stable repository entrypoints: `README.md`, `AGENTS.md`, `repository.manifest.yaml`.
+- Stable active authority/playbook/governance paths.
+- Standalone machine-readable and human-readable Semantic Field Contract.
+- Workflow, access-control, environment, privacy/retention and Implementation Mapping contracts.
+- Validation/POC/DoD and release/rollback artifacts.
+- Runtime SSOT boundary and non-canonical snapshot area.
+- Byte-exact pre-repository source corpus `01..11` in `history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz` with per-source provenance hashes.
+- Repository integrity validator and GitHub Actions workflow.
 
-### Normalized
-- active internal pointers use stable repository paths instead of version-suffixed filenames.
-- corrected stale Master dashboard label from `1.8.1` to current `1.9.0` in repository materialization.
-- current Overlay path normalized to `knowledge/constructability/APPLICABILITY_OVERLAY.md`.
+### Corrected
+- Preserved `home_phone` as `include_in_form: true` while keeping `value_required: false`.
+- Preserved explicit `father_name` and `student_mobile` field requirements.
+- Repaired stale Master/Playbook/Addendum/Owner-Comprehension/Overlay pointers by using stable repository paths.
+- Normalized Product Knowledge/Constructability retrieval to provenance archive materialization instead of nonexistent `.txt.gz` or `knowledge/products/` paths.
 
-### Owner decisions included
-- `father_name` required.
-- `first_name` and `last_name` required.
-- `student_mobile` required; contact mobiles optional.
-- `home_phone` must exist in the public form but its value is optional; this supersedes the earlier ambiguous required-value interpretation.
-- finance/manual-cheque fields current-release optional, non-public, Registration-Officer-only.
-- scanner path deferred; seven Sayad outputs hidden/future-reserved.
-- SRWF repository becomes canonical documentation/contracts home after baseline merge; `SRWF_RUNTIME_STATE` remains live operational-state SSOT.
+### Validation note
+- GitHub Actions runs were observed failing before runner allocation (`runner_id=0`, no steps executed); this is classified as CI infrastructure unavailable, not validator failure.
+- Repository-baseline acceptance therefore uses the documented manual-equivalent integrity fallback: complete tree/read-back, exact uploaded archive Git blob identity matched to locally SHA/member-verified archive, contract invariant checks, Mapping/SSOT checks, stale-pointer audit, and PII/operational-ledger path audit.
+- This validation concerns documentation/repository integrity only. It does not promote `V-01..V-06`, staging behavior, production readiness, or any runtime POC.
+
+## Pre-repository history
+
+Earlier version-suffixed source documents are retained byte-exact in the provenance archive and Git history. They are historical/reference sources unless the current repository authority chain makes them applicable.
