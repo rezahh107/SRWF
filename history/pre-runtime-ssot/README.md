@@ -1,25 +1,32 @@
 # Pre-cutover Runtime State Archive
 
-This directory preserves the exact Google Sheets runtime-state workbook used before GitHub became the single SRWF project/runtime SSOT.
+This directory preserves the complete Google Sheets runtime state used before GitHub became the single SRWF project/runtime SSOT.
 
-- Source: `SRWF_RUNTIME_STATE`
-- Archived file: `SRWF_RUNTIME_STATE_PRE_CUTOVER.xlsx`
-- Archived size: `57603` bytes
-- SHA-256: `a8cc87682ab8a1ac884f1589bcef9aac4bc9e327f60237c444478facb6dfb594`
-- Pre-cutover Decision History events: `72`
-- Searchable compact index: `DECISION_HISTORY_INDEX.json`
-- Cutover decision: `OWNER-20260907-REPOSITORY-RUNTIME-SSOT`
+## What is preserved
 
-## Authority
+- `CURRENT_STATE_PRE_CUTOVER.yaml` — normalized exact pre-cutover Current State values/notes.
+- Nine immutable Decision History chunks covering event sequence `1..72` with no gaps.
+- `DECISION_HISTORY_INDEX.json` — compact lookup by event sequence / ID / status.
+- `MIGRATION_MANIFEST.json` — source identity, coverage, file sizes and SHA-256 hashes.
 
-This archive is **historical provenance only** after cutover.
+The nine history chunks are:
 
-Current execution state:
-`runtime/CURRENT_STATE.yaml`
+- `DECISION_HISTORY_000001_000008.jsonl`
+- `DECISION_HISTORY_000009_000016.jsonl`
+- `DECISION_HISTORY_000017_000024.jsonl`
+- `DECISION_HISTORY_000025_000032.jsonl`
+- `DECISION_HISTORY_000033_000040.jsonl`
+- `DECISION_HISTORY_000041_000048.jsonl`
+- `DECISION_HISTORY_000049_000056.jsonl`
+- `DECISION_HISTORY_000057_000064.jsonl`
+- `DECISION_HISTORY_000065_000072.jsonl`
 
-Repository-native append-only history starts at event `73`:
-`runtime/DECISION_HISTORY.jsonl`
+## Authority after cutover
 
-The compact index intentionally contains only sequence/date/ID/status. Exact pre-cutover row content remains in the archived workbook and durable accepted decisions remain in `docs/governance/DECISION_LEDGER.md`.
+These files are historical provenance only. Do not update them after cutover and do not treat them as a parallel state store.
 
-Do not update this archive after cutover. Do not treat it as a parallel SSOT.
+Current execution state: `runtime/CURRENT_STATE.yaml`
+
+Repository-native append-only history starts at event `73`: `runtime/DECISION_HISTORY.jsonl`
+
+Cutover decision: `OWNER-20260907-REPOSITORY-RUNTIME-SSOT`.
