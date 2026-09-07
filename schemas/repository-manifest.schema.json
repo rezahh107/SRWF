@@ -3,13 +3,26 @@
   "$id": "https://srwf.local/schemas/repository-manifest.schema.json",
   "title": "SRWF Repository Manifest logical schema",
   "type": "object",
-  "required": ["repository", "acceptance", "external_runtime_state", "architecture", "active_documents", "contracts", "validation", "release", "security", "integrity"],
+  "required": ["repository", "acceptance", "runtime_state", "architecture", "active_documents", "contracts", "validation", "release", "security", "integrity"],
   "properties": {
     "repository": {"type": "object"},
     "acceptance": {"type": "object"},
-    "external_runtime_state": {"type": "object"},
+    "runtime_state": {
+      "type": "object",
+      "required": ["provider", "role", "repository", "branch", "current_state", "decision_history"],
+      "properties": {
+        "provider": {"const": "GitHub"},
+        "role": {"const": "LIVE_OPERATIONAL_STATE_SSOT"},
+        "repository": {"const": "rezahh107/SRWF"},
+        "branch": {"const": "main"},
+        "current_state": {"const": "runtime/CURRENT_STATE.yaml"},
+        "decision_history": {"const": "runtime/DECISION_HISTORY.jsonl"}
+      },
+      "additionalProperties": true
+    },
     "architecture": {"type": "object"},
-    "security": {"type": "object"}
+    "security": {"type": "object"},
+    "integrity": {"type": "object"}
   },
   "additionalProperties": true
 }
