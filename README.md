@@ -10,22 +10,32 @@ SRWF سامانهٔ ثبت‌نام دانش‌آموز و گردش‌کار ب�
 - **GravityView** فقط presentation اختیاری پس از اثبات gap است.
 - Elementor baseline عملیاتی نیست.
 
-## مرز وضعیت اجرایی
+## Project SSOT
 
-Repository خانهٔ **canonical durable documentation/contracts** است. وضعیت اجرایی زنده—Stage، Gate، current decision/candidate، آخرین نتیجه، blocker و next action—فقط از Google Sheet `SRWF_RUNTIME_STATE` خوانده می‌شود.
+`main` در همین repository تنها SSOT پروژه است؛ هم اسناد/قراردادهای durable و هم وضعیت اجرایی جاری.
 
-بنابراین این README عمداً current Stage یا next action پویا را تکرار نمی‌کند؛ این کار از ایجاد snapshot قدیمی و drift جلوگیری می‌کند. فایل‌های `runtime/snapshots/` نیز `NON_CANONICAL` هستند.
+- وضعیت فعلی: [`runtime/CURRENT_STATE.yaml`](runtime/CURRENT_STATE.yaml)
+- تاریخچهٔ material از cutover به بعد: [`runtime/DECISION_HISTORY.jsonl`](runtime/DECISION_HISTORY.jsonl)
+- تاریخچهٔ قبل از cutover: [`history/pre-runtime-ssot/`](history/pre-runtime-ssot/)
 
-Repository documentation baseline: `ACCEPTED_CURRENT` پس از merge/read-back اولیه روی `main`.
+Google Sheet قدیمی `SRWF_RUNTIME_STATE` بعد از cutover فقط `DEPRECATED_READ_ONLY_MIGRATION_SOURCE` است و برای state جدید update نمی‌شود.
+
+این README عمداً Stage/next action پویا را کپی نمی‌کند؛ برای وضعیت واقعی همیشه `runtime/CURRENT_STATE.yaml` را بخوان.
+
+Repository baseline: `ACCEPTED_CURRENT`.
 
 ## Read order
+
+برای ادامهٔ یک session:
 
 1. [`repository.manifest.yaml`](repository.manifest.yaml)
 2. [`AGENTS.md`](AGENTS.md) برای agentها / [`docs/INDEX.md`](docs/INDEX.md) برای انسان
 3. [`docs/authority/MASTER.md`](docs/authority/MASTER.md)
-4. [`docs/operations/EXECUTION_PLAYBOOK.md`](docs/operations/EXECUTION_PLAYBOOK.md)
-5. contract مرتبط زیر [`docs/contracts/`](docs/contracts/)
-6. فقط در صورت نیاز: [`knowledge/`](knowledge/) و [`evidence/`](evidence/)
+4. [`runtime/CURRENT_STATE.yaml`](runtime/CURRENT_STATE.yaml)
+5. آخرین eventهای مرتبط در [`runtime/DECISION_HISTORY.jsonl`](runtime/DECISION_HISTORY.jsonl)
+6. [`docs/operations/EXECUTION_PLAYBOOK.md`](docs/operations/EXECUTION_PLAYBOOK.md)
+7. contract مرتبط زیر [`docs/contracts/`](docs/contracts/)
+8. فقط در صورت نیاز: [`knowledge/`](knowledge/) و [`evidence/`](evidence/)
 
 ## قراردادهای کلیدی
 
@@ -39,9 +49,11 @@ Repository documentation baseline: `ACCEPTED_CURRENT` پس از merge/read-back 
 
 ## Provenance
 
-Exact pre-repository source corpus `01..11` در `history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz` نگهداری می‌شود. `evidence/provenance/SOURCE_MANIFEST.yaml` size/SHA-256 archive و هر source را ثبت می‌کند. برای retrieval محلی از `python scripts/materialize_archives.py` استفاده کن.
+Exact pre-repository source corpus `01..11` در `history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz` نگهداری می‌شود. `evidence/provenance/SOURCE_MANIFEST.yaml` size/SHA-256 archive و هر source را ثبت می‌کند.
 
-وجود archive یا hash صحیح = runtime proof نیست؛ archive فقط provenance/reference است.
+Pre-cutover runtime state و تمام ۷۲ رویداد قدیمی Sheet به‌صورت readable immutable files زیر `history/pre-runtime-ssot/` حفظ شده‌اند و `MIGRATION_MANIFEST.json` coverage/hash آن‌ها را ثبت می‌کند.
+
+وجود archive یا hash صحیح = runtime proof نیست؛ provenance فقط evidence تاریخی است.
 
 ## وضعیت‌ها را قاطی نکن
 
@@ -54,11 +66,12 @@ Exact pre-repository source corpus `01..11` در `history/pre-repository/SRWF_PR
 هر تغییر مادی باید:
 
 1. authority/Owner decision لازم را داشته باشد؛
-2. contract مربوط را update کند؛
-3. در [`docs/governance/DECISION_LEDGER.md`](docs/governance/DECISION_LEDGER.md) ثبت شود؛
-4. تست/POC مرتبط را update کند؛
-5. در `CHANGELOG.md` ثبت شود؛
-6. integrity checks را پاس کند یا، اگر CI infrastructure واقعاً اجرا نمی‌شود، همان checkها با manual equivalent evidence انجام و صریحاً ثبت شوند.
+2. contract/artifact مربوط را در صورت نیاز update کند؛
+3. `runtime/CURRENT_STATE.yaml` را update کند؛
+4. یک event جدید به `runtime/DECISION_HISTORY.jsonl` append کند؛
+5. state/history در یک accepted Git commit ثبت شوند و از `main` read-back شوند؛
+6. برای code/contract/documentation تغییرات branch + PR استفاده شود؛
+7. integrity checks را پاس کند یا، اگر CI infrastructure واقعاً اجرا نمی‌شود، همان checkها با manual equivalent evidence انجام و صریحاً ثبت شوند.
 
 ## امنیت داده
 
