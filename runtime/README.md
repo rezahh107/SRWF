@@ -5,11 +5,18 @@
 `main` in `rezahh107/SRWF` is the single project/runtime SSOT.
 
 - Current execution position: `runtime/CURRENT_STATE.yaml`
-- Append-only material history: `runtime/DECISION_HISTORY.jsonl`
+- Append-only repository-era material history: `runtime/DECISION_HISTORY.jsonl`
 - Durable business/governance decisions: `docs/governance/DECISION_LEDGER.md`
-- Historical pre-cutover Google Sheet: `history/pre-runtime-ssot/SRWF_RUNTIME_STATE_PRE_CUTOVER.xlsx`
+- Complete pre-cutover history: `history/pre-runtime-ssot/`
 
-The Google Sheet is a **DEPRECATED_READ_ONLY_MIGRATION_SOURCE** after cutover. Never update both stores.
+The Google Sheet `SRWF_RUNTIME_STATE` is a **DEPRECATED_READ_ONLY_MIGRATION_SOURCE** after cutover. Never update both stores.
+
+Pre-cutover Sheet data is preserved as readable immutable text:
+
+- `history/pre-runtime-ssot/CURRENT_STATE_PRE_CUTOVER.yaml`
+- `history/pre-runtime-ssot/DECISION_HISTORY_000001_000008.jsonl` through `DECISION_HISTORY_000065_000072.jsonl`
+- `history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json`
+- `history/pre-runtime-ssot/MIGRATION_MANIFEST.json`
 
 ## Session boot
 
@@ -23,6 +30,8 @@ For any progress-dependent task or `ادامه`:
 6. read only the contract/evidence needed for the current unit
 
 Do not rely on chat memory when the repository is available.
+
+If older context is needed, use `history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json` to locate the immutable pre-cutover chunk and read only that chunk.
 
 ## Material state write protocol
 
@@ -39,17 +48,18 @@ For each material change:
 7. read them back from `main`
 8. only then claim persistence
 
-Runtime-only state/history commits may go directly to `main` when repository policy permits. Code, contract, architecture, or documentation changes use branch + PR; after merge/read-back, record the resulting runtime event.
+Runtime-only state/history changes may be committed directly to `main` when repository policy permits. Code, contract, architecture, or durable documentation changes use branch + PR; after merge/read-back, record the resulting runtime event.
 
 If concurrent state changed since the initial read, stop and re-read. Never force-overwrite newer runtime state.
 
 ## Integrity
 
-- `DECISION_HISTORY.jsonl` is append-only.
+- `runtime/DECISION_HISTORY.jsonl` is append-only after cutover.
 - `event_seq` is contiguous and strictly increasing.
-- `CURRENT_STATE.history.last_event_seq` must equal the final JSONL event.
-- `CURRENT_STATE.history.last_event_id` must equal the final JSONL `decision_id`.
+- `CURRENT_STATE.history.last_event_seq` must equal the final active JSONL event.
+- `CURRENT_STATE.history.last_event_id` must equal the final active JSONL `decision_id`.
 - `state_version` increases on every accepted material runtime-state commit.
+- Pre-cutover events `1..72` are immutable and covered by `MIGRATION_MANIFEST.json`.
 - `plan != implementation != validation`.
 - `NOT_PROVEN != PROVEN_ABSENT`.
 
