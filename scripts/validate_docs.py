@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SRWF repository structural, contract, runtime-state and provenance integrity guard."""
+"""SRWF repository structural, contract, runtime-state, provenance and package integrity guard."""
 from __future__ import annotations
 
 import hashlib
@@ -28,15 +28,8 @@ EXPECTED_SOURCES = {
     "11_SRWF_CONSTRUCTABILITY_APPLICABILITY_OVERLAY_v1.0.1.md": (6346, "755f3aeeaf4dcd0314efe721184a59b8b1b2b6b931a12f4f5cbaee82d20332fd"),
 }
 RUNTIME_CHUNKS = [
-    "history/pre-runtime-ssot/DECISION_HISTORY_000001_000008.jsonl",
-    "history/pre-runtime-ssot/DECISION_HISTORY_000009_000016.jsonl",
-    "history/pre-runtime-ssot/DECISION_HISTORY_000017_000024.jsonl",
-    "history/pre-runtime-ssot/DECISION_HISTORY_000025_000032.jsonl",
-    "history/pre-runtime-ssot/DECISION_HISTORY_000033_000040.jsonl",
-    "history/pre-runtime-ssot/DECISION_HISTORY_000041_000048.jsonl",
-    "history/pre-runtime-ssot/DECISION_HISTORY_000049_000056.jsonl",
-    "history/pre-runtime-ssot/DECISION_HISTORY_000057_000064.jsonl",
-    "history/pre-runtime-ssot/DECISION_HISTORY_000065_000072.jsonl",
+    f"history/pre-runtime-ssot/DECISION_HISTORY_{start:06d}_{start+7:06d}.jsonl"
+    for start in range(1, 73, 8)
 ]
 REQUIRED = [
     "README.md", "AGENTS.md", "repository.manifest.yaml", "CHANGELOG.md", "CONTRIBUTING.md", ".gitignore",
@@ -58,6 +51,9 @@ REQUIRED = [
     "history/pre-repository/README.md", ARCHIVE_REL, "schemas/semantic-field-contract.schema.json",
     "schemas/implementation-mapping.schema.json", "schemas/repository-manifest.schema.json",
     "scripts/materialize_archives.py", "scripts/validate_docs.py",
+    "bundle/VERSION", "bundle/project-package.json", "bundle/00_README.md", "bundle/02_PROJECT_INSTRUCTIONS.md",
+    "bundle/03_INSTALLATION_AND_BOOT.md", "bundle/04_PACKAGE_CHANGELOG.md", "scripts/build_project_bundle.py",
+    ".github/workflows/project-bundle.yml",
 ]
 
 
@@ -74,6 +70,30 @@ def require(path: str) -> Path:
 
 def sha256_file(p: Path) -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest()
+
+
+def parse_jsonl(path: Path) -> list[dict]:
+    events: list[dict] = []
+    if not path.exists():
+        return events
+    for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        if not line.strip():
+            continue
+        try:
+            value = json.loads(line)
+        except json.JSONDecodeError as exc:
+            fail(f"invalid JSONL {path.relative_to(ROOT)}:{lineno}: {exc}")
+            continue
+        if not isinstance(value, dict):
+            fail(f"JSONL event is not object: {path.relative_to(ROOT)}:{lineno}")
+            continue
+        events.append(value)
+    return events
+
+
+def yaml_scalar(text: str, key: str) -> str | None:
+    m = re.search(rf"(?m)^\s*{re.escape(key)}:\s*['\"]?([^'\"\n]+)", text)
+    return m.group(1).strip() if m else None
 
 
 def check_required() -> None:
@@ -98,7 +118,8 @@ def field_blocks(text: str) -> dict[str, str]:
 
 def check_sfc() -> None:
     p = require("docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml")
-    if not p.exists(): return
+    if not p.exists():
+        return
     text = p.read_text(encoding="utf-8")
     if "include_in_form" not in text or "value_required" not in text:
         fail("SFC must distinguish include_in_form and value_required")
@@ -127,7 +148,8 @@ def check_sfc() -> None:
 
 def check_mapping() -> None:
     p = require("docs/contracts/IMPLEMENTATION_MAPPING.yaml")
-    if not p.exists(): return
+    if not p.exists():
+        return
     text = p.read_text(encoding="utf-8")
     if "status: UNBOUND" in text:
         for key, value in re.findall(r"(?m)^\s*(form_id|field_id|step_id|route_or_page_id):\s*([^\s#]+)", text):
@@ -135,48 +157,35 @@ def check_mapping() -> None:
                 fail(f"unbound Implementation Mapping contains non-null {key}={value}")
 
 
-def parse_jsonl(path: Path) -> list[dict]:
-    events: list[dict] = []
-    if not path.exists(): return events
-    for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-        if not line.strip(): continue
-        try:
-            value = json.loads(line)
-        except json.JSONDecodeError as exc:
-            fail(f"invalid JSONL {path.relative_to(ROOT)}:{lineno}: {exc}")
-            continue
-        if not isinstance(value, dict):
-            fail(f"JSONL event is not object: {path.relative_to(ROOT)}:{lineno}")
-            continue
-        events.append(value)
-    return events
-
-
 def check_runtime_ssot() -> None:
     current = require("runtime/CURRENT_STATE.yaml")
     active_history = require("runtime/DECISION_HISTORY.jsonl")
     manifest_path = require("history/pre-runtime-ssot/MIGRATION_MANIFEST.json")
     index_path = require("history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json")
-    if not all(p.exists() for p in [current, active_history, manifest_path, index_path]): return
+    if not all(p.exists() for p in [current, active_history, manifest_path, index_path]):
+        return
 
     current_text = current.read_text(encoding="utf-8")
-    for needle in [
-        "provider: GitHub", "repository: rezahh107/SRWF", "branch: main",
-        "runtime_ssot_status: ACTIVE_ON_MAIN_AFTER_CUTOVER_MERGE_READBACK",
-        "last_event_seq: 73", "last_event_id: OBS-20260907-REPOSITORY-RUNTIME-SSOT-CUTOVER",
-    ]:
+    for needle in ["provider: GitHub", "repository: rezahh107/SRWF", "branch: main"]:
         if needle not in current_text:
             fail(f"CURRENT_STATE missing runtime SSOT invariant: {needle}")
+    status = yaml_scalar(current_text, "runtime_ssot_status")
+    if not status or not status.startswith("ACTIVE_ON_MAIN"):
+        fail(f"CURRENT_STATE runtime_ssot_status must be ACTIVE_ON_MAIN*: {status}")
 
     events = parse_jsonl(active_history)
     if not events:
         fail("active runtime DECISION_HISTORY is empty")
     else:
         seqs = [e.get("event_seq") for e in events]
-        if seqs != list(range(73, 73 + len(events))):
+        if seqs[0] != 73 or seqs != list(range(73, 73 + len(events))):
             fail(f"active runtime event_seq not contiguous from 73: {seqs}")
-        if events[-1].get("decision_id") != "OBS-20260907-REPOSITORY-RUNTIME-SSOT-CUTOVER":
-            fail("CURRENT_STATE last_event_id does not match active history tail")
+        last_seq = yaml_scalar(current_text, "last_event_seq")
+        last_id = yaml_scalar(current_text, "last_event_id")
+        if last_seq is None or int(last_seq) != seqs[-1]:
+            fail(f"CURRENT_STATE last_event_seq does not match active history tail: {last_seq} vs {seqs[-1]}")
+        if last_id != events[-1].get("decision_id"):
+            fail(f"CURRENT_STATE last_event_id does not match active history tail: {last_id} vs {events[-1].get('decision_id')}")
 
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -184,7 +193,6 @@ def check_runtime_ssot() -> None:
     except json.JSONDecodeError as exc:
         fail(f"runtime migration JSON invalid: {exc}")
         return
-
     if manifest.get("pre_cutover_event_count") != 72:
         fail("migration manifest pre_cutover_event_count must be 72")
     if manifest.get("archive_strategy") != "TEXT_NATIVE_NORMALIZED_ARCHIVE":
@@ -205,26 +213,26 @@ def check_runtime_ssot() -> None:
     for meta in chunk_meta:
         rel = meta.get("path")
         p = require(rel) if isinstance(rel, str) else None
-        if p is None or not p.exists(): continue
+        if p is None or not p.exists():
+            continue
         if p.stat().st_size != meta.get("size"):
             fail(f"runtime migration chunk size mismatch: {rel}")
         if sha256_file(p) != meta.get("sha256"):
             fail(f"runtime migration chunk SHA mismatch: {rel}")
         chunk_events = parse_jsonl(p)
         all_pre_events.extend(chunk_events)
-        if chunk_events:
-            if chunk_events[0].get("event_seq") != meta.get("first_event_seq") or chunk_events[-1].get("event_seq") != meta.get("last_event_seq"):
-                fail(f"runtime migration chunk sequence boundary mismatch: {rel}")
-    pre_seqs = [e.get("event_seq") for e in all_pre_events]
-    if pre_seqs != list(range(1, 73)):
+        if chunk_events and (chunk_events[0].get("event_seq") != meta.get("first_event_seq") or chunk_events[-1].get("event_seq") != meta.get("last_event_seq")):
+            fail(f"runtime migration chunk sequence boundary mismatch: {rel}")
+    if [e.get("event_seq") for e in all_pre_events] != list(range(1, 73)):
         fail("pre-cutover runtime history is not exactly contiguous event_seq 1..72")
 
     active_paths = [
         "README.md", "AGENTS.md", "repository.manifest.yaml", "docs/INDEX.md",
         "docs/authority/MASTER.md", "docs/operations/EXECUTION_PLAYBOOK.md",
         "docs/governance/DECISION_LEDGER.md", "runtime/README.md", "runtime/CURRENT_STATE.yaml",
+        "bundle/02_PROJECT_INSTRUCTIONS.md",
     ]
-    stale_live_sheet_phrases = [
+    stale = [
         "Google Sheet `SRWF_RUNTIME_STATE` remains the live operational-state SSOT",
         "Google Sheet `SRWF_RUNTIME_STATE` SSOT وضعیت اجرایی زنده است",
         "External operational state store: Google Sheet `SRWF_RUNTIME_STATE`",
@@ -233,16 +241,18 @@ def check_runtime_ssot() -> None:
     ]
     for rel in active_paths:
         p = require(rel)
-        if not p.exists(): continue
+        if not p.exists():
+            continue
         text = p.read_text(encoding="utf-8")
-        for phrase in stale_live_sheet_phrases:
+        for phrase in stale:
             if phrase in text:
                 fail(f"stale live-Sheet pointer in active file {rel}: {phrase}")
 
 
 def check_archive() -> None:
     archive = ROOT / ARCHIVE_REL
-    if not archive.is_file(): return
+    if not archive.is_file():
+        return
     if archive.stat().st_size != ARCHIVE_SIZE:
         fail(f"source archive size mismatch: {archive.stat().st_size}")
         return
@@ -266,30 +276,58 @@ def check_archive() -> None:
                 data = f.read()
                 if len(data) != expected_size:
                     fail(f"{member.name} size mismatch: {len(data)}")
-                member_sha = hashlib.sha256(data).hexdigest()
-                if member_sha != expected_sha:
-                    fail(f"{member.name} SHA mismatch: {member_sha}")
+                if hashlib.sha256(data).hexdigest() != expected_sha:
+                    fail(f"{member.name} SHA mismatch")
     except (tarfile.TarError, OSError) as exc:
         fail(f"source archive unreadable: {exc}")
 
 
-def check_manifest() -> None:
+def check_source_manifest() -> None:
     p = require("evidence/provenance/SOURCE_MANIFEST.yaml")
-    if not p.exists(): return
+    if not p.exists():
+        return
     text = p.read_text(encoding="utf-8")
     for needle in [ARCHIVE_REL, ARCHIVE_SHA256, str(ARCHIVE_SIZE)]:
         if needle not in text:
             fail(f"SOURCE_MANIFEST missing archive invariant: {needle}")
-    for name, (size, sha) in EXPECTED_SOURCES.items():
-        for needle in [name, str(size), sha]:
+    for name, (size, digest) in EXPECTED_SOURCES.items():
+        for needle in [name, str(size), digest]:
             if needle not in text:
                 fail(f"SOURCE_MANIFEST missing source invariant for {name}: {needle}")
+
+
+def check_package_contract() -> None:
+    cfg_path = require("bundle/project-package.json")
+    inst_path = require("bundle/02_PROJECT_INSTRUCTIONS.md")
+    version_path = require("bundle/VERSION")
+    if not all(p.exists() for p in [cfg_path, inst_path, version_path]):
+        return
+    try:
+        cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        fail(f"invalid bundle/project-package.json: {exc}")
+        return
+    if version_path.read_text(encoding="utf-8").strip() != "1.1.0":
+        fail("bundle version must be 1.1.0")
+    if cfg.get("builder_profile") != "BUNDLE_PACKAGE_MAKER_5_COMPATIBILITY":
+        fail("bundle builder profile mismatch")
+    if cfg.get("formal_package_maker_5_spec_status") != "NOT_RETRIEVED":
+        fail("formal Package Maker 5 qualification must remain truthful")
+    if cfg.get("authority_rule") != "WHEN_REPOSITORY_AVAILABLE_GITHUB_MAIN_WINS":
+        fail("bundle authority rule must keep GitHub main as live SSOT")
+    instructions = inst_path.read_text(encoding="utf-8")
+    if len(instructions) > 8000:
+        fail(f"bundle Project Instructions exceed 8000 chars: {len(instructions)}")
+    for needle in ["runtime/CURRENT_STATE.yaml", "STATE_NOT_PERSISTED", "DEPRECATED_READ_ONLY_MIGRATION_SOURCE"]:
+        if needle not in instructions:
+            fail(f"bundle Project Instructions missing: {needle}")
 
 
 def check_forbidden() -> None:
     fragments = ["srwf_processing_ledger", "srwf_audit_ledger", "paper_intake_images", "/pii/", "/intake/real/", "/exports/real/"]
     for p in ROOT.rglob("*"):
-        if not p.is_file() or ".git" in p.parts: continue
+        if not p.is_file() or ".git" in p.parts:
+            continue
         rel = "/" + str(p.relative_to(ROOT)).lower().replace("\\", "/")
         for fragment in fragments:
             if fragment in rel:
@@ -298,7 +336,8 @@ def check_forbidden() -> None:
 
 def check_master() -> None:
     p = require("docs/authority/MASTER.md")
-    if not p.exists(): return
+    if not p.exists():
+        return
     text = p.read_text(encoding="utf-8")
     if "Gravity Forms = canonical data authority" not in text:
         fail("Master missing canonical data authority invariant")
@@ -310,7 +349,8 @@ def check_stale_pointers() -> None:
     stale = ["srwf_pre_repository_sources.tar.gz.b64", "CONSTRUCTABILITY_RUNTIME_KNOWLEDGE.txt.gz"]
     for path in ["README.md", "AGENTS.md", "docs/authority/MASTER.md", "repository.manifest.yaml", "history/pre-repository/README.md"]:
         p = require(path)
-        if not p.exists(): continue
+        if not p.exists():
+            continue
         text = p.read_text(encoding="utf-8")
         for needle in stale:
             if needle in text:
@@ -318,10 +358,20 @@ def check_stale_pointers() -> None:
 
 
 def main() -> int:
-    check_required(); check_sfc(); check_mapping(); check_runtime_ssot(); check_archive(); check_manifest(); check_forbidden(); check_master(); check_stale_pointers()
+    check_required()
+    check_sfc()
+    check_mapping()
+    check_runtime_ssot()
+    check_archive()
+    check_source_manifest()
+    check_package_contract()
+    check_forbidden()
+    check_master()
+    check_stale_pointers()
     if ERRORS:
         print("SRWF repository integrity: FAIL")
-        for error in ERRORS: print(f"- {error}")
+        for error in ERRORS:
+            print(f"- {error}")
         return 1
     print("SRWF repository integrity: PASS")
     return 0

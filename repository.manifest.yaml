@@ -78,6 +78,20 @@ provenance:
   pre_runtime_ssot_history: history/pre-runtime-ssot/README.md
   runtime_migration_manifest: history/pre-runtime-ssot/MIGRATION_MANIFEST.json
 
+portable_project_package:
+  package_name: SRWF_GPT_Project_Package
+  version: 1.1.0
+  version_source: bundle/VERSION
+  profile: BUNDLE_PACKAGE_MAKER_5_COMPATIBILITY
+  formal_package_maker_5_spec_status: NOT_RETRIEVED
+  config: bundle/project-package.json
+  instructions: bundle/02_PROJECT_INSTRUCTIONS.md
+  builder: scripts/build_project_bundle.py
+  workflow: .github/workflows/project-bundle.yml
+  output: dist/SRWF_GPT_Project_Package_v1.1.0.zip
+  authority: PORTABLE_SNAPSHOT_NON_CANONICAL_WHEN_REPOSITORY_AVAILABLE
+  live_state_rule: GITHUB_MAIN_WINS
+
 security:
   real_pii_in_git: FORBIDDEN
   real_intake_images_in_git: FORBIDDEN
@@ -88,7 +102,8 @@ security:
 integrity:
   validator: scripts/validate_docs.py
   workflow: .github/workflows/docs-integrity.yml
-  github_actions_runtime_status: PRE_RUN_INFRA_UNAVAILABLE_OBSERVED
+  github_actions_runtime_status: OPERATIONAL_PASS_OBSERVED
+  github_actions_last_confirmed_pass_run: 34160923750
   manual_equivalent_validation_allowed_when_ci_infrastructure_unavailable: true
   runtime_state_write_rule: CURRENT_STATE_AND_DECISION_HISTORY_SAME_ACCEPTED_COMMIT_THEN_MAIN_READBACK
   required_root_files:
@@ -103,5 +118,6 @@ notes:
   - Active repository paths are stable; versions live in document metadata and Git history rather than version-suffixed active filenames.
   - The pre-repository source corpus is preserved byte-exact in the provenance archive; source presence/hash integrity is not runtime proof.
   - Large Product Knowledge and Constructability sources are archived reference evidence; they do not become architecture authority.
-  - Current execution progress is read from runtime/CURRENT_STATE.yaml, never inferred from README, chat memory, or the deprecated Google Sheet.
+  - Current execution progress is read from runtime/CURRENT_STATE.yaml, never inferred from README, chat memory, the deprecated Google Sheet, or a portable package snapshot.
   - Pre-cutover Google Sheet history is immutable provenance only; never dual-write it after cutover.
+  - A portable project package is a compiled consumption artifact. It cannot supersede repository main or persist new runtime state.
