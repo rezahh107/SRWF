@@ -1,0 +1,30 @@
+name: SRWF Documentation Integrity
+
+on:
+  pull_request:
+    paths:
+      - '**/*.md'
+      - '**/*.yaml'
+      - '**/*.yml'
+      - '**/*.json'
+      - 'history/pre-repository/**'
+      - 'scripts/**'
+      - '.github/workflows/docs-integrity.yml'
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate SRWF documentation contracts
+        run: python scripts/validate_docs.py
