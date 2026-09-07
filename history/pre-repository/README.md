@@ -6,7 +6,7 @@
 
 فایل canonical provenance archive:
 
-`srwf_pre_repository_sources.tar.xz`
+`SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz`
 
 ویژگی‌های مورد انتظار:
 
