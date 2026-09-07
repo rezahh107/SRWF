@@ -1,21 +1,20 @@
 ## SRWF change classification
-
-- [ ] Authority / architecture
-- [ ] Semantic/business contract
-- [ ] Implementation mapping
+- [ ] Architecture / Lock
+- [ ] Semantic contract
+- [ ] Implementation Mapping / runtime binding
 - [ ] Validation / POC evidence
-- [ ] Documentation-only / pointer repair
-- [ ] Reference knowledge / provenance
+- [ ] Documentation / provenance only
 
-## Integrity checks
+## Required integrity
+- [ ] Current authority and affected contract were read before editing.
+- [ ] `plan != implementation != validation` has been preserved.
+- [ ] `NOT_PROVEN != PROVEN_ABSENT` has been preserved.
+- [ ] No real PII, intake images, credentials, DB dumps or operational data ledgers were added.
+- [ ] `README.md`, `AGENTS.md`, manifests and active pointers still resolve to real repository paths.
+- [ ] If Semantic Field Contract changed, `include_in_form` and `value_required` were reviewed independently.
+- [ ] If Implementation Mapping changed, IDs came from actual runtime read-back and were not invented.
+- [ ] Provenance archive/member hashes remain valid when source corpus changed.
+- [ ] `scripts/validate_docs.py` passed, or CI infrastructure was explicitly proven unavailable and equivalent manual validation evidence was recorded.
 
-- [ ] I read `AGENTS.md` and the relevant current authority/contract.
-- [ ] I did not infer implementation/runtime validation from documentation or source presence.
-- [ ] Any material Owner decision has a durable decision record.
-- [ ] Contract changes update the relevant validation evidence/gap state.
-- [ ] No real PII, intake images, operational ledgers, credentials, or real exports are included.
-- [ ] `python scripts/validate_docs.py` passes.
-
-## State semantics
-
-State the exact result using project status terms (`SELECTED`, `IMPLEMENTED`, `VALIDATED`, `NOT_PROVEN`, `BLOCKED`, etc.). Do not use `done` as a substitute for evidence.
+## Acceptance boundary
+A feature branch/PR is not Accepted Current. Acceptance requires merge to `main` and post-merge read-back.
