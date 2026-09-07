@@ -1,0 +1,20 @@
+snapshot:
+  authority: NON_CANONICAL
+  source: Google Sheet SRWF_RUNTIME_STATE / CURRENT_STATE
+  captured_at: 2026-09-07T21:46:00+04:00
+  warning: "Read live Sheet for current progress; this file is review/provenance only."
+
+current_stage: STAGE_0_IN_PROGRESS
+current_gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_CLOSED
+current_decision: OWNER_REPO_CANONICAL_DOCUMENTATION_CORPUS
+current_candidate: REPO_DOCUMENTATION_BASELINE_NEXT
+last_observed_result: DOC_CORPUS_REVIEW_FOUND_POINTER_DRIFT_AND_STANDALONE_CONTRACT_GAP
+open_blocker:
+  - Privacy/retention OPEN; blocks real PII, not synthetic scaffold/migration.
+  - Environment inventory PARTIAL but Owner-authorized for progression.
+next_action: "Complete and Owner-review/migrate SRWF repository documentation baseline before resuming authoritative scaffold."
+notes:
+  - home_phone must exist in public form but value is optional.
+  - father_name and student_mobile omissions were summary defects; underlying Owner decisions are explicit.
+  - Scanner current release deferred; seven Sayad fields hidden/future-reserved.
+  - finance/manual-cheque fields current release optional/non-public/Registration-Officer-only.
