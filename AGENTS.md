@@ -30,7 +30,7 @@
 6. knowledge files فقط برای capability/composition decision؛ ابتدا normalized/constructability سپس deep product source
 7. evidence/history فقط برای provenance، contradiction، audit یا migration
 
-`knowledge/constructability/CONSTRUCTABILITY_RUNTIME_KNOWLEDGE.txt.gz` را بدون `knowledge/constructability/APPLICABILITY_OVERLAY.md` تفسیر نکن.
+برای تفسیر pre-repository source `04_SRWF_CONSTRUCTABILITY_RUNTIME_KNOWLEDGE.txt` از archive provenance، ابتدا `knowledge/constructability/APPLICABILITY_OVERLAY.md` را بخوان. snapshot project-state داخل source `04` به‌خودی‌خود current نیست.
 
 ## 3) Architecture invariants
 
