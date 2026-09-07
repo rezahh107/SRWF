@@ -1,5 +1,5 @@
 schema_version: 1
-state_version: 7
+state_version: 8
 updated_at: '2026-09-08'
 ssot:
   provider: GitHub
@@ -16,9 +16,9 @@ ssot:
 current:
   stage: STAGE_0_IN_PROGRESS
   gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_AMENDMENT_IN_PROGRESS
-  decision: OWNER-20260908-DISCOUNT-CODE-CATALOG-41-SEPARATE-FINANCE
+  decision: OWNER-20260908-DISCOUNT-CODE-CATALOG-NAME-CODE-ONLY
   candidate: LEGACY_GF_RULE_RECONCILIATION
-  last_observed_result: OWNER_DISCOUNT_CODE_CATALOG_LOCKED_41 / FINANCIAL_DISCOUNT_FIELDS_CONFIRMED_SEPARATE
+  last_observed_result: OWNER_DISCOUNT_CODE_CATALOG_LOCKED_41_NAME_CODE_ONLY / PERCENT_METADATA_EXCLUDED / FINANCIAL_DISCOUNT_FIELDS_CONFIRMED_SEPARATE
   next_action_id: DECIDE_HEKMAT_RULE_FINAL
   next_action: Confirm the final Hekmat conditional semantics and persistence rule before moving to school/gender and report-card ambiguities.
 open_blockers:
@@ -72,8 +72,8 @@ governance:
   - DOCUMENTED != OBSERVED_IN_STAGING
   - NOT_PROVEN != PROVEN_ABSENT
 history:
-  last_event_seq: 79
-  last_event_id: OWNER-20260908-DISCOUNT-CODE-CATALOG-41-SEPARATE-FINANCE
+  last_event_seq: 80
+  last_event_id: OWNER-20260908-DISCOUNT-CODE-CATALOG-NAME-CODE-ONLY
   pre_cutover_event_count: 72
   pre_cutover_source: Google Sheet SRWF_RUNTIME_STATE / DECISION_HISTORY
   active_history_start_seq: 73
