@@ -1,17 +1,17 @@
 # SRWF Documentation Index
 
-این index برای انسان است. Agentها از `AGENTS.md` شروع کنند.
+## Start here
 
-## 1. Authority
+1. `../repository.manifest.yaml` — machine-readable repository map and acceptance boundary
+2. `../AGENTS.md` — mandatory agent/LLM entrypoint
+3. `authority/MASTER.md` — current architecture/semantic/Lock authority
+4. `operations/EXECUTION_PLAYBOOK.md` — current stage/gate execution map
+5. relevant file under `contracts/`
 
-- `authority/MASTER.md` — stable entrypoint برای Master جاری و ordered Master sections.
+## Durable authority and governance
 
-## 2. Execution
-
-- `operations/EXECUTION_PLAYBOOK.md` — Stage/Gate/POC sequence و Runtime State boundary.
-
-## 3. Governance
-
+- `authority/MASTER.md`
+- `operations/EXECUTION_PLAYBOOK.md`
 - `governance/KNOWLEDGE_COMPOSITION_ADDENDUM.md`
 - `governance/OWNER_COMPREHENSION_PROTOCOL.md`
 - `governance/DECISION_LEDGER.md`
@@ -19,17 +19,17 @@
 - `governance/MINIMALITY_CHALLENGE.md`
 - `governance/REMAINING_OWNER_BINDINGS.md`
 
-## 4. Contracts
+## Executable contracts
 
-- `contracts/SEMANTIC_FIELD_CONTRACT.yaml` — canonical field contract
-- `contracts/SEMANTIC_FIELD_CONTRACT.md` — human projection
+- `contracts/SEMANTIC_FIELD_CONTRACT.yaml` — machine-readable field semantics
+- `contracts/SEMANTIC_FIELD_CONTRACT.md` — human-readable projection
 - `contracts/WORKFLOW_CONTRACT.md`
 - `contracts/ACCESS_CONTROL_CONTRACT.md`
-- `contracts/IMPLEMENTATION_MAPPING.yaml/.md`
+- `contracts/IMPLEMENTATION_MAPPING.yaml` / `.md`
 - `contracts/ENVIRONMENT_MANIFEST.md`
 - `contracts/PRIVACY_RETENTION_CONTRACT.md`
 
-## 5. Validation & Release
+## Validation and release
 
 - `validation/TEST_MATRIX.md`
 - `validation/DEFINITION_OF_DONE.md`
@@ -37,18 +37,23 @@
 - `release/RELEASE_MANIFEST.md`
 - `release/ROLLBACK_RUNBOOK.md`
 
-## 6. Knowledge / Evidence
+## Knowledge and provenance
 
-Reference only; not architecture authority:
-
-- `../knowledge/README.md`
+- `../knowledge/README.md` — retrieval/classification rules
 - `../knowledge/constructability/APPLICABILITY_OVERLAY.md`
 - `../evidence/provenance/SOURCE_MANIFEST.yaml`
+- `../history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz` — byte-exact source corpus `01..11`
 
-## 7. Runtime boundary
+Materialize archived sources locally with:
 
-`../runtime/README.md` توضیح می‌دهد چرا Google Sheet `SRWF_RUNTIME_STATE` همچنان live operational SSOT است و snapshot repo non-canonical است.
+```bash
+python scripts/materialize_archives.py
+```
 
-## 8. Historical corpus
+## Runtime boundary
 
-`../history/pre-repository/README.md` pre-repository sources و migration provenance را نگه می‌دارد. Historical presence به معنی current authority نیست.
+`../runtime/README.md` defines the boundary: Google Sheet `SRWF_RUNTIME_STATE` remains the live operational-state SSOT. Repository runtime snapshots are `NON_CANONICAL`.
+
+## Acceptance rule
+
+Feature branch/file presence is not Accepted Current. Repository baseline becomes current only after merge to `main` plus read-back. Documentation integrity evidence must distinguish a validator execution from a CI infrastructure failure before runner allocation.
