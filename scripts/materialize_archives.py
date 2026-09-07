@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 HISTORY = ROOT / "history" / "pre-repository"
-ARCHIVE = HISTORY / "srwf_pre_repository_sources.tar.xz"
+ARCHIVE = HISTORY / "SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz"
 OUT = ROOT / ".knowledge-materialized" / "pre-repository"
 EXPECTED_ARCHIVE_SHA256 = "82b0201ce3920214fe2ac7b9bd7defaa8769651fbbd1168abcd0a1ba91d32ed4"
 
