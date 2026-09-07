@@ -10,16 +10,13 @@ SRWF سامانهٔ ثبت‌نام دانش‌آموز و گردش‌کار ب�
 - **GravityView** فقط presentation اختیاری پس از اثبات gap است.
 - Elementor baseline عملیاتی نیست.
 
-## وضعیت فعلی
+## مرز وضعیت اجرایی
 
-- Stage: `STAGE_0_IN_PROGRESS`
-- Semantic Field Contract: `OWNER APPROVED / CLOSED`
-- Environment Inventory: `PARTIAL / OWNER_ACCEPTED_FOR_PROGRESS`
-- Repository documentation baseline: `READY_FOR_MERGE / ACCEPT_ONLY_AFTER_MAIN_READBACK`
-- Next implementation unit after repository acceptance: authoritative Gravity Forms/Gravity Flow scaffold با **synthetic data only**؛ سپس bind کردن IDهای واقعی در Implementation Mapping.
-- تا بسته‌شدن privacy/retention هیچ PII واقعی وارد staging/UAT/production نمی‌شود.
+Repository خانهٔ **canonical durable documentation/contracts** است. وضعیت اجرایی زنده—Stage، Gate، current decision/candidate، آخرین نتیجه، blocker و next action—فقط از Google Sheet `SRWF_RUNTIME_STATE` خوانده می‌شود.
 
-> وضعیت اجرایی زنده در Google Sheet `SRWF_RUNTIME_STATE` نگهداری می‌شود. این repository خانهٔ canonical اسناد/قراردادهاست؛ snapshotهای runtime داخل repo در صورت وجود `NON_CANONICAL` هستند.
+بنابراین این README عمداً current Stage یا next action پویا را تکرار نمی‌کند؛ این کار از ایجاد snapshot قدیمی و drift جلوگیری می‌کند. فایل‌های `runtime/snapshots/` نیز `NON_CANONICAL` هستند.
+
+Repository documentation baseline: `ACCEPTED_CURRENT` پس از merge/read-back اولیه روی `main`.
 
 ## Read order
 
@@ -36,7 +33,7 @@ SRWF سامانهٔ ثبت‌نام دانش‌آموز و گردش‌کار ب�
 - [`SEMANTIC_FIELD_CONTRACT.md`](docs/contracts/SEMANTIC_FIELD_CONTRACT.md) — human-readable projection
 - [`WORKFLOW_CONTRACT.md`](docs/contracts/WORKFLOW_CONTRACT.md)
 - [`ACCESS_CONTROL_CONTRACT.md`](docs/contracts/ACCESS_CONTROL_CONTRACT.md)
-- [`IMPLEMENTATION_MAPPING.yaml`](docs/contracts/IMPLEMENTATION_MAPPING.yaml) — بعد از scaffold bind می‌شود
+- [`IMPLEMENTATION_MAPPING.yaml`](docs/contracts/IMPLEMENTATION_MAPPING.yaml) — فقط بعد از scaffold با IDهای واقعی bind می‌شود
 - [`ENVIRONMENT_MANIFEST.md`](docs/contracts/ENVIRONMENT_MANIFEST.md)
 - [`PRIVACY_RETENTION_CONTRACT.md`](docs/contracts/PRIVACY_RETENTION_CONTRACT.md)
 

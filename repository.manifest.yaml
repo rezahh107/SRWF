@@ -3,13 +3,15 @@ repository:
   name: SRWF
   canonical_platform: GitHub
   default_branch: main
-  phase: REPOSITORY_BASELINE_MIGRATION
+  phase: ACTIVE_DOCUMENTATION_CORPUS
   visibility: private
 
 acceptance:
   accepted_current_ref: main
   feature_branch_is_authority: false
-  baseline_status: READY_FOR_MERGE__ACCEPT_ONLY_AFTER_MAIN_READBACK
+  baseline_status: ACCEPTED_CURRENT
+  baseline_acceptance_commit: 01e20f7d56a60c66da11584971590f5872c56c19
+  acceptance_basis: MERGED_TO_MAIN_AND_READ_BACK
 
 external_runtime_state:
   name: SRWF_RUNTIME_STATE
@@ -86,6 +88,6 @@ integrity:
 
 notes:
   - Active repository paths are stable; versions live in document metadata and Git history rather than version-suffixed active filenames.
-  - The pre-repository Master source is preserved byte-exact in history as a compressed provenance artifact; the active Master is materialized as an ordered readable document set with a stable entrypoint.
-  - Large Product Knowledge and Constructability snapshots are archived self-contained in Git as compressed reference evidence; they do not become current runtime proof or architecture authority.
-  - A feature branch or open PR is never Accepted Current. Acceptance requires merge to main plus read-back of the resulting main tree.
+  - The pre-repository source corpus is preserved byte-exact in the provenance archive; source presence/hash integrity is not runtime proof.
+  - Large Product Knowledge and Constructability sources are archived reference evidence; they do not become architecture authority.
+  - Current execution progress is never inferred from this manifest; read the live SRWF_RUNTIME_STATE when progress matters.
