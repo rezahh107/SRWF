@@ -1,47 +1,27 @@
 # SRWF Release Manifest
 
-**Current status:** `NOT_RELEASE_READY`  
-**Reason:** repository baseline is documentation migration only; authoritative scaffold/runtime validations/privacy sign-off are incomplete.
+## Scope
+This artifact tracks release-document readiness. It does not authorize release by itself.
 
-## Release identity
+## Current status
 
-- release version: `UNASSIGNED`
-- Git commit/tag: `UNBOUND`
-- target environment: `UNBOUND`
-- Implementation Mapping version: `UNBOUND`
+`RELEASE_STATUS = NOT_READY`
 
-## Required pre-release evidence
+Repository documentation baseline acceptance does not mean SRWF runtime release readiness.
 
-- [ ] Semantic Field Contract current and Owner-approved
-- [ ] Implementation Mapping bound/verified to actual Form/Field/Input/Step IDs
-- [ ] Environment Manifest complete for target
-- [ ] Privacy/Retention Contract Owner-approved
-- [ ] `V-01 PASS`
-- [ ] `V-02 PASS`
-- [ ] `V-03 PASS`
-- [ ] `V-04 PASS`
-- [ ] `V-05 PASS`
-- [ ] `V-06 PASS`
-- [ ] GP Nested Forms entitlement/runtime POC PASS if used in release
-- [ ] D-17 print POC PASS
-- [ ] staging regression PASS
-- [ ] rollback exercise completed
-- [ ] no real PII/secrets in repository artifacts
-- [ ] current release has no POS/PC-POS/online-Sayad runtime dependency
-- [ ] current release has no Scanner population dependency
+## Required before release
 
-## Deployment artifact inventory
+- [ ] Semantic Field Contract current and mapped to actual scaffold IDs.
+- [ ] Environment Manifest confirmed for target deployment.
+- [ ] Implementation Mapping bound/read-back from actual runtime.
+- [ ] Required `V-01..V-06` executed with evidence.
+- [ ] `PRB-NESTED-CHEQUE-001` PASS for current-release multi-cheque surface.
+- [ ] `D-17` print POC closed for selected production renderer.
+- [ ] Privacy/retention Owner sign-off before real PII.
+- [ ] Test Matrix / Definition of Done executed.
+- [ ] Rollback Runbook verified for deployment scope.
+- [ ] Production release authorization recorded separately from validation.
 
-Populate only when implementation exists:
+## Repository baseline note
 
-- WordPress/plugin/config changes
-- Gravity Forms form export(s)
-- Gravity Flow workflow/config export(s) if supported/appropriate
-- SRWF-owned template/integration files
-- version/license prerequisites
-- cache/routing requirements
-- environment-specific secrets/config references (never secret values in Git)
-
-## Authorization
-
-A filled manifest is not release authorization by itself. Release requires Owner authorization after evidence review.
+The repository may become the Accepted Current durable documentation/contracts corpus after its baseline is merged to `main` and read back. That event is **documentation-governance acceptance only** and must not be represented as staging validation, production readiness, publication or release authorization.
