@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Materialize the byte-exact pre-repository SRWF source corpus.
 
-The archive is committed as split base64 text parts to keep Git transport simple.
-This script does not fetch network data and does not modify canonical docs.
+The archive is committed as split base64 text parts to keep connector/Git
+transport bounded. This script does not fetch network data and does not modify
+canonical docs.
 """
 from __future__ import annotations
 
@@ -15,14 +16,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 HISTORY = ROOT / "history" / "pre-repository"
 OUT = ROOT / ".knowledge-materialized" / "pre-repository"
-EXPECTED_ARCHIVE_SHA256 = "d3aa23753aabae2db95381e57c5050c5d0429865c94b9c1a15b5e0b0d3eb27a8"
-PART_GLOB = "srwf_pre_repository_sources.tar.gz.b64.part*"
+EXPECTED_ARCHIVE_SHA256 = "82b0201ce3920214fe2ac7b9bd7defaa8769651fbbd1168abcd0a1ba91d32ed4"
+EXPECTED_PARTS = 53
+PART_GLOB = "srwf_pre_repository_sources.tar.xz.b64.part*"
 
 
 def main() -> int:
     parts = sorted(HISTORY.glob(PART_GLOB))
-    if not parts:
-        raise SystemExit("No archive parts found. Repository source corpus is incomplete.")
+    if len(parts) != EXPECTED_PARTS:
+        raise SystemExit(
+            f"Source archive incomplete: expected {EXPECTED_PARTS} parts, found {len(parts)}"
+        )
 
     encoded = "".join(p.read_text(encoding="ascii").strip() for p in parts)
     try:
@@ -37,8 +41,7 @@ def main() -> int:
         )
 
     OUT.mkdir(parents=True, exist_ok=True)
-    with tarfile.open(fileobj=io.BytesIO(archive), mode="r:gz") as tf:
-        # Refuse path traversal even for repository-owned archives.
+    with tarfile.open(fileobj=io.BytesIO(archive), mode="r:xz") as tf:
         root = OUT.resolve()
         for member in tf.getmembers():
             target = (OUT / member.name).resolve()
