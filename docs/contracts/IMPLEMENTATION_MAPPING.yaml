@@ -1,0 +1,57 @@
+mapping:
+  id: SRWF-IMPLEMENTATION-MAPPING
+  version: 0.1.0
+  gate: GATE_B_AFTER_AUTHORITATIVE_SCAFFOLD
+  status: UNBOUND
+  authority: docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml
+  rule: "Do not bind labels or invented IDs. Populate only from actual target-runtime scaffold IDs and read back."
+
+forms:
+  registration_form:
+    form_id: null
+    status: UNBOUND
+  cheque_child_form:
+    form_id: null
+    status: UNBOUND
+
+fields: {}
+
+workflow_steps:
+  registration_officer_approval:
+    step_id: null
+    status: UNBOUND
+  accountant_approval:
+    step_id: null
+    status: UNBOUND
+  final_external_pending:
+    step_id: null
+    status: UNBOUND
+
+surfaces:
+  gravity_flow_inbox:
+    route_or_page_id: null
+    status: UNBOUND
+  entry_details:
+    route_or_page_id: null
+    status: UNBOUND
+  gravityview_optional:
+    view_ids: []
+    status: NOT_SELECTED_UNLESS_PRESENTATION_GAP_PROVEN
+
+plugins:
+  wordpress: null
+  php: null
+  database: null
+  gravity_forms: null
+  gravity_flow: null
+  gravityview: null
+  gravity_revisions: null
+  wp_all_import: null
+  gravity_perks_nested_forms: null
+  persian_gravity: null
+  gravity_pdf: null
+
+mapping_freeze:
+  frozen: false
+  frozen_commit: null
+  regression_scope: []

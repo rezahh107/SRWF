@@ -1,0 +1,43 @@
+# Secrets / local config
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Databases / dumps
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+
+# Real exports / intake media / operational data
+private/
+pii/
+exports/real/
+intake/real/
+runtime/live/
+*.csv.real
+*.xlsx.real
+*.jpg.real
+*.jpeg.real
+*.png.real
+*.pdf.real
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Temporary materializations from compressed knowledge archives
+.knowledge-materialized/

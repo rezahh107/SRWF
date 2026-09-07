@@ -1,0 +1,21 @@
+snapshot:
+  authority: NON_CANONICAL
+  live_ssot: Google Sheet SRWF_RUNTIME_STATE / CURRENT_STATE
+  rule: "Read live state before progress-dependent work when connector is available. This file never overrides the live Sheet."
+  captured_for: repository_baseline_structure_only
+  stale_by_design: true
+
+repository_baseline_context:
+  documentation_home: rezahh107/SRWF after accepted main merge/read-back
+  runtime_state_home: SRWF_RUNTIME_STATE Google Sheet
+  architecture_change_from_repo_migration: false
+  real_pii_in_git: forbidden
+
+implementation_truth:
+  semantic_field_contract: OWNER_APPROVED_CLOSED
+  authoritative_scaffold: NOT_PROVEN_BY_THIS_SNAPSHOT
+  implementation_mapping: UNBOUND_IN_REPOSITORY_BASELINE
+  v01_to_v06: NOT_PROVEN_BY_THIS_SNAPSHOT
+  privacy_retention: MUST_READ_LIVE_STATE
+
+warning: "This snapshot is intentionally insufficient for deciding the current next implementation action."

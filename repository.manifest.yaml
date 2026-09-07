@@ -1,0 +1,91 @@
+repository:
+  owner: rezahh107
+  name: SRWF
+  canonical_platform: GitHub
+  default_branch: main
+  phase: REPOSITORY_BASELINE_MIGRATION
+  visibility: private
+
+acceptance:
+  accepted_current_ref: main
+  feature_branch_is_authority: false
+  baseline_status: READY_FOR_MERGE__ACCEPT_ONLY_AFTER_MAIN_READBACK
+
+external_runtime_state:
+  name: SRWF_RUNTIME_STATE
+  provider: Google Sheets
+  role: LIVE_OPERATIONAL_STATE_SSOT
+  repository_snapshots_authority: NON_CANONICAL
+
+architecture:
+  parent: WordPress + Gravity Forms + Gravity Flow
+  canonical_data_authority: Gravity Forms
+  workflow_authority: Gravity Flow
+  officer_operational_surface: Gravity Flow
+  gravityview_role: OPTIONAL_PRESENTATION_ONLY_AFTER_PROVEN_GAP
+  parallel_db_workflow_queue_desk: FORBIDDEN
+
+active_documents:
+  master: docs/authority/MASTER.md
+  execution_playbook: docs/operations/EXECUTION_PLAYBOOK.md
+  knowledge_addendum: docs/governance/KNOWLEDGE_COMPOSITION_ADDENDUM.md
+  owner_comprehension: docs/governance/OWNER_COMPREHENSION_PROTOCOL.md
+  decision_ledger: docs/governance/DECISION_LEDGER.md
+  risk_register: docs/governance/RISK_REGISTER.md
+  minimality_challenge: docs/governance/MINIMALITY_CHALLENGE.md
+  remaining_owner_bindings: docs/governance/REMAINING_OWNER_BINDINGS.md
+
+contracts:
+  semantic_field_contract_machine: docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml
+  semantic_field_contract_human: docs/contracts/SEMANTIC_FIELD_CONTRACT.md
+  workflow_contract: docs/contracts/WORKFLOW_CONTRACT.md
+  access_control_contract: docs/contracts/ACCESS_CONTROL_CONTRACT.md
+  implementation_mapping_machine: docs/contracts/IMPLEMENTATION_MAPPING.yaml
+  implementation_mapping_human: docs/contracts/IMPLEMENTATION_MAPPING.md
+  environment_manifest: docs/contracts/ENVIRONMENT_MANIFEST.md
+  privacy_retention_contract: docs/contracts/PRIVACY_RETENTION_CONTRACT.md
+
+validation:
+  test_matrix: docs/validation/TEST_MATRIX.md
+  definition_of_done: docs/validation/DEFINITION_OF_DONE.md
+  poc_register: docs/validation/POC_REGISTER.md
+
+release:
+  release_manifest: docs/release/RELEASE_MANIFEST.md
+  rollback_runbook: docs/release/ROLLBACK_RUNBOOK.md
+
+knowledge:
+  applicability_overlay: knowledge/constructability/APPLICABILITY_OVERLAY.md
+  archives_manifest: knowledge/README.md
+  archive_authority: REFERENCE_EVIDENCE_NOT_ARCHITECTURE_AUTHORITY
+
+provenance:
+  source_manifest: evidence/provenance/SOURCE_MANIFEST.yaml
+  pre_repository_history: history/pre-repository/README.md
+  source_archive: history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz
+
+security:
+  real_pii_in_git: FORBIDDEN
+  real_intake_images_in_git: FORBIDDEN
+  credentials_in_git: FORBIDDEN
+  operational_data_ledgers_in_git: FORBIDDEN
+  synthetic_fixtures: ALLOWED
+
+integrity:
+  validator: scripts/validate_docs.py
+  workflow: .github/workflows/docs-integrity.yml
+  github_actions_runtime_status: PRE_RUN_INFRA_UNAVAILABLE_OBSERVED
+  manual_equivalent_validation_allowed_when_ci_infrastructure_unavailable: true
+  required_root_files:
+    - README.md
+    - AGENTS.md
+    - repository.manifest.yaml
+    - CHANGELOG.md
+    - CONTRIBUTING.md
+    - .gitignore
+
+notes:
+  - Active repository paths are stable; versions live in document metadata and Git history rather than version-suffixed active filenames.
+  - The pre-repository Master source is preserved byte-exact in history as a compressed provenance artifact; the active Master is materialized as an ordered readable document set with a stable entrypoint.
+  - Large Product Knowledge and Constructability snapshots are archived self-contained in Git as compressed reference evidence; they do not become current runtime proof or architecture authority.
+  - A feature branch or open PR is never Accepted Current. Acceptance requires merge to main plus read-back of the resulting main tree.

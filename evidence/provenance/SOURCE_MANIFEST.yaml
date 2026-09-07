@@ -1,0 +1,62 @@
+source_corpus:
+  id: SRWF-PRE-REPOSITORY-SOURCES-01-11
+  status: BYTE_EXACT_ARCHIVE_REQUIRED_BEFORE_BASELINE_ACCEPTANCE
+  archive_path: history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz
+  archive_format: tar.xz
+  archive_sha256: 82b0201ce3920214fe2ac7b9bd7defaa8769651fbbd1168abcd0a1ba91d32ed4
+  archive_size_bytes: 353740
+  uncompressed_source_total_bytes: 7646866
+  materialize_command: "python scripts/materialize_archives.py"
+  validate_command: "python scripts/validate_docs.py"
+
+files:
+  - path: 01_SRWF_MASTER_AUTHORITY_v1.9.0-fa.md
+    size: 230874
+    sha256: 0f986c7104d3884e95ff4a5db7f125f6cf3eb639c745a55fcfef4abf3c0ad27a
+    role: PRE_REPOSITORY_MASTER_AUTHORITY_SOURCE
+  - path: 02_SRWF_OWNER_KNOWLEDGE_AND_COMPOSITION_ADDENDUM_v1.1.1.md
+    size: 8728
+    sha256: 83497b157328ba82d1b6900dbe05b4635e7acf22600cc3cbf35a8f92da89930d
+    role: PRE_REPOSITORY_GOVERNANCE_SOURCE
+  - path: 03_SRWF_EXECUTION_PLAYBOOK_v1.3.0.md
+    size: 13690
+    sha256: 0fb1979eadb3241161f5942278f05c27a0a60b8680f66fa1fa3f61b247dd3a47
+    role: PRE_REPOSITORY_EXECUTION_SOURCE
+  - path: 04_SRWF_CONSTRUCTABILITY_RUNTIME_KNOWLEDGE.txt
+    size: 924039
+    sha256: 0b9aa5208f2c3c5b3f12b196ec8a70de71d536dcb00d2ecc8c5e85d94f138f98
+    role: DERIVED_CONSTRUCTABILITY_REFERENCE
+  - path: 05_PRODUCT_KNOWLEDGE_NORMALIZED.txt
+    size: 2305256
+    sha256: 7a4e93e3a2919e72b9e74fb78af553698fe320455049fee428e8d1c43170f112
+    role: NORMALIZED_PRODUCT_KNOWLEDGE_REFERENCE
+  - path: 06_GRAVITY_FORMS_PRODUCT_KNOWLEDGE.txt
+    size: 2626276
+    sha256: 5c6777c951d4732bc7e2ce728582c8ce7191658f9a755aa0e03b9eeb100b4148
+    role: DEEP_PRODUCT_REFERENCE
+  - path: 07_GRAVITY_FLOW_PRODUCT_KNOWLEDGE.txt
+    size: 266287
+    sha256: f3dfcfa294d94e5060af46d2ce38981ef7013123f71bf0a3eba6263f8ee9fe54
+    role: DEEP_PRODUCT_REFERENCE
+  - path: 08_GRAVITYVIEW_PRODUCT_KNOWLEDGE.txt
+    size: 601551
+    sha256: f290ddd3b5a528ebf1213bf9c4247b202b3f86dda574b90b6e101f7c7051bd5f
+    role: DEEP_PRODUCT_REFERENCE
+  - path: 09_GRAVITY_PERKS_PRODUCT_KNOWLEDGE.txt
+    size: 651713
+    sha256: afe196760396cd23c1ef9b29437689cabd6b21805c89a9bd18e714fe0d5cb319
+    role: DEEP_PRODUCT_REFERENCE
+  - path: 10_SRWF_OWNER_COMPREHENSION_PROTOCOL_v1.0.1.md
+    size: 12106
+    sha256: 966cf2500a91f82ba2774a57e1499badc7277220d3f33d19057d6d7282fb4e44
+    role: PRE_REPOSITORY_COMMUNICATION_PROTOCOL_SOURCE
+  - path: 11_SRWF_CONSTRUCTABILITY_APPLICABILITY_OVERLAY_v1.0.1.md
+    size: 6346
+    sha256: 755f3aeeaf4dcd0314efe721184a59b8b1b2b6b931a12f4f5cbaee82d20332fd
+    role: PRE_REPOSITORY_APPLICABILITY_SOURCE
+
+classification_rules:
+  - Archive provenance preserves source content; it does not make historical project-status projections current.
+  - Product Knowledge/reference files are evidence, not architecture authority.
+  - Current interpretation uses stable active repository docs and current Owner decisions.
+  - Runtime proof requires executed evidence; source presence/hash integrity is not runtime proof.

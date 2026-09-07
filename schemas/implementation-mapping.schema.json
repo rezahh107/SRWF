@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://srwf.local/schemas/implementation-mapping.schema.json",
+  "title": "SRWF Implementation Mapping logical schema",
+  "type": "object",
+  "required": ["mapping", "forms", "fields", "workflow_steps"],
+  "properties": {
+    "mapping": {
+      "type": "object",
+      "required": ["id", "gate", "status"],
+      "properties": {
+        "id": {"const": "SRWF-IMPLEMENTATION-MAPPING"},
+        "status": {"enum": ["UNBOUND", "PARTIALLY_BOUND", "BOUND", "VERIFIED", "SUPERSEDED"]}
+      }
+    },
+    "forms": {"type": "object"},
+    "fields": {"type": "object"},
+    "workflow_steps": {"type": "object"}
+  },
+  "additionalProperties": true
+}
