@@ -4,12 +4,29 @@
   "source_spreadsheet_id": "1_m0w1iiw1_grZet0QKJMZ3QGns3TeYe56ZFUicAulSY",
   "cutover_decision": "OWNER-20260907-REPOSITORY-RUNTIME-SSOT",
   "pre_cutover_event_count": 72,
-  "normalization": "Every nonblank DECISION_HISTORY row is preserved as a JSON object with all 10 source columns plus event_seq/schema/source metadata. CURRENT_STATE is preserved as normalized YAML.",
-  "files": [
-    {"path":"CURRENT_STATE_PRE_CUTOVER.yaml","size":2540,"sha256":"958da019fe83371cfd701a693ab4366e9da5845bcaad09521f71e99c85013276"},
-    {"path":"DECISION_HISTORY_000001_000024.jsonl","size":24330,"sha256":"cb8334dd9375389ac98cd0ce5e18ef583634b6297b4e6e2cb71c6f14c95f5c2c"},
-    {"path":"DECISION_HISTORY_000025_000048.jsonl","size":38425,"sha256":"5dd27c5d635e3f637e127c9c730506f08ac6531cd2f2d756a0f644d842df4291"},
-    {"path":"DECISION_HISTORY_000049_000072.jsonl","size":36942,"sha256":"dd3cc16e078521367e1ec9b0b65a4bb9a892f981ad81c33ba26bd8f9861cd645"},
-    {"path":"PRE_CUTOVER_DECISION_INDEX.json","size":21294,"sha256":"c66cdbb2b21939fdb9ac61d9cca9bf874e2b2b66d054da9ce97419e71448081c"}
-  ]
+  "normalization": "Every nonblank DECISION_HISTORY row is preserved as a JSON object with all 10 source columns plus event_seq/schema/source metadata. CURRENT_STATE is preserved as normalized YAML. Files are immutable after cutover.",
+  "current_state_snapshot": {
+    "path": "history/pre-runtime-ssot/CURRENT_STATE_PRE_CUTOVER.yaml",
+    "size": 2540,
+    "sha256": "958da019fe83371cfd701a693ab4366e9da5845bcaad09521f71e99c85013276"
+  },
+  "decision_index": {
+    "path": "history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json",
+    "event_count": 72,
+    "size": 13462,
+    "sha256": "77a23701ccb47cbe5e8eb6a3e21a458c74cc834d96f650ddb96ce17ddccc4462"
+  },
+  "history_chunks": [
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000001_000008.jsonl","first_event_seq":1,"last_event_seq":8,"size":8132,"sha256":"8aa7dd2726cf0c8dff07f14ee7442090ca94e1400f04d7665940efb78f65a188"},
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000009_000016.jsonl","first_event_seq":9,"last_event_seq":16,"size":7677,"sha256":"e400ac9d785dd93561abbb83c90ea441bd811f2b251b0f5856ba03fede72056f"},
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000017_000024.jsonl","first_event_seq":17,"last_event_seq":24,"size":8521,"sha256":"f0f0421d20cfedbc65b9e3809aa04897776dee69803e7266c68b38eabf602080"},
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000025_000032.jsonl","first_event_seq":25,"last_event_seq":32,"size":10089,"sha256":"a4fa47e51de0eb588d0a66401c19fd0c00b6e3919c8d7561b619958001cd3d09"},
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000033_000040.jsonl","first_event_seq":33,"last_event_seq":40,"size":13391,"sha256":"3320e4f21061e1aa5ae247aeb465233be04c7e5ad94bd85e21d94909e55a0d48"},
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000041_000048.jsonl","first_event_seq":41,"last_event_seq":48,"size":14945,"sha256":"6a86e2382cef3d9ac90e01753676279b795101e8fb18154bb84378c873798177"},
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000049_000056.jsonl","first_event_seq":49,"last_event_seq":56,"size":10853,"sha256":"01e492ec538ece2cb47d90319355e31ff8666ea3008a1de0721ef1bfa7c401ba"},
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000057_000064.jsonl","first_event_seq":57,"last_event_seq":64,"size":11826,"sha256":"51f7c04c814f2b50ea8846702c953ed9987c52c717fa14fd399da5afa08e5e0d"},
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000065_000072.jsonl","first_event_seq":65,"last_event_seq":72,"size":14263,"sha256":"dc885c1dd6da569468482807a93264de6d82b4b919179b9ec9f511f7f97fb198"}
+  ],
+  "coverage": {"first_event_seq":1,"last_event_seq":72,"contiguous":true,"missing_event_seq":[]},
+  "post_cutover_history": "runtime/DECISION_HISTORY.jsonl"
 }
