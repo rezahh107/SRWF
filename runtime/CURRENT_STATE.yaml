@@ -13,7 +13,7 @@ ssot:
     name: SRWF_RUNTIME_STATE
     provider: Google Sheets
     status_after_cutover: DEPRECATED_READ_ONLY_MIGRATION_SOURCE
-    archive_path: history/pre-runtime-ssot/SRWF_RUNTIME_STATE_PRE_CUTOVER.xlsx
+    migration_manifest: history/pre-runtime-ssot/MIGRATION_MANIFEST.json
 current:
   stage: STAGE_0_IN_PROGRESS
   gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_CLOSED
@@ -61,9 +61,12 @@ history:
   pre_cutover_source: Google Sheet SRWF_RUNTIME_STATE / DECISION_HISTORY
   active_history_start_seq: 73
   pre_cutover_index_path: history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json
+  pre_cutover_migration_manifest: history/pre-runtime-ssot/MIGRATION_MANIFEST.json
 evidence_refs:
 - docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml
 - docs/authority/MASTER.md
 - docs/operations/EXECUTION_PLAYBOOK.md
 - runtime/DECISION_HISTORY.jsonl
-- history/pre-runtime-ssot/SRWF_RUNTIME_STATE_PRE_CUTOVER.xlsx
+- history/pre-runtime-ssot/MIGRATION_MANIFEST.json
+- history/pre-runtime-ssot/CURRENT_STATE_PRE_CUTOVER.yaml
+- history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json
