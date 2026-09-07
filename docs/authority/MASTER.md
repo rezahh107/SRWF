@@ -1,9 +1,10 @@
 ---
 document_id: SRWF-MASTER
 source_version: 1.9.0
-repository_materialization: 1.0.0-baseline
+repository_materialization: 1.0.1-accepted
 status: NATIVE_FIRST_SELECTED_PRESERVED__IMPLEMENTATION_AUTHORIZED_NOT_COMPLETED
 language: fa-IR
+repository_baseline: ACCEPTED_CURRENT
 provenance_archive: history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz
 ---
 
@@ -68,20 +69,21 @@ provenance_archive: history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar
 - `V-05`: Live Refresh + cache correctness.
 - `V-06`: WP All Import counter sync by exact National ID.
 
-## Stage/Gate state
+## Stage/Gate semantics
 
-| Unit | Current state |
+| Unit | Governing state/constraint |
 |---|---|
 | Parent architecture | `SELECTED/PRESERVED` |
-| Environment Inventory | `PARTIAL / OWNER_ACCEPTED_FOR_PROGRESS` |
-| Semantic Field Contract | `OWNER APPROVED / CLOSED` semantically; repository materialization has named gaps, not silent guesses |
-| Authoritative scaffold | `AUTHORIZED / NOT YET BUILT` |
-| Implementation Mapping | `AFTER SCAFFOLD / UNBOUND` |
-| Privacy/retention | `OWNER DECISION REQUIRED` before real PII |
+| Semantic Field Contract | `OWNER APPROVED / CLOSED` semantically; named materialization gaps stay explicit |
+| Authoritative scaffold | authorized only after SFC Gate; use synthetic data until privacy/retention sign-off |
+| Implementation Mapping | after scaffold; bind only actual runtime IDs |
+| Privacy/retention | Owner sign-off required before real PII |
 | GP Nested Forms cheque host | `SELECTED / POC_NOT_PROVEN` |
 | Structured Scanner in current SRWF release | `DEFERRED` |
 | D-17 renderer | `POC_GATED / NOT_PROVEN` |
-| Production readiness | `NOT ACHIEVED` |
+| Production readiness | requires executed release evidence; documentation alone cannot establish it |
+
+**Current execution progress is not duplicated here.** For current Stage/Gate/candidate/result/next action, read live `SRWF_RUNTIME_STATE` when available.
 
 ## Semantic Field Contract Gate
 
@@ -173,11 +175,12 @@ Before release, repo must contain current/verified:
 
 ## Repository-era provenance and normalization
 
+- Repository documentation baseline is `ACCEPTED_CURRENT` after merge/read-back on `main`.
 - Full pre-repository source corpus 01..11 is preserved byte-exact in `history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz` with SHA-256 manifest.
 - Active paths are stable; versions live in metadata/Git history rather than version-suffixed active filenames.
 - Repository migration repaired pointer drift only؛ it does not promote runtime validation or reopen architecture.
 - A known repository materialization gap must remain visible as `INCOMPLETE`, never be filled by guess.
 
-## Exact next action
+## Execution handoff
 
-Complete and validate the repository documentation baseline. After baseline merge/read-back, return to authoritative Gravity Forms + Gravity Flow scaffold using synthetic data only, unless a named contract materialization gap is decision-critical to that scaffold. Then bind actual IDs in Implementation Mapping. Real PII remains blocked until privacy/retention sign-off.
+For any progress-dependent work, first read live `SRWF_RUNTIME_STATE`. Under the governing Stage 0 contract, the authoritative Gravity Forms + Gravity Flow scaffold is allowed only after SFC closure and with synthetic data while privacy/retention remains unsigned; actual IDs are bound to Implementation Mapping only after they exist in runtime.
