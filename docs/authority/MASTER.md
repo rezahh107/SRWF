@@ -4,7 +4,7 @@ source_version: 1.9.0
 repository_materialization: 1.0.0-baseline
 status: NATIVE_FIRST_SELECTED_PRESERVED__IMPLEMENTATION_AUTHORIZED_NOT_COMPLETED
 language: fa-IR
-full_pre_repository_source: history/pre-repository/srwf_pre_repository_sources.tar.gz.b64.part01
+provenance_archive: history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz
 ---
 
 # SRWF Master Authority — Repository Entrypoint
@@ -173,9 +173,9 @@ Before release, repo must contain current/verified:
 
 ## Repository-era provenance and normalization
 
-- Full pre-repository source corpus 01..11 is preserved byte-exact in `history/pre-repository/` as an encoded compressed archive with SHA-256 manifest.
+- Full pre-repository source corpus 01..11 is preserved byte-exact in `history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz` with SHA-256 manifest.
 - Active paths are stable; versions live in metadata/Git history rather than version-suffixed active filenames.
-- Repository migration repaired pointer drift only; it does not promote runtime validation or reopen architecture.
+- Repository migration repaired pointer drift only؛ it does not promote runtime validation or reopen architecture.
 - A known repository materialization gap must remain visible as `INCOMPLETE`, never be filled by guess.
 
 ## Exact next action
