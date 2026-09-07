@@ -77,7 +77,6 @@ def check_required() -> None:
 
 
 def extract_field_blocks(text: str) -> dict[str, str]:
-    # Each block begins with '- contract_id:' and ends before the next such block.
     matches = list(re.finditer(r"(?m)^\s*-\s+contract_id:\s*([^\s#]+)\s*$", text))
     blocks: dict[str, str] = {}
     for idx, match in enumerate(matches):
@@ -126,7 +125,6 @@ def check_mapping() -> None:
         return
     text = p.read_text(encoding="utf-8")
     if "status: UNBOUND" in text:
-        # At baseline no real IDs may be invented.
         suspicious = re.findall(r"(?m)^\s*(form_id|field_id|step_id|route_or_page_id):\s*([^\s#]+)", text)
         for key, value in suspicious:
             if value not in {"null", "~"}:
@@ -145,9 +143,10 @@ def check_ssot_boundary() -> None:
 
 def check_archive() -> None:
     history = ROOT / "history" / "pre-repository"
-    parts = sorted(history.glob("srwf_pre_repository_sources.tar.gz.b64.part*"))
-    if len(parts) != 16:
-        fail(f"pre-repository source archive must have 16 parts; found {len(parts)}")
+    parts = sorted(history.glob("srwf_pre_repository_sources.tar.xz.b64.part*"))
+    expected_parts = 53
+    if len(parts) != expected_parts:
+        fail(f"pre-repository source archive must have {expected_parts} parts; found {len(parts)}")
         return
     try:
         encoded = "".join(p.read_text(encoding="ascii").strip() for p in parts)
@@ -155,7 +154,7 @@ def check_archive() -> None:
     except Exception as exc:
         fail(f"source archive decode failed: {exc}")
         return
-    expected = "d3aa23753aabae2db95381e57c5050c5d0429865c94b9c1a15b5e0b0d3eb27a8"
+    expected = "82b0201ce3920214fe2ac7b9bd7defaa8769651fbbd1168abcd0a1ba91d32ed4"
     actual = hashlib.sha256(raw).hexdigest()
     if actual != expected:
         fail(f"source archive SHA mismatch: {actual}")
