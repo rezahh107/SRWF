@@ -105,13 +105,14 @@ No broad product family is added to a mandatory completeness set without an Owne
 
 ## H. Constructability snapshot applicability
 
-`knowledge/constructability/CONSTRUCTABILITY_RUNTIME_KNOWLEDGE.txt.gz` is a derived evidence/constructability snapshot. Its historical project-level Gate/status projections may refer to older Master/Addendum semantics.
+Pre-repository source `04_SRWF_CONSTRUCTABILITY_RUNTIME_KNOWLEDGE.txt` is a derived evidence/constructability snapshot stored inside `history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz`. Materialize the source corpus with `python scripts/materialize_archives.py` when this evidence is needed.
 
-When using that archive, apply `knowledge/constructability/APPLICABILITY_OVERLAY.md` first. The overlay changes **applicability of stale project projections**, not the underlying product-capability evidence or historical provenance.
+Before interpreting source `04`, apply `knowledge/constructability/APPLICABILITY_OVERLAY.md`. The overlay changes **applicability of stale project projections**, not the underlying product-capability evidence or historical provenance.
 
 ## Changelog
 ### v1.1.1 — 2026-09-07
 - Pointer-only alignment to Master v1.9.0 and Playbook v1.3.0 after Owner decision sync; no knowledge-governance semantics changed.
+- Repository baseline pointer normalized to the actual provenance archive/materialization path.
 
 ### v1.1.0 — 2026-09-06
 - Removed the obsolete global requirement that all four Core Product families reach 100% knowledge completeness before Stage 0.
