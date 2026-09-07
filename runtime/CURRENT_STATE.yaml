@@ -1,0 +1,69 @@
+schema_version: 1
+state_version: 1
+updated_at: '2026-09-07'
+ssot:
+  provider: GitHub
+  repository: rezahh107/SRWF
+  branch: main
+  current_state_path: runtime/CURRENT_STATE.yaml
+  decision_history_path: runtime/DECISION_HISTORY.jsonl
+  write_rule: material runtime changes must update CURRENT_STATE and append DECISION_HISTORY
+    in the same accepted Git commit, then read back main
+  previous_store:
+    name: SRWF_RUNTIME_STATE
+    provider: Google Sheets
+    status_after_cutover: DEPRECATED_READ_ONLY_MIGRATION_SOURCE
+    archive_path: history/pre-runtime-ssot/SRWF_RUNTIME_STATE_PRE_CUTOVER.xlsx
+current:
+  stage: STAGE_0_IN_PROGRESS
+  gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_CLOSED
+  decision: OWNER-20260907-FINANCE-STATUS-OFFICER-DEFAULT-NORMAL
+  candidate: GF_IMPORT_SCAFFOLD_V05_PROVISIONAL
+  last_observed_result: OWNER_FINANCE_STATUS_SEMANTICS_BOUND__V05_FIELD28_PATCH_REQUIRED
+  next_action_id: PATCH_GF_V05_FIELD28_FINANCE_STATUS
+  next_action: Patch v0.5 field 28 finance_status to non-public Registration-Officer-only,
+    optional, default canonical value 0 (عادی); regenerate the provisional import
+    artifact and mapping, then rerun local semantic/structural audit before any staging
+    import.
+open_blockers:
+- id: PRIVACY_RETENTION_OPEN
+  effect: blocks real PII in staging/UAT/production; synthetic work remains allowed
+- id: ENVIRONMENT_INVENTORY_PARTIAL
+  effect: OWNER_ACCEPTED_FOR_PROGRESS; reopen only when a compatibility/deployment
+    fact becomes decision-critical
+- id: GF_V05_FIELD28_SEMANTIC_MISMATCH
+  effect: finance_status in v0.5 must be patched before staging import
+- id: SCHOOL_MASTER_NOT_RETRIEVED
+  effect: do not fabricate controlled school choices
+- id: FINAL_CROSSWALK_NOT_RETRIEVED
+  effect: final code/label binding remains incomplete where Crosswalk authority is
+    required
+- id: SERVER_BINDINGS_INCOMPLETE
+  effect: DOB/mobile/group/status/school/report-card/discount/file-access server bindings
+    and validation remain incomplete
+- id: GP_NESTED_FORMS_POC_NOT_PROVEN
+  effect: multi-cheque child composition is selected but not runtime-proven
+governance:
+  repository_baseline: ACCEPTED_CURRENT
+  runtime_ssot_decision: OWNER-20260907-REPOSITORY-RUNTIME-SSOT
+  runtime_ssot_status: ACTIVE_ON_MAIN_AFTER_CUTOVER_MERGE_READBACK
+  real_pii_in_git: FORBIDDEN
+  state_integrity_rules:
+  - plan != implementation != validation != review != authorization != publication
+    != production-ready != completion
+  - SELECTED != IMPLEMENTED
+  - DOCUMENTED != OBSERVED_IN_STAGING
+  - NOT_PROVEN != PROVEN_ABSENT
+history:
+  last_event_seq: 73
+  last_event_id: OBS-20260907-REPOSITORY-RUNTIME-SSOT-CUTOVER
+  pre_cutover_event_count: 72
+  pre_cutover_source: Google Sheet SRWF_RUNTIME_STATE / DECISION_HISTORY
+  active_history_start_seq: 73
+  pre_cutover_index_path: history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json
+evidence_refs:
+- docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml
+- docs/authority/MASTER.md
+- docs/operations/EXECUTION_PLAYBOOK.md
+- runtime/DECISION_HISTORY.jsonl
+- history/pre-runtime-ssot/SRWF_RUNTIME_STATE_PRE_CUTOVER.xlsx
