@@ -1,6 +1,6 @@
 schema_version: 1
-state_version: 3
-updated_at: '2026-09-08T01:01:19+04:00'
+state_version: 4
+updated_at: '2026-09-08T01:24:00+04:00'
 ssot:
   provider: GitHub
   repository: rezahh107/SRWF
@@ -43,6 +43,16 @@ governance:
   cutover_merge_commit: 14e4cef22535a1311e81802e317d955b7e5526cd
   cutover_integrity_run: 34160923750
   cutover_integrity_result: PASS
+  project_package:
+    version: 1.1.0
+    status: ACCEPTED_ON_MAIN_BUILD_PASS
+    builder_profile: BUNDLE_PACKAGE_MAKER_5_COMPATIBILITY
+    formal_package_maker_5_spec_status: NOT_RETRIEVED
+    merge_commit: 007a485834e85f443ea10d06b3b827cdef6ab06a
+    documentation_integrity_run: 34162723469
+    project_bundle_run: 34162723544
+    accepted_build_package_sha256: 4c00ebd4ade194164962c1b5116e26911730e1905a38971325dbc491be4644ec
+    authority: PORTABLE_SNAPSHOT_NON_CANONICAL_WHEN_REPOSITORY_AVAILABLE
   real_pii_in_git: FORBIDDEN
   state_integrity_rules:
   - plan != implementation != validation != review != authorization != publication != production-ready != completion
@@ -50,8 +60,8 @@ governance:
   - DOCUMENTED != OBSERVED_IN_STAGING
   - NOT_PROVEN != PROVEN_ABSENT
 history:
-  last_event_seq: 75
-  last_event_id: OBS-20260908-GF-V051-FINANCE-PATCH-AUDIT
+  last_event_seq: 76
+  last_event_id: OBS-20260908-PROJECT-PACKAGE-V110-ACCEPTANCE
   pre_cutover_event_count: 72
   pre_cutover_source: Google Sheet SRWF_RUNTIME_STATE / DECISION_HISTORY
   active_history_start_seq: 73
@@ -68,3 +78,6 @@ evidence_refs:
 - history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json
 - PR#3
 - GitHub Actions run 34160923750
+- PR#4
+- GitHub Actions run 34162723469
+- GitHub Actions run 34162723544
