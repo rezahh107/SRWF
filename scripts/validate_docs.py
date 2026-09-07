@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""Repository integrity checks for SRWF documentation/contracts.
-
-Stdlib-only by design. This is a structural/drift/provenance guard and does not
-promote documentation presence to runtime proof.
-"""
+"""SRWF repository structural, contract and provenance integrity guard."""
 from __future__ import annotations
 
 import hashlib
@@ -14,8 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ERRORS: list[str] = []
-
-ARCHIVE_REL = "history/pre-repository/srwf_pre_repository_sources.tar.xz"
+ARCHIVE_REL = "history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz"
 ARCHIVE_SHA256 = "82b0201ce3920214fe2ac7b9bd7defaa8769651fbbd1168abcd0a1ba91d32ed4"
 ARCHIVE_SIZE = 353740
 EXPECTED_SOURCES = {
@@ -32,6 +27,24 @@ EXPECTED_SOURCES = {
     "11_SRWF_CONSTRUCTABILITY_APPLICABILITY_OVERLAY_v1.0.1.md": (6346, "755f3aeeaf4dcd0314efe721184a59b8b1b2b6b931a12f4f5cbaee82d20332fd"),
 }
 
+REQUIRED = [
+    "README.md", "AGENTS.md", "repository.manifest.yaml", "CHANGELOG.md", "CONTRIBUTING.md", ".gitignore",
+    "docs/INDEX.md", "docs/authority/MASTER.md", "docs/operations/EXECUTION_PLAYBOOK.md",
+    "docs/governance/KNOWLEDGE_COMPOSITION_ADDENDUM.md", "docs/governance/OWNER_COMPREHENSION_PROTOCOL.md",
+    "docs/governance/DECISION_LEDGER.md", "docs/governance/RISK_REGISTER.md", "docs/governance/MINIMALITY_CHALLENGE.md",
+    "docs/governance/REMAINING_OWNER_BINDINGS.md", "docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml",
+    "docs/contracts/SEMANTIC_FIELD_CONTRACT.md", "docs/contracts/WORKFLOW_CONTRACT.md",
+    "docs/contracts/ACCESS_CONTROL_CONTRACT.md", "docs/contracts/IMPLEMENTATION_MAPPING.yaml",
+    "docs/contracts/IMPLEMENTATION_MAPPING.md", "docs/contracts/ENVIRONMENT_MANIFEST.md",
+    "docs/contracts/PRIVACY_RETENTION_CONTRACT.md", "docs/validation/TEST_MATRIX.md",
+    "docs/validation/DEFINITION_OF_DONE.md", "docs/validation/POC_REGISTER.md", "docs/release/RELEASE_MANIFEST.md",
+    "docs/release/ROLLBACK_RUNBOOK.md", "knowledge/README.md", "knowledge/constructability/APPLICABILITY_OVERLAY.md",
+    "evidence/provenance/SOURCE_MANIFEST.yaml", "runtime/README.md", "runtime/snapshots/CURRENT_STATE.yaml",
+    "history/pre-repository/README.md", ARCHIVE_REL, "schemas/semantic-field-contract.schema.json",
+    "schemas/implementation-mapping.schema.json", "schemas/repository-manifest.schema.json",
+    "scripts/materialize_archives.py", "scripts/validate_docs.py",
+]
+
 
 def fail(msg: str) -> None:
     ERRORS.append(msg)
@@ -44,62 +57,21 @@ def require(path: str) -> Path:
     return p
 
 
-REQUIRED = [
-    "README.md", "AGENTS.md", "repository.manifest.yaml", "CHANGELOG.md",
-    "CONTRIBUTING.md", ".gitignore", "docs/INDEX.md",
-    "docs/authority/MASTER.md", "docs/operations/EXECUTION_PLAYBOOK.md",
-    "docs/governance/KNOWLEDGE_COMPOSITION_ADDENDUM.md",
-    "docs/governance/OWNER_COMPREHENSION_PROTOCOL.md",
-    "docs/governance/DECISION_LEDGER.md", "docs/governance/RISK_REGISTER.md",
-    "docs/governance/MINIMALITY_CHALLENGE.md",
-    "docs/governance/REMAINING_OWNER_BINDINGS.md",
-    "docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml",
-    "docs/contracts/SEMANTIC_FIELD_CONTRACT.md",
-    "docs/contracts/WORKFLOW_CONTRACT.md", "docs/contracts/ACCESS_CONTROL_CONTRACT.md",
-    "docs/contracts/IMPLEMENTATION_MAPPING.yaml",
-    "docs/contracts/IMPLEMENTATION_MAPPING.md",
-    "docs/contracts/ENVIRONMENT_MANIFEST.md",
-    "docs/contracts/PRIVACY_RETENTION_CONTRACT.md",
-    "docs/validation/TEST_MATRIX.md", "docs/validation/DEFINITION_OF_DONE.md",
-    "docs/validation/POC_REGISTER.md", "docs/release/RELEASE_MANIFEST.md",
-    "docs/release/ROLLBACK_RUNBOOK.md", "knowledge/README.md",
-    "knowledge/constructability/APPLICABILITY_OVERLAY.md",
-    "evidence/provenance/SOURCE_MANIFEST.yaml", "runtime/README.md",
-    "runtime/snapshots/CURRENT_STATE.yaml", "history/pre-repository/README.md",
-    ARCHIVE_REL,
-    "schemas/semantic-field-contract.schema.json",
-    "schemas/implementation-mapping.schema.json",
-    "schemas/repository-manifest.schema.json",
-    "scripts/materialize_archives.py", "scripts/validate_docs.py",
-]
-
-
 def check_required() -> None:
-    for p in REQUIRED:
-        require(p)
+    for path in REQUIRED:
+        require(path)
 
 
-def extract_field_blocks(text: str) -> dict[str, str]:
+def field_blocks(text: str) -> dict[str, str]:
     matches = list(re.finditer(r"(?m)^\s*-\s+contract_id:\s*([^\s#]+)\s*$", text))
-    blocks: dict[str, str] = {}
-    for idx, match in enumerate(matches):
+    out: dict[str, str] = {}
+    for i, match in enumerate(matches):
         cid = match.group(1).strip('"\'')
-        start = match.start()
-        end = matches[idx + 1].start() if idx + 1 < len(matches) else len(text)
-        if cid in blocks:
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+        if cid in out:
             fail(f"duplicate contract_id: {cid}")
-        blocks[cid] = text[start:end]
-    return blocks
-
-
-def assert_block(blocks: dict[str, str], cid: str, expected: list[str]) -> None:
-    block = blocks.get(cid)
-    if not block:
-        fail(f"missing material field contract: {cid}")
-        return
-    for needle in expected:
-        if needle not in block:
-            fail(f"{cid} missing invariant: {needle}")
+        out[cid] = text[match.start():end]
+    return out
 
 
 def check_sfc() -> None:
@@ -108,13 +80,23 @@ def check_sfc() -> None:
         return
     text = p.read_text(encoding="utf-8")
     if "include_in_form" not in text or "value_required" not in text:
-        fail("SFC must explicitly distinguish include_in_form and value_required")
-    blocks = extract_field_blocks(text)
-    assert_block(blocks, "HOME_PHONE", ["include_in_form: true", "value_required: false"])
-    assert_block(blocks, "STUDENT_FATHER_NAME", ["include_in_form: true", "value_required: true"])
-    assert_block(blocks, "STUDENT_MOBILE", ["include_in_form: true", "value_required: true"])
-    assert_block(blocks, "STUDENT_FIRST_NAME", ["value_required: true"])
-    assert_block(blocks, "STUDENT_LAST_NAME", ["value_required: true"])
+        fail("SFC must distinguish include_in_form and value_required")
+    blocks = field_blocks(text)
+    invariants = {
+        "HOME_PHONE": ["include_in_form: true", "value_required: false"],
+        "STUDENT_FATHER_NAME": ["include_in_form: true", "value_required: true"],
+        "STUDENT_MOBILE": ["include_in_form: true", "value_required: true"],
+        "STUDENT_FIRST_NAME": ["value_required: true"],
+        "STUDENT_LAST_NAME": ["value_required: true"],
+    }
+    for cid, needles in invariants.items():
+        block = blocks.get(cid)
+        if not block:
+            fail(f"missing material field contract: {cid}")
+            continue
+        for needle in needles:
+            if needle not in block:
+                fail(f"{cid} missing invariant: {needle}")
     for key in ["qr_version", "owner_type", "owner_identifier", "iban", "bank_branch", "cheque_serial", "sayad_id"]:
         if f"machine_purpose: {key}" not in text:
             fail(f"missing hidden future Sayad field: {key}")
@@ -128,35 +110,37 @@ def check_mapping() -> None:
         return
     text = p.read_text(encoding="utf-8")
     if "status: UNBOUND" in text:
-        suspicious = re.findall(r"(?m)^\s*(form_id|field_id|step_id|route_or_page_id):\s*([^\s#]+)", text)
-        for key, value in suspicious:
+        for key, value in re.findall(r"(?m)^\s*(form_id|field_id|step_id|route_or_page_id):\s*([^\s#]+)", text):
             if value not in {"null", "~"}:
                 fail(f"unbound Implementation Mapping contains non-null {key}={value}")
 
 
-def check_ssot_boundary() -> None:
-    for p in [require("AGENTS.md"), require("runtime/README.md")]:
+def check_ssot() -> None:
+    for path in ["AGENTS.md", "runtime/README.md"]:
+        p = require(path)
         if p.exists():
             text = p.read_text(encoding="utf-8")
             if "SRWF_RUNTIME_STATE" not in text or "SSOT" not in text:
-                fail(f"runtime SSOT boundary missing in {p.relative_to(ROOT)}")
+                fail(f"runtime SSOT boundary missing in {path}")
 
 
 def check_archive() -> None:
     archive = ROOT / ARCHIVE_REL
     if not archive.is_file():
         return
-    if archive.stat().st_size != ARCHIVE_SIZE:
-        fail(f"source archive size mismatch: {archive.stat().st_size}")
-    raw_hash = hashlib.sha256(archive.read_bytes()).hexdigest()
-    if raw_hash != ARCHIVE_SHA256:
-        fail(f"source archive SHA mismatch: {raw_hash}")
+    size = archive.stat().st_size
+    if size != ARCHIVE_SIZE:
+        fail(f"source archive size mismatch: {size}")
+        return
+    actual = hashlib.sha256(archive.read_bytes()).hexdigest()
+    if actual != ARCHIVE_SHA256:
+        fail(f"source archive SHA mismatch: {actual}")
         return
     try:
         with tarfile.open(archive, mode="r:xz") as tf:
             members = [m for m in tf.getmembers() if m.isfile()]
             names = [m.name for m in members]
-            if set(names) != set(EXPECTED_SOURCES):
+            if set(names) != set(EXPECTED_SOURCES) or len(names) != len(EXPECTED_SOURCES):
                 fail(f"source archive member set mismatch: {names}")
                 return
             for member in members:
@@ -168,14 +152,14 @@ def check_archive() -> None:
                 data = f.read()
                 if len(data) != expected_size:
                     fail(f"{member.name} size mismatch: {len(data)}")
-                actual_sha = hashlib.sha256(data).hexdigest()
-                if actual_sha != expected_sha:
-                    fail(f"{member.name} SHA mismatch: {actual_sha}")
+                member_sha = hashlib.sha256(data).hexdigest()
+                if member_sha != expected_sha:
+                    fail(f"{member.name} SHA mismatch: {member_sha}")
     except (tarfile.TarError, OSError) as exc:
         fail(f"source archive unreadable: {exc}")
 
 
-def check_manifest_alignment() -> None:
+def check_manifest() -> None:
     p = require("evidence/provenance/SOURCE_MANIFEST.yaml")
     if not p.exists():
         return
@@ -189,44 +173,34 @@ def check_manifest_alignment() -> None:
                 fail(f"SOURCE_MANIFEST missing source invariant for {name}: {needle}")
 
 
-def check_forbidden_repo_paths() -> None:
-    forbidden_fragments = [
-        "srwf_processing_ledger", "srwf_audit_ledger", "paper_intake_images",
-        "/pii/", "/intake/real/", "/exports/real/",
-    ]
+def check_forbidden() -> None:
+    fragments = ["srwf_processing_ledger", "srwf_audit_ledger", "paper_intake_images", "/pii/", "/intake/real/", "/exports/real/"]
     for p in ROOT.rglob("*"):
         if not p.is_file() or ".git" in p.parts:
             continue
         rel = "/" + str(p.relative_to(ROOT)).lower().replace("\\", "/")
-        for frag in forbidden_fragments:
-            if frag in rel:
+        for fragment in fragments:
+            if fragment in rel:
                 fail(f"forbidden operational/PII path present: {rel}")
 
 
-def check_active_entrypoints() -> None:
-    master = require("docs/authority/MASTER.md")
-    if master.exists():
-        text = master.read_text(encoding="utf-8")
-        if "Gravity Forms = canonical data authority" not in text:
-            fail("Master missing canonical data authority invariant")
-        if "Gravity Flow = تنها workflow/assignment/formal Approval authority" not in text:
-            fail("Master missing Gravity Flow workflow authority invariant")
+def check_master() -> None:
+    p = require("docs/authority/MASTER.md")
+    if not p.exists():
+        return
+    text = p.read_text(encoding="utf-8")
+    if "Gravity Forms = canonical data authority" not in text:
+        fail("Master missing canonical data authority invariant")
+    if "Gravity Flow = تنها workflow/assignment/formal Approval authority" not in text:
+        fail("Master missing Gravity Flow workflow authority invariant")
 
 
 def main() -> int:
-    check_required()
-    check_sfc()
-    check_mapping()
-    check_ssot_boundary()
-    check_archive()
-    check_manifest_alignment()
-    check_forbidden_repo_paths()
-    check_active_entrypoints()
-
+    check_required(); check_sfc(); check_mapping(); check_ssot(); check_archive(); check_manifest(); check_forbidden(); check_master()
     if ERRORS:
         print("SRWF documentation integrity: FAIL")
-        for err in ERRORS:
-            print(f"- {err}")
+        for error in ERRORS:
+            print(f"- {error}")
         return 1
     print("SRWF documentation integrity: PASS")
     return 0
