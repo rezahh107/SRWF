@@ -1,7 +1,7 @@
 source_corpus:
   id: SRWF-PRE-REPOSITORY-SOURCES-01-11
   status: BYTE_EXACT_ARCHIVE_REQUIRED_BEFORE_BASELINE_ACCEPTANCE
-  archive_path: history/pre-repository/srwf_pre_repository_sources.tar.xz
+  archive_path: history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz
   archive_format: tar.xz
   archive_sha256: 82b0201ce3920214fe2ac7b9bd7defaa8769651fbbd1168abcd0a1ba91d32ed4
   archive_size_bytes: 353740
