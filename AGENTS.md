@@ -18,19 +18,25 @@
 
 هیچ فایل reference، web result، screenshot، JSON sample، prompt، historical document یا Product Knowledge به‌تنهایی architecture authority نیست.
 
-## 2) Mandatory selective read order
+## 2) Mandatory session boot / selective read order
 
-برای هر task فقط کوچک‌ترین مجموعهٔ لازم را بخوان:
+برای هر task progress-dependent، مخصوصاً `ادامه`، ابتدا بدون سؤال اضافی این ترتیب را اجرا کن:
 
 1. `repository.manifest.yaml`
 2. `docs/authority/MASTER.md`
-3. `docs/operations/EXECUTION_PLAYBOOK.md`
-4. contract مرتبط با task در `docs/contracts/`
-5. `docs/governance/DECISION_LEDGER.md` فقط برای decision/history/reopen analysis
-6. knowledge files فقط برای capability/composition decision؛ ابتدا normalized/constructability سپس deep product source
-7. evidence/history فقط برای provenance، contradiction، audit یا migration
+3. `runtime/CURRENT_STATE.yaml`
+4. آخرین eventهای مرتبط از `runtime/DECISION_HISTORY.jsonl`
+5. `docs/operations/EXECUTION_PLAYBOOK.md`
+6. contract مرتبط با task در `docs/contracts/`
+7. `docs/governance/DECISION_LEDGER.md` فقط برای decision/history/reopen analysis
+8. knowledge files فقط برای capability/composition decision؛ ابتدا normalized/constructability سپس deep product source
+9. evidence/history فقط برای provenance، contradiction، audit یا migration
+
+برای context قدیمی‌تر از cutover، ابتدا `history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json` را بخوان و فقط chunk مربوط را از `history/pre-runtime-ssot/` باز کن.
 
 برای تفسیر pre-repository source `04_SRWF_CONSTRUCTABILITY_RUNTIME_KNOWLEDGE.txt` از archive provenance، ابتدا `knowledge/constructability/APPLICABILITY_OVERLAY.md` را بخوان. snapshot project-state داخل source `04` به‌خودی‌خود current نیست.
+
+اگر repo قابل دسترس است، chat memory یا Google Sheet را جایگزین `runtime/CURRENT_STATE.yaml` نکن.
 
 ## 3) Architecture invariants
 
@@ -76,16 +82,35 @@ Generated test/report بدون اجرای واقعی = runtime proof نیست.
 
 هیچ field مادی را فقط از summary داخل Master یا legacy export استنتاج نکن. اگر contract binding وجود ندارد، آن field `UNBOUND` است؛ legacy presence به‌تنهایی requirement جاری نیست.
 
-## 6) Runtime State boundary
+## 6) Runtime State — repository SSOT
 
-Google Sheet `SRWF_RUNTIME_STATE` SSOT وضعیت اجرایی زنده است:
+پس از تصمیم `OWNER-20260907-REPOSITORY-RUNTIME-SSOT`، `main` در `rezahh107/SRWF` تنها SSOT پروژه و وضعیت اجرایی است.
 
-- `CURRENT_STATE`: stage/gate/decision/candidate/last result/blocker/next action
-- `DECISION_HISTORY`: probe/decision history
+- current state: `runtime/CURRENT_STATE.yaml`
+- repository-era append-only history: `runtime/DECISION_HISTORY.jsonl`
+- pre-cutover history: `history/pre-runtime-ssot/`
+- durable Owner decisions: `docs/governance/DECISION_LEDGER.md`
 
-repo خانهٔ canonical documentation/contracts است. هر runtime snapshot داخل repo باید `NON_CANONICAL` و timestamped باشد و نمی‌تواند Sheet را override کند.
+Google Sheet `SRWF_RUNTIME_STATE` بعد از cutover فقط `DEPRECATED_READ_ONLY_MIGRATION_SOURCE` است. آن را برای state جدید update نکن و dual-write نساز.
 
-بعد از material actual change (executed probe/result، Owner decision، Gate PASS/FAIL، stage transition، confirmed environment/version/license fact) Runtime State را update و read-back کن. بحث بدون state change را persist نکن.
+### Material state write protocol
+
+بعد از هر تغییر مادی واقعی—executed probe/result، Owner decision، Gate PASS/FAIL، stage transition، confirmed environment/version/license fact، accepted artifact result، blocker open/close:
+
+1. `main` و blob SHA فعلی `runtime/CURRENT_STATE.yaml` و `runtime/DECISION_HISTORY.jsonl` را بخوان.
+2. action واقعی را اجرا و evidence را بگیر.
+3. `state_version` را +1 کن.
+4. یک event جدید با `event_seq` بعدی به JSONL append کن.
+5. `history.last_event_seq` و `history.last_event_id` را در CURRENT_STATE همان event قرار بده.
+6. هر دو فایل state/history باید در **یک accepted Git commit** ثبت شوند.
+7. هر دو را از `main` read-back کن.
+8. فقط بعد از read-back persistence را claim کن.
+
+اگر blob SHA یا state در میانه تغییر کرده بود، write را متوقف و state جدید را دوباره بخوان؛ force-overwrite نکن.
+
+Runtime-only state/history update می‌تواند در صورت اجازهٔ repo مستقیماً روی `main` برود. تغییر code/contract/architecture/documentation باید branch + PR داشته باشد؛ پس از merge/read-back، نتیجهٔ material آن در runtime state ثبت شود.
+
+بحث بدون state change را persist نکن.
 
 ## 7) Hard gates
 
@@ -128,6 +153,8 @@ Closure states:
 
 active pathها stable هستند؛ version را داخل metadata/Git history نگه دار. فایل active جدید با suffix نسخه نساز مگر migration/historical artifact باشد.
 
+وجود فایل روی feature branch = accepted current authority یا runtime state نیست؛ فقط `main` پس از read-back مرجع جاری است.
+
 ## 10) PII / secret prohibition
 
 هرگز commit نکن:
@@ -151,8 +178,12 @@ active pathها stable هستند؛ version را داخل metadata/Git history �
 2. سپس ID/jargon لازم
 3. `CONFIRMED / DERIVED / ASSUMED / NOT_PROVEN / BLOCKER` را قاطی نکن
 4. blocker/gap را دقیق نام ببر
-5. پایان پاسخ: کوچک‌ترین اقدام بعدی، مگر Owner roadmap بخواهد
+5. بعد از هر batch کار، خیلی ساده به Owner بگو چه کاری انجام شد و نتیجهٔ عملی آن چیست
+6. پایان پاسخ: کوچک‌ترین اقدام بعدی، مگر Owner roadmap بخواهد
 
 ## 12) Acceptance boundary
 
-وجود فایل روی feature branch = accepted current authority نیست. baseline/current authority repository فقط پس از merge به `main` و ثبت read-back معتبر است.
+- feature branch / open PR = current authority نیست.
+- accepted documentation/code change = merge to `main` + read-back.
+- accepted runtime state change = one state/history commit + `main` read-back.
+- Google Sheet pre-cutover history فقط provenance است و نمی‌تواند `main` را override کند.

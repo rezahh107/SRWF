@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rezahh107/SRWF/runtime/schemas/current-state.schema.json",
+  "title": "SRWF Current Runtime State",
+  "type": "object",
+  "required": ["schema_version","state_version","updated_at","ssot","current","open_blockers","governance","history"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "state_version": {"type": "integer", "minimum": 1},
+    "updated_at": {"type": "string", "minLength": 1},
+    "ssot": {
+      "type": "object",
+      "required": ["provider","repository","branch","current_state_path","decision_history_path","write_rule"],
+      "properties": {
+        "provider": {"const": "GitHub"},
+        "repository": {"const": "rezahh107/SRWF"},
+        "branch": {"const": "main"},
+        "current_state_path": {"const": "runtime/CURRENT_STATE.yaml"},
+        "decision_history_path": {"const": "runtime/DECISION_HISTORY.jsonl"},
+        "write_rule": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": true
+    },
+    "current": {
+      "type": "object",
+      "required": ["stage","gate","decision","candidate","last_observed_result","next_action_id","next_action"],
+      "additionalProperties": true
+    },
+    "open_blockers": {"type": "array", "items": {"type": "object", "required": ["id","effect"], "additionalProperties": true}},
+    "governance": {"type": "object", "required": ["runtime_ssot_decision","runtime_ssot_status","real_pii_in_git"], "additionalProperties": true},
+    "history": {
+      "type": "object",
+      "required": ["last_event_seq","last_event_id"],
+      "properties": {
+        "last_event_seq": {"type": "integer", "minimum": 1},
+        "last_event_id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": true
+    },
+    "evidence_refs": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

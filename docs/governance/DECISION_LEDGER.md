@@ -1,6 +1,6 @@
 # SRWF Decision Ledger
 
-این ledger تصمیم‌های durable و current را نگه می‌دارد. Google Sheet `SRWF_RUNTIME_STATE / DECISION_HISTORY` همچنان live operational history است؛ این فایل projection پذیرفته‌شدهٔ repository-era برای decisionهای مادی است.
+این ledger تصمیم‌های durable و current را نگه می‌دارد. وضعیت اجرایی جاری در `runtime/CURRENT_STATE.yaml` و history مادی repository-era در `runtime/DECISION_HISTORY.jsonl` است. تاریخچهٔ Google Sheet قبل از cutover فقط immutable provenance زیر `history/pre-runtime-ssot/` است.
 
 ## Architecture locks
 
@@ -56,6 +56,7 @@ This rejects only the failed candidate; D-09 architecture/criterion remains inta
 | `OWNER-20260906-FINANCE-UNIT-RIAL` | canonical/display money unit = Rial. |
 | `OWNER-20260906-FINANCE-INVALID-DISCOUNT-BLOCK` | discount > tuition => validation error + no save. |
 | `OWNER-20260907-FINANCE-OFFICER-ONLY-NONE-REQUIRED` | all current-release finance/manual-cheque fields optional, non-public, Registration-Officer-only. |
+| `OWNER-20260907-FINANCE-STATUS-OFFICER-DEFAULT-NORMAL` | `finance_status`: Officer-only, non-public, optional; canonical default `0=عادی`; allowed values remain `0,1,3`. |
 | `OWNER-20260906-NESTED-FORMS-SELECTED` | multi-cheque host = GP Nested Forms; Parent-Child Forms fallback only after bounded FAIL. |
 | `OWNER-20260906-SCANNER-NONPERSISTENT-CONTROLLER` | Structured Scanner does not own/persist canonical data/raw payload. |
 | `OWNER-20260906-SAYAD-V01-ATOMIC-SEVEN-OUTPUT` | seven deterministic outputs; atomic population if scanner phase is active. |
@@ -73,23 +74,37 @@ This rejects only the failed candidate; D-09 architecture/criterion remains inta
 
 ## Repository governance
 
-`OWNER-20260907-SRWF-REPO-CANONICAL-DOCS`:
+### `OWNER-20260907-SRWF-REPO-CANONICAL-DOCS`
 
-- `rezahh107/SRWF` becomes canonical home for project documentation/contracts after baseline merge/read-back.
+- `rezahh107/SRWF` is canonical home for durable project documentation/contracts after baseline merge/read-back.
 - `README.md`, `AGENTS.md`, manifest, standalone contracts, validation/release artifacts and classified provenance are required.
-- Google Sheet `SRWF_RUNTIME_STATE` remains live operational-state SSOT.
-- repo runtime snapshots are non-canonical.
 - real PII/intake images/operational data ledgers must not be committed.
+
+### `OWNER-20260907-REPOSITORY-RUNTIME-SSOT`
+
+This later Owner decision **supersedes the former split-state boundary** that kept Google Sheets as live runtime SSOT.
+
+After cutover merge + `main` read-back:
+
+- `GitHub main` = sole project/runtime SSOT.
+- `runtime/CURRENT_STATE.yaml` = canonical current execution state.
+- `runtime/DECISION_HISTORY.jsonl` = append-only repository-era material history.
+- pre-cutover Sheet state/history = immutable provenance under `history/pre-runtime-ssot/`.
+- Google Sheet `SRWF_RUNTIME_STATE` = `DEPRECATED_READ_ONLY_MIGRATION_SOURCE`; no dual-write.
+- a material runtime state change is persisted only after state + event are in the same accepted commit and read back from `main`.
+
+Reopen only by Owner decision or if repository availability/concurrency creates a material execution problem that commit/blob-SHA discipline cannot safely handle.
 
 ## Superseded / historical decision rows
 
-These remain in external history but do not control current behavior:
+These remain in history but do not control current behavior:
 
 - `OWNER-20260907-HOME-PHONE-REQUIRED` — superseded by `OWNER-20260907-HOME-PHONE-INCLUDED-OPTIONAL`.
 - native List field as primary multi-cheque candidate — superseded by later Owner host decision.
 - Gravity Flow Parent-Child Forms as selected primary host — superseded by GP Nested Forms selection; retained only as fallback.
 - Scanner population as current-release cheque path — superseded by current-release scanner deferral.
 - older product-knowledge global Stage0 blockers — superseded by Addendum/current Master.
+- Google Sheet as live runtime SSOT — superseded by `OWNER-20260907-REPOSITORY-RUNTIME-SSOT` after completed repository cutover.
 
 ## Evidence observations that must not be promoted
 
@@ -100,4 +115,4 @@ These remain in external history but do not control current behavior:
 
 ## Update rule
 
-A material Owner decision or executed probe/result must be written to live Runtime State first according to project governance and then reflected here when it changes durable project semantics. Discussion-only rows do not belong here.
+A material Owner decision or executed probe/result must update `runtime/CURRENT_STATE.yaml` and append one event to `runtime/DECISION_HISTORY.jsonl` in the same accepted Git commit; then both are read back from `main`. Reflect it here only when it changes durable project semantics. Discussion-only events do not belong here.

@@ -1,0 +1,46 @@
+schema_version: 1
+source: Google Sheet SRWF_RUNTIME_STATE / CURRENT_STATE
+captured_at: '2026-09-07'
+status: PRE_CUTOVER_MIGRATION_SNAPSHOT
+fields:
+  current_stage:
+    value: STAGE_0_IN_PROGRESS
+    notes: Semantic Field Contract is Owner-approved and no longer blocks scaffold.
+      Residual Environment Inventory remains PARTIAL/OWNER_ACCEPTED_FOR_PROGRESS;
+      privacy/retention still blocks real PII, not synthetic scaffold work.
+  current_gate:
+    value: STAGE_0_SEMANTIC_FIELD_CONTRACT_CLOSED
+    notes: 'Bindings 1-3 are now closed: Officer edit whitelist, finance semantics/visibility/requiredness,
+      and cheque/manual requiredness. Authoritative scaffold is authorized with synthetic
+      data only.'
+  current_decision:
+    value: OWNER_REPOSITORY_RUNTIME_SSOT
+    notes: Owner approved moving live project state/history into GitHub so a future
+      session can continue from the repository without depending on Google Sheets.
+  current_candidate:
+    value: REPO_RUNTIME_SSOT_MIGRATION
+    notes: 'Migration unit: create canonical runtime/CURRENT_STATE.yaml + runtime/DECISION_HISTORY.jsonl,
+      update agent/read/write rules, merge/read back main, then deprecate Sheet.'
+  last_observed_result:
+    value: OWNER_APPROVED_REPOSITORY_RUNTIME_SSOT_MIGRATION_START
+    notes: Current Sheet remains live SSOT only until migration is merged and read
+      back from main. No scaffold/runtime validation status is promoted.
+  open_blocker:
+    value: 'Privacy/retention remains OPEN and blocks real PII. Environment inventory
+      remains PARTIAL/OWNER_ACCEPTED_FOR_PROGRESS. Existing v0.5 semantic blocker
+      remains: field 28 finance_status contradicts current finance lock. New governance
+      migration is in progress; do not treat repository runtime files as canonical
+      until main read-back.'
+    notes: This is a temporary migration state. The prior scaffold blocker is preserved
+      and will be restored as the implementation next action after repository runtime
+      SSOT acceptance.
+  next_action:
+    value: Migrate live CURRENT_STATE and complete DECISION_HISTORY into GitHub runtime
+      SSOT, update governance/validators, merge and read back main, then mark Google
+      Sheet DEPRECATED_READ_ONLY.
+    notes: Do not edit both stores after cutover. Sheet is authoritative only until
+      accepted main read-back.
+  updated_at:
+    value: '2026-09-07'
+    notes: Owner approved GitHub repository as the future single project/runtime SSOT;
+      migration started under existing Sheet authority.

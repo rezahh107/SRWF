@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""SRWF repository structural, contract and provenance integrity guard."""
+"""SRWF repository structural, contract, runtime-state and provenance integrity guard."""
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 import sys
 import tarfile
@@ -26,6 +27,17 @@ EXPECTED_SOURCES = {
     "10_SRWF_OWNER_COMPREHENSION_PROTOCOL_v1.0.1.md": (12106, "966cf2500a91f82ba2774a57e1499badc7277220d3f33d19057d6d7282fb4e44"),
     "11_SRWF_CONSTRUCTABILITY_APPLICABILITY_OVERLAY_v1.0.1.md": (6346, "755f3aeeaf4dcd0314efe721184a59b8b1b2b6b931a12f4f5cbaee82d20332fd"),
 }
+RUNTIME_CHUNKS = [
+    "history/pre-runtime-ssot/DECISION_HISTORY_000001_000008.jsonl",
+    "history/pre-runtime-ssot/DECISION_HISTORY_000009_000016.jsonl",
+    "history/pre-runtime-ssot/DECISION_HISTORY_000017_000024.jsonl",
+    "history/pre-runtime-ssot/DECISION_HISTORY_000025_000032.jsonl",
+    "history/pre-runtime-ssot/DECISION_HISTORY_000033_000040.jsonl",
+    "history/pre-runtime-ssot/DECISION_HISTORY_000041_000048.jsonl",
+    "history/pre-runtime-ssot/DECISION_HISTORY_000049_000056.jsonl",
+    "history/pre-runtime-ssot/DECISION_HISTORY_000057_000064.jsonl",
+    "history/pre-runtime-ssot/DECISION_HISTORY_000065_000072.jsonl",
+]
 REQUIRED = [
     "README.md", "AGENTS.md", "repository.manifest.yaml", "CHANGELOG.md", "CONTRIBUTING.md", ".gitignore",
     "docs/INDEX.md", "docs/authority/MASTER.md", "docs/operations/EXECUTION_PLAYBOOK.md",
@@ -38,7 +50,11 @@ REQUIRED = [
     "docs/contracts/PRIVACY_RETENTION_CONTRACT.md", "docs/validation/TEST_MATRIX.md",
     "docs/validation/DEFINITION_OF_DONE.md", "docs/validation/POC_REGISTER.md", "docs/release/RELEASE_MANIFEST.md",
     "docs/release/ROLLBACK_RUNBOOK.md", "knowledge/README.md", "knowledge/constructability/APPLICABILITY_OVERLAY.md",
-    "evidence/provenance/SOURCE_MANIFEST.yaml", "runtime/README.md", "runtime/snapshots/CURRENT_STATE.yaml",
+    "evidence/provenance/SOURCE_MANIFEST.yaml", "runtime/README.md", "runtime/CURRENT_STATE.yaml",
+    "runtime/DECISION_HISTORY.jsonl", "runtime/schemas/current-state.schema.json", "runtime/schemas/decision-event.schema.json",
+    "history/pre-runtime-ssot/README.md", "history/pre-runtime-ssot/CURRENT_STATE_PRE_CUTOVER.yaml",
+    "history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json", "history/pre-runtime-ssot/MIGRATION_MANIFEST.json",
+    *RUNTIME_CHUNKS,
     "history/pre-repository/README.md", ARCHIVE_REL, "schemas/semantic-field-contract.schema.json",
     "schemas/implementation-mapping.schema.json", "schemas/repository-manifest.schema.json",
     "scripts/materialize_archives.py", "scripts/validate_docs.py",
@@ -56,9 +72,16 @@ def require(path: str) -> Path:
     return p
 
 
+def sha256_file(p: Path) -> str:
+    return hashlib.sha256(p.read_bytes()).hexdigest()
+
+
 def check_required() -> None:
     for path in REQUIRED:
         require(path)
+    for obsolete in ["runtime/snapshots/CURRENT_STATE.yaml", "runtime/snapshots/DECISION_HISTORY.md"]:
+        if (ROOT / obsolete).exists():
+            fail(f"obsolete parallel runtime snapshot must not exist: {obsolete}")
 
 
 def field_blocks(text: str) -> dict[str, str]:
@@ -112,13 +135,109 @@ def check_mapping() -> None:
                 fail(f"unbound Implementation Mapping contains non-null {key}={value}")
 
 
-def check_ssot() -> None:
-    for path in ["AGENTS.md", "runtime/README.md"]:
-        p = require(path)
-        if p.exists():
-            text = p.read_text(encoding="utf-8")
-            if "SRWF_RUNTIME_STATE" not in text or "SSOT" not in text:
-                fail(f"runtime SSOT boundary missing in {path}")
+def parse_jsonl(path: Path) -> list[dict]:
+    events: list[dict] = []
+    if not path.exists(): return events
+    for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        if not line.strip(): continue
+        try:
+            value = json.loads(line)
+        except json.JSONDecodeError as exc:
+            fail(f"invalid JSONL {path.relative_to(ROOT)}:{lineno}: {exc}")
+            continue
+        if not isinstance(value, dict):
+            fail(f"JSONL event is not object: {path.relative_to(ROOT)}:{lineno}")
+            continue
+        events.append(value)
+    return events
+
+
+def check_runtime_ssot() -> None:
+    current = require("runtime/CURRENT_STATE.yaml")
+    active_history = require("runtime/DECISION_HISTORY.jsonl")
+    manifest_path = require("history/pre-runtime-ssot/MIGRATION_MANIFEST.json")
+    index_path = require("history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json")
+    if not all(p.exists() for p in [current, active_history, manifest_path, index_path]): return
+
+    current_text = current.read_text(encoding="utf-8")
+    for needle in [
+        "provider: GitHub", "repository: rezahh107/SRWF", "branch: main",
+        "runtime_ssot_status: ACTIVE_ON_MAIN_AFTER_CUTOVER_MERGE_READBACK",
+        "last_event_seq: 73", "last_event_id: OBS-20260907-REPOSITORY-RUNTIME-SSOT-CUTOVER",
+    ]:
+        if needle not in current_text:
+            fail(f"CURRENT_STATE missing runtime SSOT invariant: {needle}")
+
+    events = parse_jsonl(active_history)
+    if not events:
+        fail("active runtime DECISION_HISTORY is empty")
+    else:
+        seqs = [e.get("event_seq") for e in events]
+        if seqs != list(range(73, 73 + len(events))):
+            fail(f"active runtime event_seq not contiguous from 73: {seqs}")
+        if events[-1].get("decision_id") != "OBS-20260907-REPOSITORY-RUNTIME-SSOT-CUTOVER":
+            fail("CURRENT_STATE last_event_id does not match active history tail")
+
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        index = json.loads(index_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        fail(f"runtime migration JSON invalid: {exc}")
+        return
+
+    if manifest.get("pre_cutover_event_count") != 72:
+        fail("migration manifest pre_cutover_event_count must be 72")
+    if manifest.get("archive_strategy") != "TEXT_NATIVE_NORMALIZED_ARCHIVE":
+        fail("migration archive strategy must be TEXT_NATIVE_NORMALIZED_ARCHIVE")
+    if index.get("event_count") != 72 or index.get("coverage", {}).get("contiguous") is not True:
+        fail("pre-cutover decision index coverage invalid")
+
+    index_meta = manifest.get("decision_index", {})
+    if index_path.stat().st_size != index_meta.get("size"):
+        fail("pre-cutover decision index size mismatch")
+    if sha256_file(index_path) != index_meta.get("sha256"):
+        fail("pre-cutover decision index SHA mismatch")
+
+    all_pre_events: list[dict] = []
+    chunk_meta = manifest.get("history_chunks", [])
+    if len(chunk_meta) != len(RUNTIME_CHUNKS):
+        fail("runtime migration chunk count mismatch")
+    for meta in chunk_meta:
+        rel = meta.get("path")
+        p = require(rel) if isinstance(rel, str) else None
+        if p is None or not p.exists(): continue
+        if p.stat().st_size != meta.get("size"):
+            fail(f"runtime migration chunk size mismatch: {rel}")
+        if sha256_file(p) != meta.get("sha256"):
+            fail(f"runtime migration chunk SHA mismatch: {rel}")
+        chunk_events = parse_jsonl(p)
+        all_pre_events.extend(chunk_events)
+        if chunk_events:
+            if chunk_events[0].get("event_seq") != meta.get("first_event_seq") or chunk_events[-1].get("event_seq") != meta.get("last_event_seq"):
+                fail(f"runtime migration chunk sequence boundary mismatch: {rel}")
+    pre_seqs = [e.get("event_seq") for e in all_pre_events]
+    if pre_seqs != list(range(1, 73)):
+        fail("pre-cutover runtime history is not exactly contiguous event_seq 1..72")
+
+    active_paths = [
+        "README.md", "AGENTS.md", "repository.manifest.yaml", "docs/INDEX.md",
+        "docs/authority/MASTER.md", "docs/operations/EXECUTION_PLAYBOOK.md",
+        "docs/governance/DECISION_LEDGER.md", "runtime/README.md", "runtime/CURRENT_STATE.yaml",
+    ]
+    stale_live_sheet_phrases = [
+        "Google Sheet `SRWF_RUNTIME_STATE` remains the live operational-state SSOT",
+        "Google Sheet `SRWF_RUNTIME_STATE` SSOT وضعیت اجرایی زنده است",
+        "External operational state store: Google Sheet `SRWF_RUNTIME_STATE`",
+        "read live `SRWF_RUNTIME_STATE`",
+        "SRWF_RUNTIME_STATE_PRE_CUTOVER.xlsx",
+    ]
+    for rel in active_paths:
+        p = require(rel)
+        if not p.exists(): continue
+        text = p.read_text(encoding="utf-8")
+        for phrase in stale_live_sheet_phrases:
+            if phrase in text:
+                fail(f"stale live-Sheet pointer in active file {rel}: {phrase}")
 
 
 def check_archive() -> None:
@@ -127,7 +246,7 @@ def check_archive() -> None:
     if archive.stat().st_size != ARCHIVE_SIZE:
         fail(f"source archive size mismatch: {archive.stat().st_size}")
         return
-    actual = hashlib.sha256(archive.read_bytes()).hexdigest()
+    actual = sha256_file(archive)
     if actual != ARCHIVE_SHA256:
         fail(f"source archive SHA mismatch: {actual}")
         return
@@ -199,12 +318,12 @@ def check_stale_pointers() -> None:
 
 
 def main() -> int:
-    check_required(); check_sfc(); check_mapping(); check_ssot(); check_archive(); check_manifest(); check_forbidden(); check_master(); check_stale_pointers()
+    check_required(); check_sfc(); check_mapping(); check_runtime_ssot(); check_archive(); check_manifest(); check_forbidden(); check_master(); check_stale_pointers()
     if ERRORS:
-        print("SRWF documentation integrity: FAIL")
+        print("SRWF repository integrity: FAIL")
         for error in ERRORS: print(f"- {error}")
         return 1
-    print("SRWF documentation integrity: PASS")
+    print("SRWF repository integrity: PASS")
     return 0
 
 

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "source": "SRWF_RUNTIME_STATE / DECISION_HISTORY",
+  "event_count": 72,
+  "coverage": {
+    "first_event_seq": 1,
+    "last_event_seq": 72,
+    "contiguous": true,
+    "missing_event_seq": []
+  },
+  "chunks": [
+    {"path": "history/pre-runtime-ssot/DECISION_HISTORY_000001_000008.jsonl", "first_event_seq": 1, "last_event_seq": 8},
+    {"path": "history/pre-runtime-ssot/DECISION_HISTORY_000009_000016.jsonl", "first_event_seq": 9, "last_event_seq": 16},
+    {"path": "history/pre-runtime-ssot/DECISION_HISTORY_000017_000024.jsonl", "first_event_seq": 17, "last_event_seq": 24},
+    {"path": "history/pre-runtime-ssot/DECISION_HISTORY_000025_000032.jsonl", "first_event_seq": 25, "last_event_seq": 32},
+    {"path": "history/pre-runtime-ssot/DECISION_HISTORY_000033_000040.jsonl", "first_event_seq": 33, "last_event_seq": 40},
+    {"path": "history/pre-runtime-ssot/DECISION_HISTORY_000041_000048.jsonl", "first_event_seq": 41, "last_event_seq": 48},
+    {"path": "history/pre-runtime-ssot/DECISION_HISTORY_000049_000056.jsonl", "first_event_seq": 49, "last_event_seq": 56},
+    {"path": "history/pre-runtime-ssot/DECISION_HISTORY_000057_000064.jsonl", "first_event_seq": 57, "last_event_seq": 64},
+    {"path": "history/pre-runtime-ssot/DECISION_HISTORY_000065_000072.jsonl", "first_event_seq": 65, "last_event_seq": 72}
+  ],
+  "note": "Full event payloads are preserved in the immutable JSONL chunks. This index is navigation metadata only."
+}

@@ -1,10 +1,11 @@
 ---
 document_id: SRWF-MASTER
 source_version: 1.9.0
-repository_materialization: 1.0.1-accepted
+repository_materialization: 1.1.0-runtime-ssot
 status: NATIVE_FIRST_SELECTED_PRESERVED__IMPLEMENTATION_AUTHORIZED_NOT_COMPLETED
 language: fa-IR
 repository_baseline: ACCEPTED_CURRENT
+runtime_ssot: runtime/CURRENT_STATE.yaml
 provenance_archive: history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz
 ---
 
@@ -83,7 +84,7 @@ provenance_archive: history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar
 | D-17 renderer | `POC_GATED / NOT_PROVEN` |
 | Production readiness | requires executed release evidence; documentation alone cannot establish it |
 
-**Current execution progress is not duplicated here.** For current Stage/Gate/candidate/result/next action, read live `SRWF_RUNTIME_STATE` when available.
+**Current execution progress is not duplicated here.** For current Stage/Gate/decision/candidate/result/blockers/next action, read `runtime/CURRENT_STATE.yaml` from `main`. For repository-era material history, read `runtime/DECISION_HISTORY.jsonl`. Do not use chat memory or the deprecated Google Sheet as a parallel current-state authority.
 
 ## Semantic Field Contract Gate
 
@@ -127,6 +128,7 @@ Binding by translated label or invented ID has no authority.
 - `discount_amount` may default to 0.
 - `net_payable_amount = tuition_amount - discount_amount`.
 - `discount_amount > tuition_amount` => validation error + no save.
+- `finance_status` values remain `0=عادی`, `1=بنیاد شهید`, `3=حکمت`; it is non-public, Registration-Officer-only, optional, and defaults canonically to `0 (عادی)` under `OWNER-20260907-FINANCE-STATUS-OFFICER-DEFAULT-NORMAL`.
 - manual cheque fields current-release optional/Officer-only.
 - POS/PC-POS and online Sayad inquiry deferred.
 
@@ -173,14 +175,22 @@ Before release, repo must contain current/verified:
 
 `DOCUMENTED` does not equal `OBSERVED_IN_STAGING`.
 
-## Repository-era provenance and normalization
+## Repository SSOT and provenance
 
 - Repository documentation baseline is `ACCEPTED_CURRENT` after merge/read-back on `main`.
+- Owner decision `OWNER-20260907-REPOSITORY-RUNTIME-SSOT` makes `GitHub main` the sole project/runtime SSOT after cutover merge/read-back.
+- Current execution state is `runtime/CURRENT_STATE.yaml`; repository-era material history is `runtime/DECISION_HISTORY.jsonl`.
+- Pre-cutover Google Sheet Current State and all 72 historical events are preserved as immutable readable provenance under `history/pre-runtime-ssot/` with `MIGRATION_MANIFEST.json` coverage/hash evidence.
+- Google Sheet `SRWF_RUNTIME_STATE` is `DEPRECATED_READ_ONLY_MIGRATION_SOURCE` after cutover; dual-write is forbidden.
 - Full pre-repository source corpus 01..11 is preserved byte-exact in `history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz` with SHA-256 manifest.
 - Active paths are stable; versions live in metadata/Git history rather than version-suffixed active filenames.
-- Repository migration repaired pointer drift only؛ it does not promote runtime validation or reopen architecture.
+- Repository migrations do not promote runtime validation or reopen architecture.
 - A known repository materialization gap must remain visible as `INCOMPLETE`, never be filled by guess.
+
+## Runtime state persistence rule
+
+For each material runtime change, update `runtime/CURRENT_STATE.yaml` and append the next event to `runtime/DECISION_HISTORY.jsonl` in the same accepted Git commit, then read both back from `main`. If state changed concurrently, re-read and do not force-overwrite. Discussion-only changes are not state events.
 
 ## Execution handoff
 
-For any progress-dependent work, first read live `SRWF_RUNTIME_STATE`. Under the governing Stage 0 contract, the authoritative Gravity Forms + Gravity Flow scaffold is allowed only after SFC closure and with synthetic data while privacy/retention remains unsigned; actual IDs are bound to Implementation Mapping only after they exist in runtime.
+For any progress-dependent work, first read `runtime/CURRENT_STATE.yaml` from `main`, then recent relevant `runtime/DECISION_HISTORY.jsonl`, then the Playbook and the current contract/evidence unit. Under the governing Stage 0 contract, real PII remains blocked until privacy/retention sign-off and actual IDs are bound to Implementation Mapping only after they exist in runtime.

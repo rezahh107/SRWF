@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "source_workbook": "SRWF_RUNTIME_STATE",
+  "source_spreadsheet_id": "1_m0w1iiw1_grZet0QKJMZ3QGns3TeYe56ZFUicAulSY",
+  "cutover_decision": "OWNER-20260907-REPOSITORY-RUNTIME-SSOT",
+  "pre_cutover_event_count": 72,
+  "archive_strategy": "TEXT_NATIVE_NORMALIZED_ARCHIVE",
+  "normalization": "Every nonblank DECISION_HISTORY row is preserved as a JSON object with all 10 source columns plus event_seq/schema/source metadata. CURRENT_STATE is preserved as normalized YAML. The normalized text archive is the retained migration provenance; no binary workbook path is authoritative.",
+  "current_state_snapshot": {
+    "path": "history/pre-runtime-ssot/CURRENT_STATE_PRE_CUTOVER.yaml",
+    "size": 2540,
+    "sha256": "958da019fe83371cfd701a693ab4366e9da5845bcaad09521f71e99c85013276"
+  },
+  "decision_index": {
+    "path": "history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json",
+    "event_count": 72,
+    "size": 1474,
+    "sha256": "c094894c0751c02b940071b1714f7d6153b9d4d2f36bdf69e21325fb73351abb"
+  },
+  "history_chunks": [
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000001_000008.jsonl","first_event_seq":1,"last_event_seq":8,"size":8132,"sha256":"8aa7dd2726cf0c8dff07f14ee7442090ca94e1400f04d7665940efb78f65a188"},
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000009_000016.jsonl","first_event_seq":9,"last_event_seq":16,"size":7677,"sha256":"e400ac9d785dd93561abbb83c90ea441bd811f2b251b0f5856ba03fede72056f"},
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000017_000024.jsonl","first_event_seq":17,"last_event_seq":24,"size":8521,"sha256":"f0f0421d20cfedbc65b9e3809aa04897776dee69803e7266c68b38eabf602080"},
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000025_000032.jsonl","first_event_seq":25,"last_event_seq":32,"size":10089,"sha256":"a4fa47e51de0eb588d0a66401c19fd0c00b6e3919c8d7561b619958001cd3d09"},
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000033_000040.jsonl","first_event_seq":33,"last_event_seq":40,"size":13391,"sha256":"3320e4f21061e1aa5ae247aeb465233be04c7e5ad94bd85e21d94909e55a0d48"},
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000041_000048.jsonl","first_event_seq":41,"last_event_seq":48,"size":14945,"sha256":"6a86e2382cef3d9ac90e01753676279b795101e8fb18154bb84378c873798177"},
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000049_000056.jsonl","first_event_seq":49,"last_event_seq":56,"size":10853,"sha256":"01e492ec538ece2cb47d90319355e31ff8666ea3008a1de0721ef1bfa7c401ba"},
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000057_000064.jsonl","first_event_seq":57,"last_event_seq":64,"size":11826,"sha256":"51f7c04c814f2b50ea8846702c953ed9987c52c717fa14fd399da5afa08e5e0d"},
+    {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000065_000072.jsonl","first_event_seq":65,"last_event_seq":72,"size":14263,"sha256":"dc885c1dd6da569468482807a93264de6d82b4b919179b9ec9f511f7f97fb198"}
+  ],
+  "coverage": {"first_event_seq":1,"last_event_seq":72,"contiguous":true,"missing_event_seq":[]},
+  "post_cutover_history": "runtime/DECISION_HISTORY.jsonl"
+}

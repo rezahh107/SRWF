@@ -3,7 +3,7 @@ repository:
   name: SRWF
   canonical_platform: GitHub
   default_branch: main
-  phase: ACTIVE_DOCUMENTATION_CORPUS
+  phase: ACTIVE_PROJECT_SSOT
   visibility: private
 
 acceptance:
@@ -13,11 +13,21 @@ acceptance:
   baseline_acceptance_commit: 01e20f7d56a60c66da11584971590f5872c56c19
   acceptance_basis: MERGED_TO_MAIN_AND_READ_BACK
 
-external_runtime_state:
-  name: SRWF_RUNTIME_STATE
-  provider: Google Sheets
+runtime_state:
+  provider: GitHub
   role: LIVE_OPERATIONAL_STATE_SSOT
-  repository_snapshots_authority: NON_CANONICAL
+  repository: rezahh107/SRWF
+  branch: main
+  current_state: runtime/CURRENT_STATE.yaml
+  decision_history: runtime/DECISION_HISTORY.jsonl
+  current_state_schema: runtime/schemas/current-state.schema.json
+  decision_event_schema: runtime/schemas/decision-event.schema.json
+  legacy_google_sheet:
+    name: SRWF_RUNTIME_STATE
+    provider: Google Sheets
+    status_after_cutover: DEPRECATED_READ_ONLY_MIGRATION_SOURCE
+    migration_manifest: history/pre-runtime-ssot/MIGRATION_MANIFEST.json
+    decision_index: history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json
 
 architecture:
   parent: WordPress + Gravity Forms + Gravity Flow
@@ -65,6 +75,8 @@ provenance:
   source_manifest: evidence/provenance/SOURCE_MANIFEST.yaml
   pre_repository_history: history/pre-repository/README.md
   source_archive: history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz
+  pre_runtime_ssot_history: history/pre-runtime-ssot/README.md
+  runtime_migration_manifest: history/pre-runtime-ssot/MIGRATION_MANIFEST.json
 
 security:
   real_pii_in_git: FORBIDDEN
@@ -78,6 +90,7 @@ integrity:
   workflow: .github/workflows/docs-integrity.yml
   github_actions_runtime_status: PRE_RUN_INFRA_UNAVAILABLE_OBSERVED
   manual_equivalent_validation_allowed_when_ci_infrastructure_unavailable: true
+  runtime_state_write_rule: CURRENT_STATE_AND_DECISION_HISTORY_SAME_ACCEPTED_COMMIT_THEN_MAIN_READBACK
   required_root_files:
     - README.md
     - AGENTS.md
@@ -90,4 +103,5 @@ notes:
   - Active repository paths are stable; versions live in document metadata and Git history rather than version-suffixed active filenames.
   - The pre-repository source corpus is preserved byte-exact in the provenance archive; source presence/hash integrity is not runtime proof.
   - Large Product Knowledge and Constructability sources are archived reference evidence; they do not become architecture authority.
-  - Current execution progress is never inferred from this manifest; read the live SRWF_RUNTIME_STATE when progress matters.
+  - Current execution progress is read from runtime/CURRENT_STATE.yaml, never inferred from README, chat memory, or the deprecated Google Sheet.
+  - Pre-cutover Google Sheet history is immutable provenance only; never dual-write it after cutover.

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rezahh107/SRWF/runtime/schemas/decision-event.schema.json",
+  "title": "SRWF Runtime Decision/Event Record",
+  "type": "object",
+  "required": ["schema_version","event_seq","date_time","stage_gate","decision_id","need","candidates","probe_or_evidence","observed_result","decision","reopen_condition","status","source"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "event_seq": {"type": "integer", "minimum": 1},
+    "date_time": {"type": "string"},
+    "stage_gate": {"type": "string"},
+    "decision_id": {"type": "string", "minLength": 1},
+    "need": {"type": "string"},
+    "candidates": {"type": "string"},
+    "probe_or_evidence": {"type": "string"},
+    "observed_result": {"type": "string"},
+    "decision": {"type": "string"},
+    "reopen_condition": {"type": "string"},
+    "status": {"type": "string"},
+    "source": {"type": "object", "required": ["kind"], "additionalProperties": true}
+  },
+  "additionalProperties": false
+}
