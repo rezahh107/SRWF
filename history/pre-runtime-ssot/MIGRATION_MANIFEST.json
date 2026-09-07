@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "source_workbook": "SRWF_RUNTIME_STATE",
+  "source_spreadsheet_id": "1_m0w1iiw1_grZet0QKJMZ3QGns3TeYe56ZFUicAulSY",
+  "cutover_decision": "OWNER-20260907-REPOSITORY-RUNTIME-SSOT",
+  "pre_cutover_event_count": 72,
+  "normalization": "Every nonblank DECISION_HISTORY row is preserved as a JSON object with all 10 source columns plus event_seq/schema/source metadata. CURRENT_STATE is preserved as normalized YAML.",
+  "files": [
+    {"path":"CURRENT_STATE_PRE_CUTOVER.yaml","size":2540,"sha256":"958da019fe83371cfd701a693ab4366e9da5845bcaad09521f71e99c85013276"},
+    {"path":"DECISION_HISTORY_000001_000024.jsonl","size":24330,"sha256":"cb8334dd9375389ac98cd0ce5e18ef583634b6297b4e6e2cb71c6f14c95f5c2c"},
+    {"path":"DECISION_HISTORY_000025_000048.jsonl","size":38425,"sha256":"5dd27c5d635e3f637e127c9c730506f08ac6531cd2f2d756a0f644d842df4291"},
+    {"path":"DECISION_HISTORY_000049_000072.jsonl","size":36942,"sha256":"dd3cc16e078521367e1ec9b0b65a4bb9a892f981ad81c33ba26bd8f9861cd645"},
+    {"path":"PRE_CUTOVER_DECISION_INDEX.json","size":21294,"sha256":"c66cdbb2b21939fdb9ac61d9cca9bf874e2b2b66d054da9ce97419e71448081c"}
+  ]
+}
