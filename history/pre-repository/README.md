@@ -4,7 +4,11 @@
 
 ## Archive
 
-`srwf_pre_repository_sources.tar.gz.b64.part01..part16`
+`srwf_pre_repository_sources.tar.xz.b64.part00..part52`
+
+- تعداد partها: `53`
+- هر part به‌جز آخر: حداکثر `9000` بایت Base64
+- SHA-256 archive decoded: `82b0201ce3920214fe2ac7b9bd7defaa8769651fbbd1168abcd0a1ba91d32ed4`
 
 روش materialization:
 
@@ -12,7 +16,7 @@
 python scripts/materialize_archives.py
 ```
 
-Script تمام partها را concatenate می‌کند، base64 decode می‌کند، SHA-256 archive را با `evidence/provenance/SOURCE_MANIFEST.yaml` مقایسه می‌کند، سپس tar.gz را در `.knowledge-materialized/pre-repository/` extract می‌کند.
+Script تمام partها را concatenate می‌کند، Base64 decode می‌کند، SHA-256 archive را با `evidence/provenance/SOURCE_MANIFEST.yaml` مقایسه می‌کند، سپس tar.xz را در `.knowledge-materialized/pre-repository/` extract می‌کند.
 
 ## Contents
 
@@ -36,4 +40,4 @@ Historical source presence does not make every old project-state projection curr
 
 ## Why encoded split parts?
 
-This preserves the large corpus byte-exact inside Git while keeping active documentation small and stable. Parts are transport/storage artifacts only; they have no semantic authority by themselves.
+Connector transport for large single text payloads is bounded. Split parts preserve the complete compressed corpus byte-exact while allowing every part to be committed and independently visible. Parts are transport/storage artifacts only; they have no semantic authority by themselves.
