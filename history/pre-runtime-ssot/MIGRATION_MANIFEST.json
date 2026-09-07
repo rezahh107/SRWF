@@ -4,7 +4,8 @@
   "source_spreadsheet_id": "1_m0w1iiw1_grZet0QKJMZ3QGns3TeYe56ZFUicAulSY",
   "cutover_decision": "OWNER-20260907-REPOSITORY-RUNTIME-SSOT",
   "pre_cutover_event_count": 72,
-  "normalization": "Every nonblank DECISION_HISTORY row is preserved as a JSON object with all 10 source columns plus event_seq/schema/source metadata. CURRENT_STATE is preserved as normalized YAML. Files are immutable after cutover.",
+  "archive_strategy": "TEXT_NATIVE_NORMALIZED_ARCHIVE",
+  "normalization": "Every nonblank DECISION_HISTORY row is preserved as a JSON object with all 10 source columns plus event_seq/schema/source metadata. CURRENT_STATE is preserved as normalized YAML. The normalized text archive is the retained migration provenance; no binary workbook path is authoritative.",
   "current_state_snapshot": {
     "path": "history/pre-runtime-ssot/CURRENT_STATE_PRE_CUTOVER.yaml",
     "size": 2540,
@@ -13,8 +14,8 @@
   "decision_index": {
     "path": "history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json",
     "event_count": 72,
-    "size": 13462,
-    "sha256": "77a23701ccb47cbe5e8eb6a3e21a458c74cc834d96f650ddb96ce17ddccc4462"
+    "size": 1474,
+    "sha256": "c094894c0751c02b940071b1714f7d6153b9d4d2f36bdf69e21325fb73351abb"
   },
   "history_chunks": [
     {"path":"history/pre-runtime-ssot/DECISION_HISTORY_000001_000008.jsonl","first_event_seq":1,"last_event_seq":8,"size":8132,"sha256":"8aa7dd2726cf0c8dff07f14ee7442090ca94e1400f04d7665940efb78f65a188"},
