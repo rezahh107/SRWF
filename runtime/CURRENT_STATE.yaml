@@ -1,5 +1,5 @@
 schema_version: 1
-state_version: 6
+state_version: 7
 updated_at: '2026-09-08'
 ssot:
   provider: GitHub
@@ -16,11 +16,11 @@ ssot:
 current:
   stage: STAGE_0_IN_PROGRESS
   gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_AMENDMENT_IN_PROGRESS
-  decision: OWNER-20260908-FOUNDATION-FIELDS-OFFICER-ONLY
+  decision: OWNER-20260908-DISCOUNT-CODE-CATALOG-41-SEPARATE-FINANCE
   candidate: LEGACY_GF_RULE_RECONCILIATION
-  last_observed_result: LEGACY_GF_AUDIT_FOUNDATION_FIELDS_CONFIRMED / OWNER_FOUNDATION_RULE_LOCKED
-  next_action_id: DECIDE_DISCOUNT_CATALOG_SEMANTICS
-  next_action: Decide whether the legacy coded discount catalog returns as a controlled Officer-only field separate from discount_amount.
+  last_observed_result: OWNER_DISCOUNT_CODE_CATALOG_LOCKED_41 / FINANCIAL_DISCOUNT_FIELDS_CONFIRMED_SEPARATE
+  next_action_id: DECIDE_HEKMAT_RULE_FINAL
+  next_action: Confirm the final Hekmat conditional semantics and persistence rule before moving to school/gender and report-card ambiguities.
 open_blockers:
 - id: PRIVACY_RETENTION_OPEN
   effect: blocks real PII in staging/UAT/production; synthetic work remains allowed
@@ -31,7 +31,7 @@ open_blockers:
 - id: FLOW_FINANCE_WHITELIST_NOT_PROVEN
   effect: finance fields are intended Registration-Officer-only/non-public, but the native Gravity Flow whitelist remains runtime-unproven
 - id: LEGACY_FINANCE_RULE_RECONCILIATION_INCOMPLETE
-  effect: foundation field semantics are now locked, but coded discount semantics and remaining legacy finance conditional rules are still under Owner reconciliation
+  effect: foundation and coded-discount semantics are locked; remaining Hekmat and other legacy conditional-rule reconciliation is still under Owner review
 - id: SCHOOL_GENDER_RULE_UNRESOLVED
   effect: the legacy four-school-selector structure implicitly constrained school choices by gender; the canonical school snapshot currently exposes code/name only, so the new single-selector gender compatibility rule remains unresolved
 - id: SERVER_BINDINGS_INCOMPLETE
@@ -72,8 +72,8 @@ governance:
   - DOCUMENTED != OBSERVED_IN_STAGING
   - NOT_PROVEN != PROVEN_ABSENT
 history:
-  last_event_seq: 78
-  last_event_id: OWNER-20260908-FOUNDATION-FIELDS-OFFICER-ONLY
+  last_event_seq: 79
+  last_event_id: OWNER-20260908-DISCOUNT-CODE-CATALOG-41-SEPARATE-FINANCE
   pre_cutover_event_count: 72
   pre_cutover_source: Google Sheet SRWF_RUNTIME_STATE / DECISION_HISTORY
   active_history_start_seq: 73
