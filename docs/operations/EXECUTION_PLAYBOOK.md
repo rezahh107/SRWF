@@ -1,7 +1,7 @@
-# SRWF Execution Playbook — Runtime Source v1.3.0
+# SRWF Execution Playbook — Runtime Source v1.3.1
 
 ## Purpose
-This is the compact execution map for the SRWF implementation Project. It does not replace the full Master. When details matter, retrieve `docs/authority/MASTER.md`.
+This is the compact execution map for the SRWF implementation Project. It does not replace the full Master. When details matter, retrieve `docs/authority/MASTER.md`. Current execution progress is always read from `runtime/CURRENT_STATE.yaml` on `main`.
 
 ## Architecture baseline
 - `Gravity Forms` = canonical form/entry data authority.
@@ -10,14 +10,24 @@ This is the compact execution map for the SRWF implementation Project. It does n
 - `Elementor` = outside the current operational baseline.
 - Custom code/add-ons are allowed only for a named residual native-capability gap and must stay thin; never create parallel data/workflow/state authority.
 - D-01..D-16 remain locked. `D-17` is Owner-refined to `POC_GATED / NOT_PROVEN`: first print candidate = `Gravity PDF Free` + SRWF-owned print layer, with no paid Gravity PDF template/extension and no custom PDF engine. A failed print candidate does not reopen parent architecture; it triggers Owner re-adjudication of the next renderer. A direct runtime contradiction to a lock must be escalated to the Owner.
-- Current-release finance remains in Gravity Forms and on the Registration Officer's native Gravity Flow surface only: canonical/display unit = Rial; financial/manual-cheque fields are optional and non-public; `discount_amount` may default to 0; `net_payable_amount = tuition_amount - discount_amount`; `discount_amount > tuition_amount` must fail validation and not save. POS/PC-POS and online Sayad inquiry are deferred.
+- Current-release finance remains in Gravity Forms and on the Registration Officer's native Gravity Flow surface only: canonical/display unit = Rial; financial/manual-cheque fields are optional and non-public; `discount_amount` may default to 0; `net_payable_amount = tuition_amount - discount_amount`; `discount_amount > tuition_amount` must fail validation and not save. `finance_status` remains `0=عادی, 1=بنیاد شهید, 3=حکمت`, is non-public/Officer-only/optional and defaults to canonical `0`. POS/PC-POS and online Sayad inquiry are deferred.
 - Multi-cheque requirement is `1..N`. Current host selection = `GP Nested Forms` with one cheque per child Entry; runtime/entitlement are `NOT_PROVEN`. Parent-Child Forms is fallback only after a bounded Nested Forms failure.
 - `PersianGravity Structured Scanner` remains a generic, host-agnostic, non-persistent capability, but the SRWF scanner path is **deferred from the current release**. All seven Sayad v01 output fields remain Hidden/future-reserved and are not populated by Scanner now.
 
+## Session execution boot
+Before any progress-dependent recommendation or `ادامه`:
+1. read `repository.manifest.yaml`;
+2. read `docs/authority/MASTER.md`;
+3. read `runtime/CURRENT_STATE.yaml`;
+4. read recent relevant events from `runtime/DECISION_HISTORY.jsonl`;
+5. then use this Playbook and only the relevant contract/evidence.
+
+Do not use the deprecated Google Sheet as a parallel current-state source.
+
 ## Execution sequence
 ### Stage 0 — Contract + environment
-1. Runtime/environment inventory remains `PARTIAL/OWNER_ACCEPTED_FOR_PROGRESS`. Preserve the already-observed production versions; reopen residual staging/license/cache/build-identity details only when a later compatibility/deployment decision requires them.
-2. Semantic Field Contract is `OWNER APPROVED / CLOSED`. Authoritative scaffold is now allowed with synthetic data only. After scaffold, bind the real Form/Field/Input/Step IDs in Implementation Mapping.
+1. Runtime/environment inventory may remain `PARTIAL/OWNER_ACCEPTED_FOR_PROGRESS`. Preserve already-observed production facts; reopen residual staging/license/cache/build-identity details only when a later compatibility/deployment decision requires them.
+2. Semantic Field Contract must be `OWNER APPROVED / CLOSED` before authoritative scaffold. After scaffold, bind the real Form/Field/Input/Step IDs in Implementation Mapping.
 3. Keep real PII out of staging/UAT until privacy/retention is signed off.
 
 ### Stage 1 — Public form
@@ -28,7 +38,7 @@ This is the compact execution map for the SRWF implementation Project. It does n
 
 ### Stage 2 — Native workflow
 - Registration Officer Approval uses the Owner-approved native whitelist. Officer edits human-readable code-backed school/group/status choices; the system writes the matching canonical code/value, while raw technical codes are not directly editable. Optional current-release finance fields stay on this native Officer-only surface; no Windows/POS utility replaces Officer editing.
-- Current-release finance semantics are closed: unit=Rial; `tuition_amount`, `discount_amount`, `discount_title` and manual-cheque finance fields are optional/non-public/Registration-Officer-only; `discount_amount` may default to 0; `net_payable_amount = tuition_amount - discount_amount`; `discount_amount > tuition_amount` => validation error and no save.
+- Current-release finance semantics are closed: unit=Rial; `tuition_amount`, `discount_amount`, `discount_title`, `net_payable_amount`, `finance_status` and manual-cheque finance fields are non-public/Registration-Officer-only; current-release values are optional unless a narrower current contract says otherwise. `discount_amount` may default to 0; `net_payable_amount = tuition_amount - discount_amount`; `discount_amount > tuition_amount` => validation error and no save. `finance_status` defaults to `0=عادی`.
 - Multi-cheque: one Cheque child Entry per cheque through GP Nested Forms when the host POC passes. Current release uses manual editing only; Scanner population is deferred.
 - Accountant Approval and final external-pending step.
 - Gate `V-01`: Inbox → Entry Details → edit allowed field without leaving current step/assignee → native Approve → correct next step.
@@ -125,21 +135,27 @@ For the current decision unit:
 `depth=DEEP` means higher semantic density in the normalized corpus; it does **not** by itself mean `FULLY_INGESTED`, closed knowledge boundary, runtime proof, or decision readiness. Check source status, limitations, material unknowns, and fresh official docs when decision-material.
 
 ## Runtime state store
-External operational state store: Google Sheet `SRWF_RUNTIME_STATE`.
-- `CURRENT_STATE` = current stage/gate/decision/candidate/last result/blocker/next action.
-- `DECISION_HISTORY` = material probe/decision history.
-The Project Instructions govern when it must be read/written. This file does not claim connector availability.
+Owner decision `OWNER-20260907-REPOSITORY-RUNTIME-SSOT` establishes the repository as the live operational state store after cutover:
 
-## Repository-baseline normalization
+- `runtime/CURRENT_STATE.yaml` = current stage/gate/decision/candidate/last result/blockers/next action.
+- `runtime/DECISION_HISTORY.jsonl` = append-only material runtime history after cutover.
+- `history/pre-runtime-ssot/` = immutable complete pre-cutover Google Sheet history.
+- Google Sheet `SRWF_RUNTIME_STATE` = `DEPRECATED_READ_ONLY_MIGRATION_SOURCE`; do not dual-write.
+
+For a material state change, state + one appended event must be committed together and read back from `main` before persistence is claimed. If concurrent state changed, re-read instead of overwriting.
+
+## Repository normalization
 - Active paths are stable repository paths; old version-suffixed source names are historical provenance only.
 - Current Overlay active path is `knowledge/constructability/APPLICABILITY_OVERLAY.md`.
 - Exact pre-repository sources `01..11` live in `history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar.xz`; materialization is local-only and not committed.
-- No architecture, Stage/Gate order, candidate selection, PASS/FAIL contract or runtime evidence state is promoted by repository migration.
+- Pre-cutover Runtime State and event history live under `history/pre-runtime-ssot/` with migration manifest/hash evidence.
+- No architecture, Stage/Gate order, candidate selection, PASS/FAIL contract or runtime validation state is promoted merely by repository migration.
 
-## v1.3.0 Owner-decision / Gate sync
-- Semantic Field Contract is now Owner-approved/closed; authoritative scaffold with synthetic data is the current next action.
+## Current Owner-decision / Gate sync
+- Semantic Field Contract is Owner-approved/closed; authoritative scaffold is allowed with synthetic data subject to the current runtime blockers/next action in `runtime/CURRENT_STATE.yaml`.
 - Scanner-based financial/cheque input is deferred from the current release; seven Sayad output fields stay Hidden/future-reserved.
 - Officer edits human-readable code-backed choices and the system updates canonical codes; raw codes are not directly editable.
-- Current-release finance/manual-cheque fields are optional, non-public and Registration-Officer-only; Rial is canonical/display; discount above tuition is rejected without save.
+- Current-release finance/manual-cheque fields are optional, non-public and Registration-Officer-only; Rial is canonical/display; discount above tuition is rejected without save; `finance_status` defaults to `0=عادی` on the Officer surface.
 - Residual Environment Inventory remains partial/Owner-accepted for progression; privacy/retention still blocks real PII.
-- No runtime PASS/validation claim is promoted by this documentation update.
+- Repository is the single runtime SSOT after accepted cutover; no Google Sheet dual-write.
+- No runtime PASS/validation claim is promoted by documentation/state migration.
