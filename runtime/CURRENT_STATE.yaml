@@ -1,6 +1,6 @@
 schema_version: 1
-state_version: 2
-updated_at: '2026-09-08T00:14:00+03:30'
+state_version: 3
+updated_at: '2026-09-08T01:01:19+04:00'
 ssot:
   provider: GitHub
   repository: rezahh107/SRWF
@@ -17,25 +17,25 @@ current:
   stage: STAGE_0_IN_PROGRESS
   gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_CLOSED
   decision: OWNER-20260907-FINANCE-STATUS-OFFICER-DEFAULT-NORMAL
-  candidate: GF_IMPORT_SCAFFOLD_V05_PROVISIONAL
-  last_observed_result: REPOSITORY_RUNTIME_SSOT_CUTOVER_CONFIRMED_MAIN_READBACK
-  next_action_id: PATCH_GF_V05_FIELD28_FINANCE_STATUS
-  next_action: Patch v0.5 field 28 finance_status to non-public Registration-Officer-only, optional, default canonical value 0 (عادی); regenerate the provisional import artifact and mapping, then rerun local semantic/structural audit before any staging import.
+  candidate: GF_IMPORT_SCAFFOLD_V051_PROVISIONAL
+  last_observed_result: GF_V051_FINANCE_STATUS_PATCH_LOCAL_AUDIT_PASS / CONTROLLED_REFERENCE_RECOVERY_CONFIRMED
+  next_action_id: STAGING_IMPORT_GF_V051_SYNTHETIC
+  next_action: Import SRWF_GravityForms_Import_v0.5.1_PROVISIONAL.json into staging, keep the form inactive, use synthetic data only, and report the actual imported Form ID plus any Gravity Forms import warning/error.
 open_blockers:
 - id: PRIVACY_RETENTION_OPEN
   effect: blocks real PII in staging/UAT/production; synthetic work remains allowed
 - id: ENVIRONMENT_INVENTORY_PARTIAL
   effect: OWNER_ACCEPTED_FOR_PROGRESS; reopen only when a compatibility/deployment fact becomes decision-critical
-- id: GF_V05_FIELD28_SEMANTIC_MISMATCH
-  effect: finance_status in v0.5 must be patched before staging import
-- id: SCHOOL_MASTER_NOT_RETRIEVED
-  effect: do not fabricate controlled school choices
-- id: FINAL_CROSSWALK_NOT_RETRIEVED
-  effect: final code/label binding remains incomplete where Crosswalk authority is required
+- id: SCHOOL_CHOICES_NOT_MATERIALIZED
+  effect: canonical school source is recovered and bound, but the full controlled school choices are not yet materialized into the current v0.5.1 import artifact
+- id: FLOW_FINANCE_WHITELIST_NOT_PROVEN
+  effect: v0.5.1 encodes finance_status as non-public/optional/default 0; Registration-Officer-only exposure/editability still requires the native Gravity Flow step whitelist and staging proof
 - id: SERVER_BINDINGS_INCOMPLETE
   effect: DOB/mobile/group/status/school/report-card/discount/file-access server bindings and validation remain incomplete
 - id: GP_NESTED_FORMS_POC_NOT_PROVEN
   effect: multi-cheque child composition is selected but not runtime-proven
+- id: GF_IMPORT_RUNTIME_UNEXECUTED
+  effect: v0.5.1 passed local semantic/structural audit only; actual Gravity Forms staging import has not been executed
 governance:
   repository_baseline: ACCEPTED_CURRENT
   runtime_ssot_decision: OWNER-20260907-REPOSITORY-RUNTIME-SSOT
@@ -50,8 +50,8 @@ governance:
   - DOCUMENTED != OBSERVED_IN_STAGING
   - NOT_PROVEN != PROVEN_ABSENT
 history:
-  last_event_seq: 74
-  last_event_id: OBS-20260908-REPOSITORY-RUNTIME-SSOT-MAIN-READBACK
+  last_event_seq: 75
+  last_event_id: OBS-20260908-GF-V051-FINANCE-PATCH-AUDIT
   pre_cutover_event_count: 72
   pre_cutover_source: Google Sheet SRWF_RUNTIME_STATE / DECISION_HISTORY
   active_history_start_seq: 73
@@ -59,6 +59,7 @@ history:
   pre_cutover_migration_manifest: history/pre-runtime-ssot/MIGRATION_MANIFEST.json
 evidence_refs:
 - docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml
+- docs/governance/DECISION_LEDGER.md
 - docs/authority/MASTER.md
 - docs/operations/EXECUTION_PLAYBOOK.md
 - runtime/DECISION_HISTORY.jsonl
