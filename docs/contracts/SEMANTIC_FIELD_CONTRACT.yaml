@@ -1,592 +1,617 @@
 contract:
   id: SRWF-SFC
-  title: SRWF Semantic Field Contract
-  version: 1.0.0-repository-baseline
-  semantic_status: OWNER_APPROVED_CLOSED_WITH_EXPLICIT_MATERIALIZATION_GAPS
-  binding_status: UNBOUND_UNTIL_AUTHORITATIVE_SCAFFOLD
-  canonical_authority: docs/authority/MASTER.md + current Owner decisions
-  updated_at: 2026-09-07
-
+  version: 1.1.0-event86-sync
+  semantic_status: OWNER_APPROVED_CLOSED_THROUGH_EVENT86
+  binding_status: UNBOUND_UNTIL_STAGING_IMPORT_READBACK
+  authority_event: OWNER-20260908-SFC-BATCH-MAIN-FORM-CONSTRUCTION-READY
+  authority_event_seq: 86
+  candidate_artifact: SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json
+  updated_at: '2026-09-08'
 semantics:
-  include_in_form: "Field must exist in authoritative scaffold/form surface. This is independent of value_required."
-  value_required: "Value is mandatory for the relevant actor/write path. false means field may be empty."
-  field_id: "Always null in Gate A; populated only in Implementation Mapping after scaffold."
-
-public_student_fields:
-  - contract_id: STUDENT_FIRST_NAME
-    machine_purpose: first_name
-    human_label_fa: نام
-    gf_field_type: text_or_name_input
-    include_in_form: true
-    value_required: true
-    source_of_truth: Owner
-    canonical_storage: normalized_text
-    public_visibility: visible
-    officer_visibility: visible
-    officer_editability: true
-    sensitivity: PII
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-    decision_refs: [OWNER-20260830-NAME-REQUIRED]
-
-  - contract_id: STUDENT_LAST_NAME
-    machine_purpose: last_name
-    human_label_fa: نام خانوادگی
-    gf_field_type: text_or_name_input
-    include_in_form: true
-    value_required: true
-    source_of_truth: Owner
-    canonical_storage: normalized_text
-    public_visibility: visible
-    officer_visibility: visible
-    officer_editability: true
-    sensitivity: PII
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-    decision_refs: [OWNER-20260830-NAME-REQUIRED]
-
-  - contract_id: STUDENT_FATHER_NAME
-    machine_purpose: father_name
-    human_label_fa: نام پدر
-    gf_field_type: text
-    include_in_form: true
-    value_required: true
-    source_of_truth: Owner
-    canonical_storage: normalized_text
-    public_visibility: visible
-    officer_visibility: visible
-    officer_editability: true
-    sensitivity: PII
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-    decision_refs: [OWNER-20260830-FATHER-NAME-REQUIRED, OBS-20260907-SFC-FIELD-CROSSCHECK-FATHER-MOBILE]
-
-  - contract_id: STUDENT_NATIONAL_ID
-    machine_purpose: national_id
-    human_label_fa: کد ملی
-    gf_field_type: text
-    include_in_form: true
-    value_required: true
-    source_of_truth: Owner + Master D-10/D-15
-    canonical_storage: ASCII_10_DIGITS_PRESERVE_LEADING_ZERO
-    normalization: Persian_Arabic_digits_to_ASCII + trim
-    server_validation: Iranian_national_id_checksum
-    duplicate_policy: duplicates_allowed_no_submit_blocking_lookup
-    workflow_role: counter_business_key
-    export_role: exact_counter_match_key
-    public_visibility: visible
-    officer_visibility: visible
-    officer_editability: true
-    sensitivity: HIGH_PII
-    semantic_status: OWNER_LOCKED
-    binding_status: UNBOUND
-    decision_refs: [D-10, D-15]
-
-  - contract_id: STUDENT_MOBILE
-    machine_purpose: student_mobile
-    human_label_fa: تلفن همراه داوطلب
-    gf_field_type: phone_or_text
-    include_in_form: true
-    value_required: true
-    source_of_truth: Owner
-    canonical_storage: Iranian_mobile_local_format
-    normalization: Persian_Arabic_digits_to_ASCII_preserve_leading_zero
-    server_validation: Iranian_mobile_structure
-    public_visibility: visible
-    officer_visibility: visible
-    officer_editability: true
-    sensitivity: PII
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-    decision_refs: [OWNER-20260830-MOBILE-REQUIREDNESS, D-11]
-
-  - contract_id: HOME_PHONE
-    machine_purpose: home_phone
-    human_label_fa: تلفن منزل
-    gf_field_type: phone_or_text
-    include_in_form: true
-    value_required: false
-    source_of_truth: Owner
-    canonical_storage: normalized_phone_text
-    public_visibility: visible
-    officer_visibility: visible
-    officer_editability: true
-    sensitivity: PII
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-    supersedes: OWNER-20260907-HOME-PHONE-REQUIRED
-    decision_refs: [OWNER-20260907-HOME-PHONE-INCLUDED-OPTIONAL]
-
-  - contract_id: CONTACT1_RELATIONSHIP
-    machine_purpose: contact1_relationship
-    human_label_fa: نسبت رابط ۱
-    gf_field_type: hidden
-    include_in_form: true
-    value_required: true
-    source_of_truth: Owner
-    canonical_storage: "پدر"
-    default_semantics: fixed_constant
-    public_visibility: hidden
-    officer_visibility: visible_if_needed
-    officer_editability: false
-    sensitivity: PII
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-    decision_refs: [OWNER-20260830-CONTACT-RELATION-FIXED]
-
-  - contract_id: CONTACT1_MOBILE
-    machine_purpose: contact1_mobile
-    human_label_fa: تلفن همراه پدر
-    gf_field_type: phone_or_text
-    include_in_form: true
-    value_required: false
-    source_of_truth: Owner
-    canonical_storage: Iranian_mobile_local_format_or_empty
-    normalization: Persian_Arabic_digits_to_ASCII_preserve_leading_zero
-    public_visibility: visible
-    officer_visibility: visible
-    officer_editability: true
-    sensitivity: PII
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-    decision_refs: [OWNER-20260830-MOBILE-REQUIREDNESS, OWNER-20260830-CONTACT-RELATION-MOBILE]
-
-  - contract_id: CONTACT2_RELATIONSHIP
-    machine_purpose: contact2_relationship
-    human_label_fa: نسبت رابط ۲
-    gf_field_type: hidden
-    include_in_form: true
-    value_required: true
-    source_of_truth: Owner
-    canonical_storage: "مادر"
-    default_semantics: fixed_constant
-    public_visibility: hidden
-    officer_visibility: visible_if_needed
-    officer_editability: false
-    sensitivity: PII
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-    decision_refs: [OWNER-20260830-CONTACT-RELATION-FIXED]
-
-  - contract_id: CONTACT2_MOBILE
-    machine_purpose: contact2_mobile
-    human_label_fa: تلفن همراه مادر
-    gf_field_type: phone_or_text
-    include_in_form: true
-    value_required: false
-    source_of_truth: Owner
-    canonical_storage: Iranian_mobile_local_format_or_empty
-    normalization: Persian_Arabic_digits_to_ASCII_preserve_leading_zero
-    public_visibility: visible
-    officer_visibility: visible
-    officer_editability: true
-    sensitivity: PII
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-    decision_refs: [OWNER-20260830-MOBILE-REQUIREDNESS, OWNER-20260830-CONTACT-RELATION-MOBILE]
-
-  - contract_id: STUDENT_GENDER
-    machine_purpose: gender_code
-    human_label_fa: جنسیت
-    gf_field_type: radio
-    include_in_form: true
-    value_required: true
-    choice_values:
-      - {label_fa: دختر/زن, value: "0"}
-      - {label_fa: پسر/مرد, value: "1"}
-    source_of_truth: Owner + Matrix2
-    canonical_storage: code_string
-    public_visibility: visible
-    officer_visibility: visible
-    officer_editability: true_via_human_label_system_writes_code
-    sensitivity: PII
-    semantic_status: OWNER_LOCKED
-    binding_status: UNBOUND
-    decision_refs: [D-04, ADR-016, OWNER-20260907-OFFICER-EDIT-LABELS-SYSTEM-CODES]
-
-  - contract_id: EDUCATION_LEVEL
-    machine_purpose: education_level
-    human_label_fa: مقطع تحصیلی
-    gf_field_type: choice
-    include_in_form: true
-    value_required: true
-    source_of_truth: Crosswalk + Owner
-    canonical_storage: controlled_choice
-    public_visibility: visible
-    officer_visibility: visible
-    officer_editability: true_via_human_label
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-    notes: exact choice catalog is governed by Crosswalk/group mapping evidence and must be embedded before final scaffold freeze
-
-  - contract_id: GRADE_GROUP_SELECTION
-    machine_purpose: grade_group_selection
-    human_label_fa: پایه/گروه آزمایشی
-    gf_field_type: choice
-    include_in_form: true
-    value_required: true
-    source_of_truth: Crosswalk + Owner
-    canonical_storage: human_choice_plus_derived_group_code
-    public_visibility: visible
-    officer_visibility: visible
-    officer_editability: true_via_human_label_system_writes_group_code
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-    decision_refs: [OWNER-20260830-GROUP-CODE-DERIVATION, OWNER-20260907-OFFICER-EDIT-LABELS-SYSTEM-CODES]
-
-  - contract_id: GROUP_CODE
-    machine_purpose: group_code
-    human_label_fa: کد گروه
-    gf_field_type: hidden_or_derived
-    include_in_form: true
-    value_required: true
-    source_of_truth: Crosswalk
-    canonical_storage: controlled_code
-    public_visibility: hidden
-    officer_visibility: not_raw
-    officer_editability: false_raw_system_mediated_only
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-    decision_refs: [OWNER-20260830-GROUP-CODE-DERIVATION, OWNER-20260907-OFFICER-EDIT-LABELS-SYSTEM-CODES]
-
-  - contract_id: GRADUATION_STATUS
-    machine_purpose: graduation_status
-    human_label_fa: وضعیت تحصیلی
-    gf_field_type: choice_or_hidden_derived
-    include_in_form: true
-    value_required: true
-    choice_values:
-      - {label_fa: فارغ‌التحصیل, value: "0"}
-      - {label_fa: دانش‌آموز, value: "1"}
-    visibility_rule: auto_hidden_for_single_status_group_codes; visible_choice_for_dual_status_group_codes
-    server_validation: group_code_x_status_matrix
-    source_of_truth: Owner + Matrix2 group rules
-    canonical_storage: code_string
-    officer_editability: true_via_human_label_system_writes_code
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-    decision_refs: [OWNER-20260830-GRADUATION-STATUS-CONDITIONAL, OWNER-20260907-OFFICER-EDIT-LABELS-SYSTEM-CODES]
-
-  - contract_id: REGISTRATION_CENTER
-    machine_purpose: registration_center_code
-    human_label_fa: مرکز ثبت‌نام
-    gf_field_type: choice
-    include_in_form: true
-    value_required: true
-    source_of_truth: Owner/Crosswalk
-    canonical_storage: controlled_code
-    choice_values_source: current_crosswalk
-    public_visibility: visible
-    officer_visibility: visible
-    officer_editability: true_via_human_label_system_writes_code
-    semantic_status: OWNER_LOCKED_BY_DOMAIN_SOURCE
-    binding_status: UNBOUND
-
-  - contract_id: REGISTRATION_STATUS
-    machine_purpose: registration_status_code
-    human_label_fa: وضعیت ثبت‌نام
-    gf_field_type: choice
-    include_in_form: true
-    value_required: true
-    source_of_truth: Owner/Crosswalk
-    canonical_storage: controlled_code
-    choice_values_source: current_crosswalk
-    public_visibility: visible
-    officer_visibility: visible
-    officer_editability: true_via_human_label_system_writes_code
-    semantic_status: OWNER_LOCKED_BY_DOMAIN_SOURCE
-    binding_status: UNBOUND
-    notes: current code catalog must be materialized from accepted Crosswalk/source before final form freeze; do not infer from older contradictory prose
-
-  - contract_id: DATE_OF_BIRTH_JALALI
-    machine_purpose: dob_jalali
-    human_label_fa: تاریخ تولد
-    gf_field_type: jalali_date_or_three_controls
-    include_in_form: true
-    value_required: true
-    source_of_truth: Owner
-    canonical_storage: YYYY/MM/DD_JALALI
-    server_validation: valid_jalali_date_only
-    age_grade_rule: none
-    public_visibility: visible
-    officer_visibility: visible
-    officer_editability: true
-    sensitivity: PII
-    semantic_status: OWNER_LOCKED
-    binding_status: UNBOUND
-    decision_refs: [D-11, ADR-012, ADR-034]
-
-  - contract_id: STUDENT_PHOTO
-    machine_purpose: student_photo
-    human_label_fa: عکس دانش‌آموز
-    gf_field_type: file_upload
-    include_in_form: true
-    value_required: true
-    source_of_truth: Owner
-    accepted_processing: native_upload_only_no_custom_image_processing
-    public_visibility: visible
-    officer_visibility: true
-    officer_editability: per_native_flow_whitelist
-    file_access: Admin_and_Registration_Officer_only
-    sensitivity: HIGH_PII_FILE
-    retention: OWNER_DECISION_PENDING
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-    decision_refs: [OWNER-20260830-STUDENT-PHOTO-REQUIRED, OWNER-20260830-FILE-ACCESS-SCOPE, D-12]
-
-school_fields:
-  - contract_id: SCHOOL_CODE
-    machine_purpose: school_code
-    human_label_fa: مدرسه
-    gf_field_type: dropdown_with_maintained_search_surface
-    include_in_form: true
-    value_required: true
-    source_of_truth: Crosswalk + Owner
-    canonical_storage: stable_school_code
-    other_value: "0"
-    public_visibility: visible
-    officer_visibility: visible_human_label
-    officer_editability: human_label_choice_only_system_writes_canonical_code
-    semantic_status: OWNER_LOCKED
-    binding_status: UNBOUND
-    decision_refs: [D-09, OWNER-20260830-SCHOOL-ADVANCED-SELECT, OWNER-20260907-OFFICER-EDIT-LABELS-SYSTEM-CODES]
-
-  - contract_id: SCHOOL_NAME
-    machine_purpose: school_name
-    human_label_fa: نام مدرسه
-    gf_field_type: derived_choice_label_or_text
-    include_in_form: true
-    value_required: true
-    source_of_truth: Crosswalk + Owner
-    canonical_storage: selected_human_label
-    public_visibility: derived_or_visible_with_school_selector
-    officer_visibility: visible
-    officer_editability: true_via_school_selection
-    semantic_status: OWNER_LOCKED
-    binding_status: UNBOUND
-
-  - contract_id: SCHOOL_NAME_OTHER
-    machine_purpose: school_name_other
-    human_label_fa: نام مدرسه (سایر)
-    gf_field_type: text
-    include_in_form: true
-    value_required: conditional
-    required_when: school_code == "0"
-    source_of_truth: Owner
-    public_visibility: conditional
-    officer_visibility: visible_when_applicable
-    officer_editability: true
-    semantic_status: OWNER_LOCKED
-    binding_status: UNBOUND
-
-  - contract_id: REPORT_CARD_FILE
-    machine_purpose: report_card_file
-    human_label_fa: کارنامه
-    gf_field_type: file_upload
-    include_in_form: true
-    value_required: conditional
-    required_when_school_code_in: ["283", "286", "291", "650", "663", "666", "667", "1320", "1351"]
-    optional_otherwise: true
-    accepted_types: [jpg, jpeg, pdf]
-    approximate_max_size_mb: 5
-    file_access: Admin_and_Registration_Officer_only
-    sensitivity: HIGH_PII_FILE
-    retention: OWNER_DECISION_PENDING
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-    decision_refs: [OWNER-20260830-REPORT-CARD-CONDITIONAL, OWNER-20260830-REPORT-CARD-SCHOOL-CODES, OWNER-20260830-FILE-ACCESS-SCOPE]
-
-hidden_compatibility_fields:
-  - contract_id: HEKMAT_PACKAGE
-    machine_purpose: hekmat_package
-    human_label_fa: نوع بسته حکمت
-    gf_field_type: hidden
-    include_in_form: true
-    value_required: conditional
-    required_when: registration_status_is_hekmat
-    canonical_storage: "آزمون"
-    default_semantics: fixed_constant
-    public_visibility: hidden
-    officer_editability: false
-    semantic_status: OWNER_APPROVED_COMPATIBILITY
-    binding_status: UNBOUND
-    decision_refs: [OWNER-20260830-HEKMAT-PACKAGE-HIDDEN]
-
-  - contract_id: HEKMAT_TRACKING
-    machine_purpose: hekmat_tracking
-    human_label_fa: کد رهگیری حکمت
-    gf_field_type: hidden
-    include_in_form: true
-    value_required: conditional
-    required_when: registration_status_is_hekmat
-    canonical_storage: "1111111111111111"
-    default_semantics: fixed_constant
-    public_visibility: hidden
-    officer_editability: false
-    semantic_status: OWNER_APPROVED_COMPATIBILITY
-    binding_status: UNBOUND
-    decision_refs: [OWNER-20260830-HEKMAT-TRACKING-HIDDEN]
-
-review_and_system_fields:
-  - contract_id: REVIEW_STATUS
-    machine_purpose: review_status
-    gf_field_type: administrative_choice
-    include_in_form: true
-    value_required: false
-    choice_values: [none, needs_review]
-    source_of_truth: Gravity_Forms_Entry_overlay
-    public_visibility: hidden
-    officer_visibility: visible
-    officer_editability: true_native_flow
-    workflow_role: display_overlay_only_not_flow_state
-    semantic_status: OWNER_LOCKED
-    binding_status: UNBOUND
-    decision_refs: [D-01, D-04]
-
-  - contract_id: REVIEW_REASON
-    machine_purpose: review_reason
-    gf_field_type: text_or_choice
-    include_in_form: true
-    value_required: conditional
-    required_when: review_status == needs_review
-    public_visibility: hidden
-    officer_visibility: visible
-    officer_editability: true_native_flow
-    workflow_role: review_reason_only
-    semantic_status: OWNER_LOCKED
-    binding_status: UNBOUND
-    decision_refs: [D-01]
-
-  - contract_id: REGISTRATION_COUNTER
-    machine_purpose: registration_counter
-    gf_field_type: administrative_or_hidden
-    include_in_form: true
-    value_required: false_at_public_submit
-    source_of_truth: external_counter_system_via_WP_All_Import
-    canonical_storage: external_counter_value
-    public_visibility: hidden
-    officer_visibility: read_only_or_hidden
-    officer_editability: false
-    write_paths: [WP_ALL_IMPORT_ONLY]
-    workflow_role: downstream_export
-    semantic_status: OWNER_LOCKED
-    binding_status: UNBOUND
-    decision_refs: [D-15, D-16]
-
-finance_parent_fields:
-  visibility: REGISTRATION_OFFICER_ONLY_NON_PUBLIC
-  current_release_requiredness: ALL_OPTIONAL
-  unit: Rial
-  write_path: MANUAL_OFFICER_EDIT_NATIVE_GRAVITY_FLOW
-  - contract_id: TUITION_AMOUNT
-    machine_purpose: tuition_amount
-    gf_field_type: number
-    include_in_form: true
-    value_required: false
-    canonical_storage: integer_or_decimal_Rial
-    officer_editability: true
-    print_inclusion: true
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-
-  - contract_id: DISCOUNT_AMOUNT
-    machine_purpose: discount_amount
-    gf_field_type: number
-    include_in_form: true
-    value_required: false
-    default_semantics: 0_allowed
-    canonical_storage: integer_or_decimal_Rial
-    server_validation: discount_amount_lte_tuition_amount_or_no_save
-    officer_editability: true
-    print_inclusion: true
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-
-  - contract_id: DISCOUNT_TITLE
-    machine_purpose: discount_title
-    gf_field_type: text
-    include_in_form: true
-    value_required: false
-    canonical_storage: text_or_empty
-    officer_editability: true
-    print_inclusion: true
-    semantic_status: OWNER_APPROVED
-    binding_status: UNBOUND
-
-  - contract_id: NET_PAYABLE_AMOUNT
-    machine_purpose: net_payable_amount
-    gf_field_type: number_calculated
-    include_in_form: true
-    value_required: false
-    canonical_storage: persisted_Rial_consistent_with_formula
-    derivation: tuition_amount - discount_amount
-    officer_editability: false_direct_override
-    print_inclusion: true
-    semantic_status: OWNER_APPROVED_DERIVED
-    binding_status: UNBOUND
-
+  include_in_form: existence in scaffold; independent of value_required
+  value_required: mandatory value semantics for relevant actor/write path
+  artifact_ids: reference only; actual runtime IDs bind after import read-back
+main_form_fields:
+- contract_id: STUDENT_FIRST_NAME
+  machine_purpose: first_name
+  include_in_form: true
+  value_required: true
+  public_visibility: visible
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  canonical_storage: text
+- contract_id: STUDENT_LAST_NAME
+  machine_purpose: last_name
+  include_in_form: true
+  value_required: true
+  public_visibility: visible
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  canonical_storage: text
+- contract_id: STUDENT_FATHER_NAME
+  machine_purpose: father_name
+  include_in_form: true
+  value_required: true
+  public_visibility: visible
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  canonical_storage: text
+- contract_id: STUDENT_NATIONAL_ID
+  machine_purpose: national_id
+  include_in_form: true
+  value_required: true
+  public_visibility: visible
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  canonical_storage: ASCII_10_DIGITS_PRESERVE_LEADING_ZERO
+  normalization: Persian/Arabic digits -> ASCII
+  server_validation: Iranian checksum; duplicates allowed
+  ui: PersianGravity ir_national_id
+- contract_id: DATE_OF_BIRTH_JALALI
+  machine_purpose: dob_jalali
+  include_in_form: true
+  value_required: true
+  public_visibility: visible
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  canonical_storage: YYYY/MM/DD Jalali
+  ui: PersianGravity date/check_jalali
+  server_validation: valid Jalali; no age rule; staging storage read-back required
+- contract_id: STUDENT_GENDER
+  machine_purpose: gender_code
+  include_in_form: true
+  value_required: true
+  public_visibility: visible
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  choices:
+    '0': دختر/زن
+    '1': پسر/مرد
+- contract_id: STUDENT_MOBILE
+  machine_purpose: student_mobile
+  include_in_form: true
+  value_required: true
+  public_visibility: visible
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  normalization: digits ASCII; remove spaces/hyphens
+  server_validation: 09xxxxxxxxx 11 digits
+- contract_id: HOME_PHONE
+  machine_purpose: home_phone
+  include_in_form: true
+  value_required: false
+  public_visibility: visible
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  normalization: digits ASCII; remove spaces/hyphens; preserve leading zero
+  server_validation: digits only if present; no fixed-length rule
+- contract_id: CONTACT1_MOBILE
+  machine_purpose: contact1_mobile
+  include_in_form: true
+  value_required: false
+  public_visibility: visible
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  normalization: digits ASCII; remove spaces/hyphens
+  server_validation: 09xxxxxxxxx if present
+- contract_id: CONTACT2_MOBILE
+  machine_purpose: contact2_mobile
+  include_in_form: true
+  value_required: false
+  public_visibility: visible
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  normalization: digits ASCII; remove spaces/hyphens
+  server_validation: 09xxxxxxxxx if present
+- contract_id: CONTACT1_RELATIONSHIP
+  machine_purpose: contact1_relationship
+  include_in_form: true
+  value_required: true
+  public_visibility: hidden
+  officer_visibility: system_only
+  officer_editability: false
+  binding_status: UNBOUND_RUNTIME_ID
+  fixed_value: پدر
+- contract_id: CONTACT2_RELATIONSHIP
+  machine_purpose: contact2_relationship
+  include_in_form: true
+  value_required: true
+  public_visibility: hidden
+  officer_visibility: system_only
+  officer_editability: false
+  binding_status: UNBOUND_RUNTIME_ID
+  fixed_value: مادر
+- contract_id: STUDENT_PHOTO
+  machine_purpose: student_photo
+  include_in_form: true
+  value_required: true
+  public_visibility: visible
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  accepted:
+  - jpg
+  - jpeg
+  max_mb: 5
+  max_files: 1
+  plugin: GP File Upload Pro
+  crop: required 3:4
+  max_dimensions: 1200x1600
+  minimum_dimensions: null
+  custom_background_ai_processing: forbidden
+  post_import_readback:
+  - Aspect Ratio 3:4
+  - Maximum Dimensions 1200x1600
+- contract_id: EDUCATION_LEVEL
+  machine_purpose: education_level
+  include_in_form: true
+  value_required: true
+  public_visibility: visible
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  choices:
+  - کنکوری
+  - متوسطه دوم
+  - متوسطه اول
+  - دبستان
+  - هنرستان
+- contract_id: GRADE_GROUP_SELECTION
+  machine_purpose: grade_group_selection
+  include_in_form: true
+  value_required: true
+  public_visibility: visible
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  filter: education_level
+  catalog: 33 groups from Crosswalk fingerprint below
+  server_validation: education_level x group; clear stale incompatible
+- contract_id: GROUP_CODE
+  machine_purpose: group_code
+  include_in_form: true
+  value_required: true
+  public_visibility: hidden
+  officer_visibility: system_only
+  officer_editability: false
+  binding_status: UNBOUND_RUNTIME_ID
+  derivation: grade_group_selection canonical code
+- contract_id: GRADUATION_STATUS
+  machine_purpose: graduation_status
+  include_in_form: true
+  value_required: true
+  public_visibility: visible
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  choices:
+    '1': دانش‌آموز
+    '0': فارغ‌التحصیل
+  visibility_rule: visible for dual-status codes; auto/server-set otherwise
+  dual_status_codes:
+  - '1'
+  - '3'
+  - '5'
+  - '7'
+  - '8'
+  - '9'
+  - '11'
+  - '12'
+  - '14'
+  - '17'
+  - '18'
+  server_validation: group_code x status matrix
+- contract_id: REGISTRATION_CENTER
+  machine_purpose: registration_center_code
+  include_in_form: true
+  value_required: true
+  public_visibility: hidden
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  default: '0'
+  choices:
+    '0': مرکز
+    '1': گلستان
+    '2': صدرا
+- contract_id: SCHOOL_CODE
+  machine_purpose: school_code
+  include_in_form: true
+  value_required: true
+  public_visibility: visible
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  search: GP Advanced Select mandatory; GF Enhanced UI off
+  catalog: 946 retained named + Other=0
+  filter: gender + education_level; Other exempt; no group-specific filter
+  server_validation: reject excluded/invalid/mismatched codes
+- contract_id: SCHOOL_NAME_OTHER
+  machine_purpose: school_name_other
+  include_in_form: true
+  value_required: conditional
+  public_visibility: visible
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  required_when: school_code=0
+  cleanup: clear when leaving Other
+- contract_id: SCHOOL_NAME
+  machine_purpose: school_name
+  include_in_form: true
+  value_required: true
+  public_visibility: hidden
+  officer_visibility: system_only
+  officer_editability: false
+  binding_status: UNBOUND_RUNTIME_ID
+  derivation: selected full label; Other -> school_name_other
+- contract_id: REPORT_CARD_FILE
+  machine_purpose: report_card_file
+  include_in_form: true
+  value_required: conditional
+  public_visibility: visible
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  accepted:
+  - jpg
+  - jpeg
+  - pdf
+  max_mb: 5
+  max_files: 1
+  required_codes:
+  - '283'
+  - '286'
+  - '291'
+  - '650'
+  - '663'
+  - '666'
+  - '667'
+  - '1320'
+  - '1351'
+  other: visible optional
+  otherwise: hidden
+  lifecycle: inapplicable=>clear+delete; safe replace new-first
+- contract_id: FINANCE_STATUS
+  machine_purpose: finance_status
+  include_in_form: true
+  value_required: false
+  public_visibility: hidden
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  default: '0'
+  choices:
+    '0': عادی
+    '1': بنیاد شهید
+    '3': حکمت
+- contract_id: HEKMAT_PACKAGE
+  machine_purpose: hekmat_package
+  include_in_form: true
+  value_required: conditional_system
+  public_visibility: hidden
+  officer_visibility: system_only
+  officer_editability: false
+  binding_status: UNBOUND_RUNTIME_ID
+  set_when: finance_status=3
+  fixed_value: آزمون
+  clear_when: finance_status!=3
+- contract_id: HEKMAT_TRACKING
+  machine_purpose: hekmat_tracking
+  include_in_form: true
+  value_required: conditional_system
+  public_visibility: hidden
+  officer_visibility: system_only
+  officer_editability: false
+  binding_status: UNBOUND_RUNTIME_ID
+  set_when: finance_status=3
+  fixed_value: '1111111111111111'
+  clear_when: finance_status!=3
+- contract_id: BONYAD_SHAHID_CASE_NUMBER
+  machine_purpose: bonyad_shahid_case_number
+  include_in_form: true
+  value_required: false
+  public_visibility: hidden
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  when: finance_status=1
+  normalization: ASCII digits; preserve leading zero; no fixed length
+  clear_when: finance_status!=1
+- contract_id: BONYAD_SHAHID_TYPE_CODE
+  machine_purpose: bonyad_shahid_type_code
+  include_in_form: true
+  value_required: false
+  public_visibility: hidden
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  when: finance_status=1
+  catalog: 18 choices below
+  clear_when: finance_status!=1
+- contract_id: BONYAD_SHAHID_TYPE_NAME
+  machine_purpose: bonyad_shahid_type_name
+  include_in_form: true
+  value_required: false
+  public_visibility: hidden
+  officer_visibility: system_only
+  officer_editability: false
+  binding_status: UNBOUND_RUNTIME_ID
+  derivation: label mirror of type code
+  clear_when: finance_status!=1
+- contract_id: TUITION_AMOUNT
+  machine_purpose: tuition_amount
+  include_in_form: true
+  value_required: false
+  public_visibility: hidden
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  default: empty
+  canonical_storage: nonnegative integer Rial
+- contract_id: DISCOUNT_AMOUNT
+  machine_purpose: discount_amount
+  include_in_form: true
+  value_required: false
+  public_visibility: hidden
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  default: empty
+  canonical_storage: nonnegative integer Rial
+  server_validation: <= tuition or error/no-save
+- contract_id: DISCOUNT_TITLE
+  machine_purpose: discount_title
+  include_in_form: true
+  value_required: false
+  public_visibility: hidden
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  default: empty
+- contract_id: NET_PAYABLE_AMOUNT
+  machine_purpose: net_payable_amount
+  include_in_form: true
+  value_required: false
+  public_visibility: hidden
+  officer_visibility: system_only
+  officer_editability: false
+  binding_status: UNBOUND_RUNTIME_ID
+  default: empty
+  derivation: empty if tuition empty else tuition-(discount if present else 0)
+- contract_id: DISCOUNT_CODE
+  machine_purpose: discount_code
+  include_in_form: true
+  value_required: false
+  public_visibility: hidden
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  when: finance_status=0
+  default: '0'
+  catalog: 41 code/name choices below
+  reset: finance_status!=0 => 0
+- contract_id: DISCOUNT_NAME
+  machine_purpose: discount_name
+  include_in_form: true
+  value_required: false
+  public_visibility: hidden
+  officer_visibility: system_only
+  officer_editability: false
+  binding_status: UNBOUND_RUNTIME_ID
+  derivation: label mirror; 0=>بدون تخفیف
+  reset: finance_status!=0 => بدون تخفیف
+- contract_id: REVIEW_STATUS
+  machine_purpose: review_status
+  include_in_form: true
+  value_required: false
+  public_visibility: hidden
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  choices:
+  - none
+  - needs_review
+  workflow_role: Entry overlay; not Flow state
+- contract_id: REVIEW_REASON
+  machine_purpose: review_reason
+  include_in_form: true
+  value_required: conditional
+  public_visibility: hidden
+  officer_visibility: visible
+  officer_editability: true
+  binding_status: UNBOUND_RUNTIME_ID
+  required_when: review_status=needs_review
+- contract_id: REGISTRATION_COUNTER
+  machine_purpose: registration_counter
+  include_in_form: true
+  value_required: false
+  public_visibility: hidden
+  officer_visibility: system_only
+  officer_editability: false
+  binding_status: UNBOUND_RUNTIME_ID
+  write_path: WP All Import only; exact national_id; must not advance Flow
+controlled_sources:
+  education:
+    source: Owner-uploaded Crosswalk.xlsx
+    sha256: fb85383d9e68f04ef67d08b0c1d8f2252ca8acec071c794d55c8fb5dd350ff93
+    groups: 33
+    dual_status_codes:
+    - '1'
+    - '3'
+    - '5'
+    - '7'
+    - '8'
+    - '9'
+    - '11'
+    - '12'
+    - '14'
+    - '17'
+    - '18'
+  school:
+    source: Owner-uploaded SchoolReport-1405_06_17-3570.xlsx
+    sha256: f6f408cc59708fcff52186076763410aaa66a6b1bf57f938f9e955324119980a
+    sheet: SchoolList3570
+    retained_named: 946
+    with_other: 947
+    excluded:
+    - '1296'
+    - '1314'
+    - '1316'
+    - '1319'
+    display: نام کامل مدرسه
+    level_mapping:
+      دبستان: دبستان
+      متوسطه اول: راهنمایی
+      متوسطه دوم: دبیرستان
+      کنکوری: دبیرستان
+      هنرستان: هنرستان
+  discount_catalog:
+    '0': بدون تخفیف
+    '101': آموزش و پرورش
+    '129': اعضای نهاد کتابخانه های عمومی
+    '123': بانک تجارت
+    '170': بانک رفاه
+    '151': بانک کشاورزی
+    '168': بانک مسکن
+    '119': بانک ملت
+    '125': بانک ملی
+    '152': بنادر و دریا نوردی
+    '110': بنیاد مسکن فقط دانش آموزسال دوازدهم و دوازدهم هنرستان
+    '150': بنیادمسکن پایه ها
+    '153': تعزیرات حکومتی
+    '154': جهاد کشاورزی
+    '141': حوزه اجتماعی بهزیستی
+    '115': خانه کارگر
+    '127': دانشگاه تهران
+    '155': دانشگاه فنی و حرفه ای کشور
+    '143': سازمان اسناد و کتابخانه ملی
+    '156': سازمان تامین اجتماعی
+    '109': سازمان زندان ها
+    '157': سازمان محیط زیست
+    '169': سازمان نظام پرستاری کشور
+    '158': سازمان نوسازی و تجهیز مدارس کشور
+    '159': سایپا
+    '118': صداوسیما
+    '160': فرزندان طلاب و روحانیون شاغل
+    '161': فرزندان طلاب و روحانیون غیرشاغل با معدل زیر 17
+    '162': قوه قضائیه
+    '142': کارکنان بهزیستی
+    '104': کارکنان نهاد کتابخانه ها
+    '149': کمیته ی امداد
+    '124': منابع انسانی مجلس
+    '165': مهدقرآن حافظ 3تا7جز
+    '164': مهدقرآن حافظ تا3جز
+    '167': مهدقرآن حافظ15تا30جز
+    '166': مهدقرآن حافظ7تا15جز
+    '122': هلال احمر
+    '103': وزارت ارشاد
+    '113': وزارت تعاون
+    '114': وزارت کشور
+  bonyad_shahid_type_catalog:
+    '1': فرزند شهید
+    '2': فرزند جانباز بیش از 50٪
+    '3': فرزند آزاده
+    '4': جانباز بیش از 25٪
+    '5': آزاده
+    '6': همسر جانباز 25٪ تا 49٪
+    '7': فرزند جانباز 25٪ تا 49٪
+    '8': همسر شهید
+    '9': همسر آزاده
+    '10': خواهر و برادر شهید
+    '11': خواهر و برادر جانباز بیش از 50٪
+    '12': خواهر و برادر آزاده
+    '13': نوه شهید
+    '14': فرزند جانباز تا 24٪
+    '15': فرزند کارکنان طرح شاهد
+    '16': فرزند پرسنل
+    '17': فرزند بازنشسته بنیاد شهید
+    '18': دانش آموز غیر شاهد مدرسه شاهد
+file_lifecycle:
+  access: Admin + Registration Officer
+  replace: persist/bind new first; then delete old; failure keeps old
+  trash: retain primary files
+  permanent_entry_delete: delete primary student_photo/report_card_file
+  backup_export_log_retention: OWNER_DECISION_PENDING
+  real_pii_before_privacy_signoff: FORBIDDEN
+removed_or_superseded:
+- registration_status_code removed; finance_status sole canonical status
+- five group helper fields -> one grade_group_selection + group_code
+- graduation_status_choice helper -> canonical graduation_status
+implementation_bindings_before_validation:
+- phone normalization/validation
+- PersianGravity national_id and dob stored-value read-back
+- education/group filtering and group_code server binding
+- graduation status matrix
+- school gender+level filter + server guard
+- school_name/other sync cleanup
+- report-card requiredness + file lifecycle
+- student_photo safe replace + File Upload Pro settings read-back
+- Hekmat set/clear
+- Bonyad mirrors/cleanup
+- discount mirror/reset
+- integer Rial + net derivation
+- Admin+Officer file access
+- Gravity Flow Officer whitelist
 cheque_child_form:
   cardinality: 1..N
   selected_host: Gravity_Perks_Nested_Forms
   host_status: SELECTED_POC_NOT_PROVEN
   fallback_after_bounded_fail: Gravity_Flow_Parent_Child_Forms
-  relationship_parallel_state: FORBIDDEN
-  public_visibility: false
-  officer_visibility: true
-  current_release_requiredness: ALL_MANUAL_CHEQUE_FIELDS_OPTIONAL
-  current_write_path: MANUAL_OFFICER_EDIT
-  scanner_write_path: DEFERRED
-  known_manual_fields:
-    - contract_id: CHEQUE_AMOUNT
-      machine_purpose: cheque_amount
-      include_in_form: true
-      value_required: false
-      gf_field_type: number
-      canonical_storage: Rial
-      semantic_status: SOURCE_SUPPORTED_MANUAL_FIELD
-      binding_status: UNBOUND
-    - contract_id: CHEQUE_DUE_DATE
-      machine_purpose: cheque_due_date
-      include_in_form: true
-      value_required: false
-      gf_field_type: jalali_date_or_text
-      semantic_status: SOURCE_SUPPORTED_MANUAL_FIELD
-      binding_status: UNBOUND
   manual_field_inventory_status: INCOMPLETE_ENUMERATION
-  manual_field_inventory_gap: "Current active Master states manual cheque fields are optional but does not enumerate every manual cheque machine key. Do not invent additional keys before owner/source binding."
-
+  known_manual_fields:
+  - contract_id: CHEQUE_AMOUNT
+    machine_purpose: cheque_amount
+    include_in_form: true
+    value_required: false
+  - contract_id: CHEQUE_DUE_DATE
+    machine_purpose: cheque_due_date
+    include_in_form: true
+    value_required: false
   future_sayad_fields:
-    scanner_population_current_release: false
-    fields:
-      - {contract_id: SAYAD_QR_VERSION, machine_purpose: qr_version, include_in_form: true, value_required: false, public_visibility: hidden, officer_visibility: hidden_future_reserved, binding_status: UNBOUND}
-      - {contract_id: SAYAD_OWNER_TYPE, machine_purpose: owner_type, include_in_form: true, value_required: false, public_visibility: hidden, officer_visibility: hidden_future_reserved, binding_status: UNBOUND}
-      - {contract_id: SAYAD_OWNER_IDENTIFIER, machine_purpose: owner_identifier, include_in_form: true, value_required: false, public_visibility: hidden, officer_visibility: hidden_future_reserved, binding_status: UNBOUND}
-      - {contract_id: SAYAD_IBAN, machine_purpose: iban, include_in_form: true, value_required: false, public_visibility: hidden, officer_visibility: hidden_future_reserved, binding_status: UNBOUND}
-      - {contract_id: SAYAD_BANK_BRANCH, machine_purpose: bank_branch, include_in_form: true, value_required: false, public_visibility: hidden, officer_visibility: hidden_future_reserved, binding_status: UNBOUND}
-      - {contract_id: SAYAD_CHEQUE_SERIAL, machine_purpose: cheque_serial, include_in_form: true, value_required: false, public_visibility: hidden, officer_visibility: hidden_future_reserved, binding_status: UNBOUND}
-      - {contract_id: SAYAD_ID, machine_purpose: sayad_id, include_in_form: true, value_required: false, public_visibility: hidden, officer_visibility: hidden_future_reserved, binding_status: UNBOUND}
-    decision_refs: [OWNER-20260907-DEFER-SCANNER-HIDE-SAYAD-FIELDS, OWNER-20260906-SAYAD-V01-ATOMIC-SEVEN-OUTPUT]
-
-legacy_or_nonselected_material_fields:
-  policy: "Do not silently recreate from old Gravity Forms exports. Presence in legacy reports is reference evidence only."
-  examples:
-    - contact1_name
-    - contact2_name
-    - legacy_mentor_alias_fields
-    - legacy_output_shaping_hidden_fields
-    - custom_audit_bridge_fields
-  decision_refs: [OWNER-20260830-GF-PYTHON-BOUNDARY, OWNER-20260830-CONTACT-RELATION-MOBILE]
-
+  - contract_id: SAYAD_QR_VERSION
+    machine_purpose: qr_version
+    include_in_form: true
+    value_required: false
+  - contract_id: SAYAD_OWNER_TYPE
+    machine_purpose: owner_type
+    include_in_form: true
+    value_required: false
+  - contract_id: SAYAD_OWNER_IDENTIFIER
+    machine_purpose: owner_identifier
+    include_in_form: true
+    value_required: false
+  - contract_id: SAYAD_IBAN
+    machine_purpose: iban
+    include_in_form: true
+    value_required: false
+  - contract_id: SAYAD_BANK_BRANCH
+    machine_purpose: bank_branch
+    include_in_form: true
+    value_required: false
+  - contract_id: SAYAD_CHEQUE_SERIAL
+    machine_purpose: cheque_serial
+    include_in_form: true
+    value_required: false
+  - contract_id: SAYAD_ID
+    machine_purpose: sayad_id
+    include_in_form: true
+    value_required: false
+  scanner_population_current_release: false
 materialization_gaps:
-  - id: GAP-SFC-CHOICE-CATALOG
-    state: INCOMPLETE
-    gap: exact current controlled choice catalog for education/group/center/registration status is referenced to Crosswalk/source but not yet embedded in this repository contract
-    recovery: import accepted current Crosswalk/mapping evidence and bind choice catalog before final scaffold freeze
-  - id: GAP-SFC-CHEQUE-MANUAL-FIELDS
-    state: INCOMPLETE
-    gap: complete manual cheque machine-key inventory is not explicitly enumerated in current active Master; only amount/due-date + seven Sayad fields are directly supported by retrieved current evidence
-    recovery: bind exact manual cheque field list from Owner/source before Cheque Form scaffold freeze
-  - id: GAP-SFC-RETENTION
-    state: BLOCKED_FOR_REAL_PII_ONLY
-    gap: photo/report-card/finance/cheque retention/deletion policy remains Owner decision pending
-    recovery: close Privacy/Retention Contract before any real PII in staging/UAT/production
+- id: GAP-SFC-CHEQUE-MANUAL-FIELDS
+  state: INCOMPLETE
+- id: GAP-SFC-PRIVACY-BACKUP
+  state: BLOCKED_FOR_REAL_PII_ONLY
+- id: GAP-SFC-RUNTIME-BINDINGS
+  state: NOT_PROVEN
