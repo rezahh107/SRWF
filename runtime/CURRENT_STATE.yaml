@@ -1,5 +1,5 @@
 schema_version: 1
-state_version: 14
+state_version: 15
 updated_at: '2026-09-08'
 ssot:
   provider: GitHub
@@ -15,31 +15,27 @@ ssot:
     migration_manifest: history/pre-runtime-ssot/MIGRATION_MANIFEST.json
 current:
   stage: STAGE_0_IN_PROGRESS
-  gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_AMENDMENT_IN_PROGRESS
-  decision: OWNER-20260908-SFC-BATCH-MAIN-FORM-CONSTRUCTION-READY
-  candidate: FORM_SCAFFOLD_MATERIALIZATION_READY
-  last_observed_result: OWNER_BATCH_LOCKED / MAIN_FORM_BUSINESS_DECISIONS_CLOSED / DISCOUNT_CATALOG_RECONCILED_109_INCLUDED_102_EXCLUDED / SFC_DOC_SYNC_PENDING / IMPLEMENTATION_NOT_PROVEN
-  next_action_id: SYNC_SFC_AND_GENERATE_SUPERSEDING_GF_IMPORT
-  next_action: Materialize Owner decisions through event86 into the active Semantic Field Contract and generate the superseding Gravity Forms import artifact for synthetic staging execution.
+  gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_CLOSED
+  decision: OBS-20260908-SFC-EVENT86-MAIN-READBACK
+  candidate: GF_IMPORT_SCAFFOLD_V060_PROVISIONAL
+  last_observed_result: SFC_EVENT86_SYNC_ACCEPTED_ON_MAIN / PR6_DOCUMENTATION_INTEGRITY_PASS / PR6_PROJECT_BUNDLE_PASS / GF_V060_PROVISIONAL_NEXT_CANDIDATE / STAGING_IMPORT_UNEXECUTED / IMPLEMENTATION_NOT_PROVEN
+  next_action_id: STAGING_IMPORT_GF_V060_SYNTHETIC
+  next_action: Import SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json into staging while the form remains inactive, using synthetic data only; then read back real Form/Field IDs and critical settings before binding Implementation Mapping.
 open_blockers:
 - id: PRIVACY_RETENTION_OPEN
   effect: blocks real PII in staging/UAT/production; synthetic scaffold/POC work is allowed; primary student-file retention through permanent Entry deletion is Owner-locked but backup/export/log policy remains open
 - id: ENVIRONMENT_INVENTORY_PARTIAL
   effect: OWNER_ACCEPTED_FOR_PROGRESS; reopen only when a compatibility/deployment fact becomes decision-critical
-- id: SCHOOL_CHOICES_NOT_MATERIALIZED
-  effect: Owner selected SchoolReport-1405_06_17-3570.xlsx; four invalid-gender school codes are excluded; full-name display plus mandatory GP Advanced Select are locked, but the controlled 946-school catalog plus Other=0 is not yet materialized into the import artifact
 - id: FLOW_FINANCE_WHITELIST_NOT_PROVEN
   effect: finance/Bonyad Shahid/discount/registration-center fields are intended Registration-Officer-only/non-public, but the native Gravity Flow whitelist remains runtime-unproven
-- id: SFC_AMENDMENT_DOC_SYNC_PENDING
-  effect: Owner decisions through event86 are persisted in runtime state/history, but active Semantic Field Contract documents must now be updated through branch+PR before authoritative scaffold freeze
 - id: SCHOOL_FILTER_IMPLEMENTATION_PENDING
-  effect: authoritative gender and level metadata plus the Owner-approved level mapping are available for all 946 retained schools, but Gravity Forms filtering and server validation are not implemented or runtime-proven; no current authoritative school-to-group mapping exists
+  effect: authoritative gender and level metadata plus the Owner-approved level mapping are materialized in the event86 contract, but Gravity Forms filtering and server validation are not implemented or runtime-proven; no current authoritative school-to-group mapping exists
 - id: SERVER_BINDINGS_INCOMPLETE
   effect: DOB/mobile/group/status/school/report-card/discount/Bonyad-Shahid/Hekmat/file-access/file-lifecycle/amount-derivation bindings and validation remain incomplete; semantics are locked where stated but implementation is not proven
 - id: GP_NESTED_FORMS_POC_NOT_PROVEN
   effect: multi-cheque child composition is selected but not runtime-proven; manual cheque field inventory must be bound before Cheque Child Form freeze
 - id: GF_IMPORT_RUNTIME_UNEXECUTED
-  effect: no staging import should run until the event86 SFC amendment is materialized and a superseding provisional import artifact is generated
+  effect: v0.6.0 is the current provisional import candidate after event86 SFC synchronization, but actual Gravity Forms staging import and post-import settings/ID read-back have not executed
 governance:
   repository_baseline: ACCEPTED_CURRENT
   runtime_ssot_decision: OWNER-20260907-REPOSITORY-RUNTIME-SSOT
@@ -72,8 +68,8 @@ governance:
   - DOCUMENTED != OBSERVED_IN_STAGING
   - NOT_PROVEN != PROVEN_ABSENT
 history:
-  last_event_seq: 86
-  last_event_id: OWNER-20260908-SFC-BATCH-MAIN-FORM-CONSTRUCTION-READY
+  last_event_seq: 87
+  last_event_id: OBS-20260908-SFC-EVENT86-MAIN-READBACK
   pre_cutover_event_count: 72
   pre_cutover_source: Google Sheet SRWF_RUNTIME_STATE / DECISION_HISTORY
   active_history_start_seq: 73
@@ -100,3 +96,8 @@ evidence_refs:
 - PR#5
 - GitHub Actions run 34164312063
 - GitHub Actions run 34164311881
+- PR#6
+- GitHub Actions run 34221415473
+- GitHub Actions run 34221415470
+- main merge commit 7a59735acfe2d1ee66239a3b2842bad674b2aff3
+- docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml blob fe197af8857f81782c626ae6e7470ca603df5cb3
