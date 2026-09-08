@@ -1,5 +1,5 @@
 schema_version: 1
-state_version: 11
+state_version: 12
 updated_at: '2026-09-08'
 ssot:
   provider: GitHub
@@ -16,11 +16,11 @@ ssot:
 current:
   stage: STAGE_0_IN_PROGRESS
   gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_AMENDMENT_IN_PROGRESS
-  decision: OWNER-20260908-SCHOOL-SOURCE-1405-EXCLUDE-INVALID-4
+  decision: OWNER-20260908-SCHOOL-LEVEL-MAPPING-SECONDARY-AND-EXAM
   candidate: LEGACY_GF_RULE_RECONCILIATION
-  last_observed_result: OWNER_SCHOOL_SOURCE_1405_SELECTED / 950_UNIQUE_CODES_OBSERVED / 946_RETAINED_VALID_GENDER_ROWS / 4_INVALID_GENDER_ROWS_EXCLUDED / LEVEL_METADATA_AVAILABLE / GROUP_SPECIFIC_MAPPING_NOT_AVAILABLE
-  next_action_id: DECIDE_SCHOOL_LEVEL_FILTER_MAPPING
-  next_action: Confirm the SRWF education-level to SchoolReport level mapping for school filtering; group-specific filtering remains unavailable without an authoritative school-to-group mapping.
+  last_observed_result: OWNER_SCHOOL_LEVEL_MAPPING_LOCKED / SCHOOLREPORT_DABIRESTAN_APPLIES_TO_SECONDARY_AND_EXAM / PRIMARY_MIDDLE_VOCATIONAL_DIRECT / GROUP_SPECIFIC_FILTER_UNAVAILABLE_FROM_CURRENT_SOURCE
+  next_action_id: DECIDE_SCHOOL_DISPLAY_LABEL_SOURCE
+  next_action: Decide whether school choices should display the short school name or the workbook's full school name while always storing canonical school_code.
 open_blockers:
 - id: PRIVACY_RETENTION_OPEN
   effect: blocks real PII in staging/UAT/production; synthetic work remains allowed
@@ -31,11 +31,9 @@ open_blockers:
 - id: FLOW_FINANCE_WHITELIST_NOT_PROVEN
   effect: finance fields are intended Registration-Officer-only/non-public, but the native Gravity Flow whitelist remains runtime-unproven
 - id: LEGACY_FINANCE_RULE_RECONCILIATION_INCOMPLETE
-  effect: foundation, coded-discount and Hekmat semantics are locked; remaining school/report-card and other conditional-rule reconciliation is still under Owner review
+  effect: foundation, coded-discount and Hekmat semantics are locked; school gender/level semantics are now locked; remaining school-display/report-card and downstream-binding reconciliation is still under Owner review
 - id: SCHOOL_FILTER_IMPLEMENTATION_PENDING
-  effect: authoritative gender metadata is available for all 946 retained school records and level metadata is available, but Gravity Forms filtering and server validation are not implemented or runtime-proven
-- id: SCHOOL_ACADEMIC_FILTER_MAPPING_UNRESOLVED
-  effect: SchoolReport provides authoritative school-to-level metadata but no school-to-group mapping; Owner must confirm the SRWF education-level to SchoolReport level mapping before materialization; do not infer group eligibility from school names
+  effect: authoritative gender and level metadata plus the Owner-approved level mapping are available for all 946 retained schools, but Gravity Forms filtering and server validation are not implemented or runtime-proven; no current authoritative school-to-group mapping exists, so group-specific filtering must not be inferred
 - id: SERVER_BINDINGS_INCOMPLETE
   effect: DOB/mobile/group/status/school/report-card/discount/foundation/Hekmat/file-access server bindings and validation remain incomplete; Hekmat semantics are closed but implementation is not proven
 - id: GP_NESTED_FORMS_POC_NOT_PROVEN
@@ -74,8 +72,8 @@ governance:
   - DOCUMENTED != OBSERVED_IN_STAGING
   - NOT_PROVEN != PROVEN_ABSENT
 history:
-  last_event_seq: 83
-  last_event_id: OWNER-20260908-SCHOOL-SOURCE-1405-EXCLUDE-INVALID-4
+  last_event_seq: 84
+  last_event_id: OWNER-20260908-SCHOOL-LEVEL-MAPPING-SECONDARY-AND-EXAM
   pre_cutover_event_count: 72
   pre_cutover_source: Google Sheet SRWF_RUNTIME_STATE / DECISION_HISTORY
   active_history_start_seq: 73
