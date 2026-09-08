@@ -1,10 +1,10 @@
 # SRWF Decision Ledger
 
-این ledger تصمیم‌های durable و current را نگه می‌دارد. وضعیت اجرایی جاری در `runtime/CURRENT_STATE.yaml` و history مادی repository-era در `runtime/DECISION_HISTORY.jsonl` است. تاریخچهٔ Google Sheet قبل از cutover فقط immutable provenance زیر `history/pre-runtime-ssot/` است.
+این ledger تصمیم‌های durable/current را نگه می‌دارد. Runtime truth در `runtime/CURRENT_STATE.yaml` و `runtime/DECISION_HISTORY.jsonl` است.
 
 ## Architecture locks
 
-- `D-01` Needs Review = ordinary Entry field + reason; no custom state/queue/POST/Entry Notes dependency.
+- `D-01` Needs Review = ordinary Entry field + reason; no custom state/queue/POST/Entry Notes.
 - `D-02` single operational inbox = Gravity Flow Inbox.
 - `D-03` single Registration Officer baseline.
 - `D-04` native Gravity Flow Officer edit with smallest whitelist.
@@ -12,107 +12,71 @@
 - `D-06` routine/review edits: no notifications.
 - `D-07` native Live Refresh; no custom polling.
 - `D-08` no custom concurrency/locking.
-- `D-09` school search criterion = fast Persian-name search/mobile; first serious maintained candidate to PASS wins.
-- `D-10` repeated National ID allowed; no duplicate block.
-- `D-11` simple maintained Iranian mobile/Jalali/National-ID solution; no custom kernel.
-- `D-12` photo processing out of current scope; required upload only.
-- `D-13` human edit audit only via GravityRevisions; Admin-only.
+- `D-09` current main-form school surface = GP Advanced Select, GF Enhanced UI off; `V-03` still NOT_PROVEN.
+- `D-10` repeated National ID allowed.
+- `D-11` maintained Iranian mobile/Jalali/National-ID solution; no custom kernel.
+- `D-12` **amended by event86**: no custom/background/AI image-processing pipeline; maintained GP File Upload Pro crop/downscale is allowed/required only for 3:4 crop + max 1200×1600, no minimum dimensions.
+- `D-13` human edit audit via GravityRevisions; Admin-only.
 - `D-14` no direct GFAPI update path baseline.
 - `D-15` WP All Import owns counter sync by exact National ID.
 - `D-16` importer writes counter, not Flow progression.
-- `D-17` first renderer POC = Gravity PDF Free + SRWF-owned print layer; no paid template/extension baseline; no custom PDF engine.
+- `D-17` first renderer POC = Gravity PDF Free + SRWF-owned print layer.
 
-## Current Owner decisions — Semantic Field Contract
+## Durable SFC decisions
 
-| Decision | Current effect | State |
-|---|---|---|
-| `OWNER-20260830-OFFICER-EDIT-NATIVE` | Officer corrections stay native Gravity Flow/GF; no custom edit UI. | CONFIRMED |
-| `OWNER-20260830-HEKMAT-PACKAGE-HIDDEN` | `hekmat_package=آزمون` hidden fixed value. | CONFIRMED |
-| `OWNER-20260830-STUDENT-PHOTO-REQUIRED` | `student_photo` included + value required; native File Upload only. | CONFIRMED |
-| `OWNER-20260830-REPORT-CARD-CONDITIONAL` | `report_card_file` optional by default, conditional required. | CONFIRMED |
-| `OWNER-20260830-REPORT-CARD-SCHOOL-CODES` | Required school codes = 283,286,291,650,663,666,667,1320,1351. | CONFIRMED |
-| `OWNER-20260830-HEKMAT-TRACKING-HIDDEN` | `hekmat_tracking=1111111111111111` hidden fixed when Hekmat. | CONFIRMED |
-| `OWNER-20260830-GROUP-CODE-DERIVATION` | user edits visible education/group; `group_code` derived/stored canonical; no redundant `exam_group`. | CONFIRMED |
-| `OWNER-20260830-MOBILE-REQUIREDNESS` | `student_mobile` required; contact mobiles optional. | CONFIRMED |
-| `OWNER-20260830-CONTACT-RELATION-MOBILE` | keep relationship+mobile for contacts; remove contact names. | CONFIRMED |
-| `OWNER-20260830-CONTACT-RELATION-FIXED` | contact1=پدر, contact2=مادر fixed/hidden. | CONFIRMED |
-| `OWNER-20260830-GRADUATION-STATUS-CONDITIONAL` | auto status for single-status groups; visible choice for dual-status groups. | CONFIRMED |
-| `OWNER-20260830-FILE-ACCESS-SCOPE` | photo/report-card access = Admin + Officer; retention deferred to privacy gate. | CONFIRMED |
-| `OWNER-20260830-FATHER-NAME-REQUIRED` | `father_name` required. | CONFIRMED |
-| `OWNER-20260830-NAME-REQUIRED` | `first_name`, `last_name` required. | CONFIRMED |
-| `OWNER-20260907-HOME-PHONE-INCLUDED-OPTIONAL` | `home_phone` must exist, but value is optional. | CONFIRMED; supersedes earlier ambiguous required-value row |
+- names + father_name + student_mobile required; `home_phone` included but optional; contact mobiles optional and relationships fixed hidden.
+- `finance_status`: `0=عادی,1=بنیاد شهید,3=حکمت`, non-public/Officer-only/optional/default 0.
+- `registration_status_code` independent field is removed by event86.
+- `registration_center_code`: Officer-only, `0=مرکز` default, `1=گلستان`, `2=صدرا`.
+- `education_level` five controlled labels; one `grade_group_selection` Dropdown; hidden system `group_code`; graduation status conditional/server-validated.
+- school: Owner SchoolReport source, 946 retained + Other, exclude `1296,1314,1316,1319`; full-name labels; filter gender+education level only; GP Advanced Select mandatory; no group-specific school filter.
+- report-card required codes: `283,286,291,650,663,666,667,1320,1351`; Other visible optional; hidden otherwise.
+- current file access = Admin + Registration Officer.
 
-## Current Owner decisions — school selector
+## Event78–86 material Owner decisions
 
-- Native Gravity Forms Enhanced UI was observed to fail responsive requirement in target runtime: `PROBE-20260830-SCHOOL-ENHANCED-UI-RESPONSIVE-FAIL`.
-- `OWNER-20260830-SCHOOL-ADVANCED-SELECT`: current maintained candidate = GP Advanced Select with GF Enhanced UI disabled; `V-03` still `NOT_PROVEN` until target mobile/search PASS.
-
-This rejects only the failed candidate; D-09 architecture/criterion remains intact.
-
-## Current Owner decisions — finance/cheque/scanner
-
-| Decision | Effect |
+| Decision | Durable effect |
 |---|---|
-| `OWNER-20260906-FINANCE-UNIT-RIAL` | canonical/display money unit = Rial. |
-| `OWNER-20260906-FINANCE-INVALID-DISCOUNT-BLOCK` | discount > tuition => validation error + no save. |
-| `OWNER-20260907-FINANCE-OFFICER-ONLY-NONE-REQUIRED` | all current-release finance/manual-cheque fields optional, non-public, Registration-Officer-only. |
-| `OWNER-20260907-FINANCE-STATUS-OFFICER-DEFAULT-NORMAL` | `finance_status`: Officer-only, non-public, optional; canonical default `0=عادی`; allowed values remain `0,1,3`. |
-| `OWNER-20260906-NESTED-FORMS-SELECTED` | multi-cheque host = GP Nested Forms; Parent-Child Forms fallback only after bounded FAIL. |
-| `OWNER-20260906-SCANNER-NONPERSISTENT-CONTROLLER` | Structured Scanner does not own/persist canonical data/raw payload. |
-| `OWNER-20260906-SAYAD-V01-ATOMIC-SEVEN-OUTPUT` | seven deterministic outputs; atomic population if scanner phase is active. |
-| `OWNER-20260907-DEFER-SCANNER-HIDE-SAYAD-FIELDS` | SRWF current release defers scanner; seven Sayad fields remain hidden/future-reserved. |
-| `OWNER-20260906-D17-GRAVITY-PDF-FREE-POC` | first print POC = Gravity PDF Free + SRWF-owned print layer. |
-| `OWNER-20260905-FIN-POS-DEFER` + later POS decisions | POS/PC-POS deferred from current release. |
+| `OWNER-20260908-FOUNDATION-FIELDS-OFFICER-ONLY` | restore Bonyad Shahid case/type as Officer-only optional when finance=1. |
+| `OWNER-20260908-DISCOUNT-CODE-CATALOG-41-SEPARATE-FINANCE` | separate 41-choice coded discount from amount/title. |
+| `OWNER-20260908-DISCOUNT-CODE-CATALOG-NAME-CODE-ONLY` | percentage removed; code+name only. |
+| `OWNER-20260908-HEKMAT-SERVER-DERIVED-CLEAR-ON-EXIT` | Hekmat values server-owned and cleared when finance leaves 3. |
+| `OWNER-20260908-SCHOOL-GENDER-FILTER-AUTHORITATIVE-METADATA` | gender filter requires authoritative per-school metadata; Other exempt. |
+| `OWNER-20260908-SCHOOL-SOURCE-1405-EXCLUDE-INVALID-4` | current SchoolReport selected; four invalid codes excluded; retained set=946. |
+| `OWNER-20260908-SCHOOL-LEVEL-MAPPING-SECONDARY-AND-EXAM` | SchoolReport level mapping locked; no group inference. |
+| `OWNER-20260908-SFC-BATCH-SCHOOL-FINANCE-FILE-LIFECYCLE` | full-name school labels, school-name mirrors, file lifecycle, Bonyad/discount cleanup/export semantics closed. |
+| `OWNER-20260908-SFC-BATCH-MAIN-FORM-CONSTRUCTION-READY` | main-form business semantics closed through event86; v0.6 materialization authorized with synthetic data; runtime implementation remains NOT_PROVEN. |
 
-## Current Owner decisions — code editing
+### Event86 finance/file specifics
 
-`OWNER-20260907-OFFICER-EDIT-LABELS-SYSTEM-CODES`: Officer edits human-readable school/group/status labels/choices. System writes matching canonical code/value. Raw technical codes are not directly editable. This refines old `school_code Admin-only` interpretation only for system-mediated updates caused by Officer-visible selection.
+- amounts are raw integer Rial; `tuition_amount`/`discount_amount`/`discount_title` default empty.
+- net is system-owned: empty if tuition empty, else tuition minus discount treating blank discount as zero without persisting zero.
+- discount>tuition => error/no-save.
+- final discount catalog = 41 code/name choices, includes `109=سازمان زندان‌ها`, excludes `102=سپاه پاسداران`.
+- `student_photo`: one jpg/jpeg <=5MB, File Upload Pro, required 3:4 crop, max 1200×1600.
+- `report_card_file`: one jpg/jpeg/pdf <=5MB.
+- safe replace/delete; Trash retains primary files; permanent Entry deletion deletes primary student files; backup retention still open.
 
-## Environment progression
+## Finance/cheque/scanner
 
-`OWNER-20260906-SKIP-RESIDUAL-ENV-INVENTORY`: Environment Inventory remains `PARTIAL/OWNER_ACCEPTED_FOR_PROGRESS`; residual staging/license/cache/build identity reopens only when decision-critical. This is not a PASS.
+- canonical/display unit = Rial; current finance/manual-cheque fields non-public/Officer-only.
+- multi-cheque host = GP Nested Forms, `POC_NOT_PROVEN`; Parent-Child fallback only after bounded FAIL.
+- current scanner path deferred; seven Sayad fields hidden/future-reserved.
+- POS/PC-POS and online Sayad deferred.
 
 ## Repository governance
 
-### `OWNER-20260907-SRWF-REPO-CANONICAL-DOCS`
+`OWNER-20260907-REPOSITORY-RUNTIME-SSOT`: GitHub `main` is sole project/runtime SSOT after cutover; Google Sheet is deprecated read-only provenance. Material state changes require CURRENT_STATE + append-only history in one accepted commit and main read-back.
 
-- `rezahh107/SRWF` is canonical home for durable project documentation/contracts after baseline merge/read-back.
-- `README.md`, `AGENTS.md`, manifest, standalone contracts, validation/release artifacts and classified provenance are required.
-- real PII/intake images/operational data ledgers must not be committed.
+## Superseded/historical
 
-### `OWNER-20260907-REPOSITORY-RUNTIME-SSOT`
+- `OWNER-20260907-HOME-PHONE-REQUIRED` superseded by included-but-optional.
+- public/independent `registration_status_code` superseded by event86.
+- old D-12 “upload only/no maintained crop” projection amended by event86 limited File Upload Pro allowance.
+- native Enhanced UI school candidate failed; event86 locks GP Advanced Select for current form.
+- scanner population current-release path superseded by scanner deferral.
+- Google Sheet live SSOT superseded after repository cutover.
 
-This later Owner decision **supersedes the former split-state boundary** that kept Google Sheets as live runtime SSOT.
+## Evidence boundary
 
-After cutover merge + `main` read-back:
-
-- `GitHub main` = sole project/runtime SSOT.
-- `runtime/CURRENT_STATE.yaml` = canonical current execution state.
-- `runtime/DECISION_HISTORY.jsonl` = append-only repository-era material history.
-- pre-cutover Sheet state/history = immutable provenance under `history/pre-runtime-ssot/`.
-- Google Sheet `SRWF_RUNTIME_STATE` = `DEPRECATED_READ_ONLY_MIGRATION_SOURCE`; no dual-write.
-- a material runtime state change is persisted only after state + event are in the same accepted commit and read back from `main`.
-
-Reopen only by Owner decision or if repository availability/concurrency creates a material execution problem that commit/blob-SHA discipline cannot safely handle.
-
-## Superseded / historical decision rows
-
-These remain in history but do not control current behavior:
-
-- `OWNER-20260907-HOME-PHONE-REQUIRED` — superseded by `OWNER-20260907-HOME-PHONE-INCLUDED-OPTIONAL`.
-- native List field as primary multi-cheque candidate — superseded by later Owner host decision.
-- Gravity Flow Parent-Child Forms as selected primary host — superseded by GP Nested Forms selection; retained only as fallback.
-- Scanner population as current-release cheque path — superseded by current-release scanner deferral.
-- older product-knowledge global Stage0 blockers — superseded by Addendum/current Master.
-- Google Sheet as live runtime SSOT — superseded by `OWNER-20260907-REPOSITORY-RUNTIME-SSOT` after completed repository cutover.
-
-## Evidence observations that must not be promoted
-
-- PersianGravity 4.1.0 Owner smoke = `OWNER_REPORTED_SMOKE_PASS` with unspecified coverage, not full runtime validation.
-- PR merge/CI = source implementation evidence, not browser/Nested Forms lifecycle proof.
-- `V-01..V-06` remain unexecuted unless later live evidence explicitly updates them.
-- D-17 remains POC-gated/not-proven.
-
-## Update rule
-
-A material Owner decision or executed probe/result must update `runtime/CURRENT_STATE.yaml` and append one event to `runtime/DECISION_HISTORY.jsonl` in the same accepted Git commit; then both are read back from `main`. Reflect it here only when it changes durable project semantics. Discussion-only events do not belong here.
+`V-01..V-06`, Nested host POC and D-17 remain unexecuted/not-proven unless later runtime evidence says otherwise. Documentation/artifact PASS is not staging/runtime PASS.
