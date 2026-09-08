@@ -49,10 +49,10 @@ provenance_archive: history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar
 | `D-06` | routine/Needs Review edits notification ندارند. |
 | `D-07` | native Gravity Flow Live Refresh کافی؛ no custom polling؛ operational cache نباید freshness را بشکند. |
 | `D-08` | no custom concurrency/locking. |
-| `D-09` | school selector فقط باید Persian-name search سریع/mobile را پاس کند؛ simplest native/maintained candidate first، stop at first PASS. Native Enhanced UI در target runtime FAIL شده و current maintained candidate = GP Advanced Select؛ `V-03` هنوز NOT_PROVEN است. |
+| `D-09` | school selector باید Persian-name search سریع/mobile را پاس کند. Native Enhanced UI در target runtime FAIL شده؛ برای current main form، Owner در event86 **GP Advanced Select را الزامی** و GF Enhanced UI را خاموش کرده است؛ `V-03` هنوز NOT_PROVEN است. |
 | `D-10` | duplicate National ID blocking حذف؛ repeated National ID allowed/all Entries preserved. |
 | `D-11` | mobile/Jalali/National-ID از ساده‌ترین maintained Iranian solution؛ no custom kernel. |
-| `D-12` | photo processing out of current scope؛ simple required photo upload only. |
+| `D-12` | amended by Owner event86: no custom/background/AI image-processing pipeline. `student_photo` remains required upload, but maintained GP File Upload Pro crop/downscale is allowed/required فقط برای 3:4 crop و max 1200×1600؛ no minimum dimensions. |
 | `D-13` | human-edit audit only via GravityRevisions, Admin-only؛ no API/import/system parity bridge. |
 | `D-14` | no direct GFAPI update path baseline. |
 | `D-15` | WP All Import syncs `registration_counter`; exact National ID business key; same National ID => same counter. |
@@ -125,10 +125,13 @@ Binding by translated label or invented ID has no authority.
 
 - canonical/display unit = Rial.
 - `tuition_amount`, `discount_amount`, `discount_title`, `net_payable_amount` current-release optional and non-public/Registration-Officer-only.
-- `discount_amount` may default to 0.
-- `net_payable_amount = tuition_amount - discount_amount`.
+- `discount_amount` initial submit default = empty under event86; calculation may treat empty as zero without persisting `0`.
+- `net_payable_amount` is system-owned: empty when tuition is empty; otherwise `tuition_amount - (discount_amount if present else 0)`.
 - `discount_amount > tuition_amount` => validation error + no save.
-- `finance_status` values remain `0=عادی`, `1=بنیاد شهید`, `3=حکمت`; it is non-public, Registration-Officer-only, optional, and defaults canonically to `0 (عادی)` under `OWNER-20260907-FINANCE-STATUS-OFFICER-DEFAULT-NORMAL`.
+- `finance_status` values remain `0=عادی`, `1=بنیاد شهید`, `3=حکمت`; it is non-public, Registration-Officer-only, optional, and defaults canonically to `0 (عادی)`; independent `registration_status_code` is removed by event86.
+- `registration_center_code` is non-public/Officer-only: `0=مرکز` default, `1=گلستان`, `2=صدرا`.
+- `discount_code` is separate from `discount_amount/title`: Officer-only, finance=0, default `0`, 41 code/name choices; event86 explicitly retains `109` and excludes `102`.
+- Bonyad Shahid fields are Officer-only/conditional on finance=1; Hekmat values are system-owned/conditional on finance=3 with stale-data cleanup.
 - manual cheque fields current-release optional/Officer-only.
 - POS/PC-POS and online Sayad inquiry deferred.
 
@@ -150,6 +153,15 @@ Binding by translated label or invented ID has no authority.
 - only native Approve advances workflow.
 - no notification for routine edits.
 - no custom Desk/list/lock.
+
+## Main-form event86 materialization
+
+- Current SFC authority batch: `OWNER-20260908-SFC-BATCH-MAIN-FORM-CONSTRUCTION-READY`.
+- school source = `SchoolReport-1405_06_17-3570.xlsx` SHA-256 `f6f408cc59708fcff52186076763410aaa66a6b1bf57f938f9e955324119980a`; 946 retained named schools + Other=0; excluded `1296,1314,1316,1319`.
+- school filter = gender + education level only; Other exempt; no group-specific filter without authoritative mapping.
+- current provisional artifact candidate = `SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json`; artifact conformance may be documented, but staging import/runtime behavior remains separate evidence.
+- `student_photo`: one jpg/jpeg <=5MB, File Upload Pro, required crop 3:4, max 1200×1600; exact installed-plugin settings/read-back remain implementation evidence.
+- `report_card_file`: one jpg/jpeg/pdf <=5MB; required 9 school codes, optional Other, hidden otherwise; safe replace/delete lifecycle applies.
 
 ## Security / PII
 
