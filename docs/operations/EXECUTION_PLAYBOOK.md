@@ -10,7 +10,7 @@ This is the compact execution map for the SRWF implementation Project. It does n
 - `Elementor` = outside the current operational baseline.
 - Custom code/add-ons are allowed only for a named residual native-capability gap and must stay thin; never create parallel data/workflow/state authority.
 - D-01..D-16 remain locked. `D-17` is Owner-refined to `POC_GATED / NOT_PROVEN`: first print candidate = `Gravity PDF Free` + SRWF-owned print layer, with no paid Gravity PDF template/extension and no custom PDF engine. A failed print candidate does not reopen parent architecture; it triggers Owner re-adjudication of the next renderer. A direct runtime contradiction to a lock must be escalated to the Owner.
-- Current-release finance remains in Gravity Forms and on the Registration Officer's native Gravity Flow surface only: canonical/display unit = Rial; financial/manual-cheque fields are optional and non-public; `discount_amount` may default to 0; `net_payable_amount = tuition_amount - discount_amount`; `discount_amount > tuition_amount` must fail validation and not save. `finance_status` remains `0=عادی, 1=بنیاد شهید, 3=حکمت`, is non-public/Officer-only/optional and defaults to canonical `0`. POS/PC-POS and online Sayad inquiry are deferred.
+- Current-release finance remains in Gravity Forms and on the Registration Officer's native Gravity Flow surface only: canonical/display unit = Rial; financial/manual-cheque fields are optional and non-public; `discount_amount` initial default is empty under event86; net is system-owned and empty when tuition is empty, otherwise tuition minus discount treating empty discount as zero without persisting zero; `discount_amount > tuition_amount` must fail validation and not save. `finance_status` remains `0=عادی, 1=بنیاد شهید, 3=حکمت`, is non-public/Officer-only/optional and defaults to canonical `0`. POS/PC-POS and online Sayad inquiry are deferred.
 - Multi-cheque requirement is `1..N`. Current host selection = `GP Nested Forms` with one cheque per child Entry; runtime/entitlement are `NOT_PROVEN`. Parent-Child Forms is fallback only after a bounded Nested Forms failure.
 - `PersianGravity Structured Scanner` remains a generic, host-agnostic, non-persistent capability, but the SRWF scanner path is **deferred from the current release**. All seven Sayad v01 output fields remain Hidden/future-reserved and are not populated by Scanner now.
 
@@ -32,13 +32,13 @@ Do not use the deprecated Google Sheet as a parallel current-state source.
 
 ### Stage 1 — Public form
 - Build Gravity Forms after Field Contract Gate.
-- School selector: simplest maintained/native path first; gate `V-03` = real Persian school-name search on mobile with real-scale dataset and correct stored school value.
+- School selector: event86 locks GP Advanced Select for the current main form with GF Enhanced UI off; gate `V-03` still requires real Persian-name mobile search at real-scale plus correct stored school value.
 - Iranian data quality: use simplest maintained solution; no custom kernel unless a proven gap remains.
-- Photo field is upload only; image processing is out of current scope.
+- Photo field: required single jpg/jpeg <=5MB using GP File Upload Pro; required 3:4 crop and max 1200×1600 are the Owner-approved limited D-12 amendment. No custom/background/AI processing pipeline or minimum dimensions.
 
 ### Stage 2 — Native workflow
 - Registration Officer Approval uses the Owner-approved native whitelist. Officer edits human-readable code-backed school/group/status choices; the system writes the matching canonical code/value, while raw technical codes are not directly editable. Optional current-release finance fields stay on this native Officer-only surface; no Windows/POS utility replaces Officer editing.
-- Current-release finance semantics are closed: unit=Rial; `tuition_amount`, `discount_amount`, `discount_title`, `net_payable_amount`, `finance_status` and manual-cheque finance fields are non-public/Registration-Officer-only; current-release values are optional unless a narrower current contract says otherwise. `discount_amount` may default to 0; `net_payable_amount = tuition_amount - discount_amount`; `discount_amount > tuition_amount` => validation error and no save. `finance_status` defaults to `0=عادی`.
+- Current-release finance semantics are closed: unit=Rial; `tuition_amount`, `discount_amount`, `discount_title`, `net_payable_amount`, `finance_status` and manual-cheque finance fields are non-public/Registration-Officer-only; current-release values are optional unless a narrower current contract says otherwise. `discount_amount` initial default is empty under event86; net is system-owned and empty when tuition is empty, otherwise tuition minus discount treating empty discount as zero without persisting zero; `discount_amount > tuition_amount` => validation error and no save. `finance_status` defaults to `0=عادی`.
 - Multi-cheque: one Cheque child Entry per cheque through GP Nested Forms when the host POC passes. Current release uses manual editing only; Scanner population is deferred.
 - Accountant Approval and final external-pending step.
 - Gate `V-01`: Inbox → Entry Details → edit allowed field without leaving current step/assignee → native Approve → correct next step.
@@ -155,7 +155,7 @@ For a material state change, state + one appended event must be committed togeth
 - Semantic Field Contract is Owner-approved/closed; authoritative scaffold is allowed with synthetic data subject to the current runtime blockers/next action in `runtime/CURRENT_STATE.yaml`.
 - Scanner-based financial/cheque input is deferred from the current release; seven Sayad output fields stay Hidden/future-reserved.
 - Officer edits human-readable code-backed choices and the system updates canonical codes; raw codes are not directly editable.
-- Current-release finance/manual-cheque fields are optional, non-public and Registration-Officer-only; Rial is canonical/display; discount above tuition is rejected without save; `finance_status` defaults to `0=عادی` on the Officer surface.
+- Current-release finance/manual-cheque fields are optional, non-public and Registration-Officer-only; Rial is canonical/display; discount above tuition is rejected without save; `finance_status` defaults to `0=عادی`; independent `registration_status_code` is removed. Event86 keeps amount defaults empty and keeps coded discount separate.
 - Residual Environment Inventory remains partial/Owner-accepted for progression; privacy/retention still blocks real PII.
 - Repository is the single runtime SSOT after accepted cutover; no Google Sheet dual-write.
 - No runtime PASS/validation claim is promoted by documentation/state migration.
