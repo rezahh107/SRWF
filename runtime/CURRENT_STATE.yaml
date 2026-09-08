@@ -1,5 +1,5 @@
 schema_version: 1
-state_version: 12
+state_version: 13
 updated_at: '2026-09-08'
 ssot:
   provider: GitHub
@@ -16,30 +16,30 @@ ssot:
 current:
   stage: STAGE_0_IN_PROGRESS
   gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_AMENDMENT_IN_PROGRESS
-  decision: OWNER-20260908-SCHOOL-LEVEL-MAPPING-SECONDARY-AND-EXAM
+  decision: OWNER-20260908-SFC-BATCH-SCHOOL-FINANCE-FILE-LIFECYCLE
   candidate: LEGACY_GF_RULE_RECONCILIATION
-  last_observed_result: OWNER_SCHOOL_LEVEL_MAPPING_LOCKED / SCHOOLREPORT_DABIRESTAN_APPLIES_TO_SECONDARY_AND_EXAM / PRIMARY_MIDDLE_VOCATIONAL_DIRECT / GROUP_SPECIFIC_FILTER_UNAVAILABLE_FROM_CURRENT_SOURCE
-  next_action_id: DECIDE_SCHOOL_DISPLAY_LABEL_SOURCE
-  next_action: Decide whether school choices should display the short school name or the workbook's full school name while always storing canonical school_code.
+  last_observed_result: OWNER_BATCH_LOCKED / SCHOOL_DISPLAY_SCHOOL_NAME_REPORT_CARD_CLOSED / BONYAD_SHAHID_DISCOUNT_DOWNSTREAM_CLOSED / CONDITIONAL_CLEANUP_AND_FILE_LIFECYCLE_CLOSED / PRIVACY_BACKUP_POLICY_OPEN / IMPLEMENTATION_NOT_PROVEN
+  next_action_id: DECIDE_STUDENT_PHOTO_UPLOAD_CONSTRAINTS
+  next_action: Decide the accepted file types and maximum upload size for student_photo while preserving the native-upload-only D-12 lock.
 open_blockers:
 - id: PRIVACY_RETENTION_OPEN
-  effect: blocks real PII in staging/UAT/production; synthetic work remains allowed
+  effect: blocks real PII in staging/UAT/production; photo/report-card replacement and permanent-delete triggers are now Owner-locked, but retention duration, backup behavior and other data-class policies remain open
 - id: ENVIRONMENT_INVENTORY_PARTIAL
   effect: OWNER_ACCEPTED_FOR_PROGRESS; reopen only when a compatibility/deployment fact becomes decision-critical
 - id: SCHOOL_CHOICES_NOT_MATERIALIZED
-  effect: Owner selected SchoolReport-1405_06_17-3570.xlsx as the current school metadata source; four invalid-gender school codes are excluded, but the resulting controlled 946-school catalog plus Other=0 is not yet materialized into the import artifact
+  effect: Owner selected SchoolReport-1405_06_17-3570.xlsx as the current school metadata source; four invalid-gender school codes are excluded and full-name display semantics are locked, but the resulting controlled 946-school catalog plus Other=0 is not yet materialized into the import artifact
 - id: FLOW_FINANCE_WHITELIST_NOT_PROVEN
-  effect: finance fields are intended Registration-Officer-only/non-public, but the native Gravity Flow whitelist remains runtime-unproven
-- id: LEGACY_FINANCE_RULE_RECONCILIATION_INCOMPLETE
-  effect: foundation, coded-discount and Hekmat semantics are locked; school gender/level semantics are now locked; remaining school-display/report-card and downstream-binding reconciliation is still under Owner review
+  effect: finance/Bonyad Shahid/discount fields are intended Registration-Officer-only/non-public, but the native Gravity Flow whitelist remains runtime-unproven
+- id: SFC_AMENDMENT_DOC_SYNC_PENDING
+  effect: Owner decisions through event85 are persisted in runtime state/history, but active Semantic Field Contract documents still require batch materialization before authoritative scaffold freeze
 - id: SCHOOL_FILTER_IMPLEMENTATION_PENDING
   effect: authoritative gender and level metadata plus the Owner-approved level mapping are available for all 946 retained schools, but Gravity Forms filtering and server validation are not implemented or runtime-proven; no current authoritative school-to-group mapping exists, so group-specific filtering must not be inferred
 - id: SERVER_BINDINGS_INCOMPLETE
-  effect: DOB/mobile/group/status/school/report-card/discount/foundation/Hekmat/file-access server bindings and validation remain incomplete; Hekmat semantics are closed but implementation is not proven
+  effect: DOB/mobile/group/status/school/report-card/discount/Bonyad-Shahid/Hekmat/file-access and file-lifecycle server bindings and validation remain incomplete; semantics are locked where stated but implementation is not proven
 - id: GP_NESTED_FORMS_POC_NOT_PROVEN
   effect: multi-cheque child composition is selected but not runtime-proven
 - id: GF_IMPORT_RUNTIME_UNEXECUTED
-  effect: no new staging import should run until the legacy-rule reconciliation is closed and a superseding provisional import artifact is generated
+  effect: no new staging import should run until the SFC amendment is fully reconciled/materialized and a superseding provisional import artifact is generated
 governance:
   repository_baseline: ACCEPTED_CURRENT
   runtime_ssot_decision: OWNER-20260907-REPOSITORY-RUNTIME-SSOT
@@ -72,8 +72,8 @@ governance:
   - DOCUMENTED != OBSERVED_IN_STAGING
   - NOT_PROVEN != PROVEN_ABSENT
 history:
-  last_event_seq: 84
-  last_event_id: OWNER-20260908-SCHOOL-LEVEL-MAPPING-SECONDARY-AND-EXAM
+  last_event_seq: 85
+  last_event_id: OWNER-20260908-SFC-BATCH-SCHOOL-FINANCE-FILE-LIFECYCLE
   pre_cutover_event_count: 72
   pre_cutover_source: Google Sheet SRWF_RUNTIME_STATE / DECISION_HISTORY
   active_history_start_seq: 73
@@ -81,6 +81,7 @@ history:
   pre_cutover_migration_manifest: history/pre-runtime-ssot/MIGRATION_MANIFEST.json
 evidence_refs:
 - docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml
+- docs/contracts/PRIVACY_RETENTION_CONTRACT.md
 - docs/governance/DECISION_LEDGER.md
 - docs/authority/MASTER.md
 - docs/operations/EXECUTION_PLAYBOOK.md
@@ -89,8 +90,7 @@ evidence_refs:
 - history/pre-runtime-ssot/CURRENT_STATE_PRE_CUTOVER.yaml
 - history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json
 - Owner-uploaded SchoolReport-1405_06_17-3570.xlsx sha256=f6f408cc59708fcff52186076763410aaa66a6b1bf57f938f9e955324119980a
-- Matrix2/app/infra/common/school_report_normalization.py@24a13e928808715953b3c1260b6ac7271c7dfe31
-- Matrix2/README-Eligibility-Matrix-Builder.md@24a13e928808715953b3c1260b6ac7271c7dfe31
+- Matrix2@24a13e928808715953b3c1260b6ac7271c7dfe31 historical export/schema evidence
 - PR#3
 - GitHub Actions run 34160923750
 - PR#4
