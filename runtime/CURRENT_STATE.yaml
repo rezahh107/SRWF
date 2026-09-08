@@ -1,5 +1,5 @@
 schema_version: 1
-state_version: 10
+state_version: 11
 updated_at: '2026-09-08'
 ssot:
   provider: GitHub
@@ -16,26 +16,26 @@ ssot:
 current:
   stage: STAGE_0_IN_PROGRESS
   gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_AMENDMENT_IN_PROGRESS
-  decision: OWNER-20260908-SCHOOL-GENDER-FILTER-AUTHORITATIVE-METADATA
+  decision: OWNER-20260908-SCHOOL-SOURCE-1405-EXCLUDE-INVALID-4
   candidate: LEGACY_GF_RULE_RECONCILIATION
-  last_observed_result: OWNER_SCHOOL_GENDER_FILTER_CONFIRMED / CURRENT_CROSSWALK_HAS_NO_GENDER_METADATA / MATRIX2_SCHOOLREPORT_SUPPORTS_OPTIONAL_GENDER / ACADEMIC_SCHOOL_FILTER_REQUEST_NOT_YET_PROVEN_CONSTRUCTABLE
-  next_action_id: DECIDE_SCHOOL_ACADEMIC_FILTER_POLICY
-  next_action: Decide whether school choices should also be filtered by education level/group only when an authoritative school-to-level/group mapping is available, with no inference from school names.
+  last_observed_result: OWNER_SCHOOL_SOURCE_1405_SELECTED / 950_UNIQUE_CODES_OBSERVED / 946_RETAINED_VALID_GENDER_ROWS / 4_INVALID_GENDER_ROWS_EXCLUDED / LEVEL_METADATA_AVAILABLE / GROUP_SPECIFIC_MAPPING_NOT_AVAILABLE
+  next_action_id: DECIDE_SCHOOL_LEVEL_FILTER_MAPPING
+  next_action: Confirm the SRWF education-level to SchoolReport level mapping for school filtering; group-specific filtering remains unavailable without an authoritative school-to-group mapping.
 open_blockers:
 - id: PRIVACY_RETENTION_OPEN
   effect: blocks real PII in staging/UAT/production; synthetic work remains allowed
 - id: ENVIRONMENT_INVENTORY_PARTIAL
   effect: OWNER_ACCEPTED_FOR_PROGRESS; reopen only when a compatibility/deployment fact becomes decision-critical
 - id: SCHOOL_CHOICES_NOT_MATERIALIZED
-  effect: canonical school source is recovered and bound, but the full controlled school choices are not yet materialized into the current import artifact
+  effect: Owner selected SchoolReport-1405_06_17-3570.xlsx as the current school metadata source; four invalid-gender school codes are excluded, but the resulting controlled 946-school catalog plus Other=0 is not yet materialized into the import artifact
 - id: FLOW_FINANCE_WHITELIST_NOT_PROVEN
   effect: finance fields are intended Registration-Officer-only/non-public, but the native Gravity Flow whitelist remains runtime-unproven
 - id: LEGACY_FINANCE_RULE_RECONCILIATION_INCOMPLETE
   effect: foundation, coded-discount and Hekmat semantics are locked; remaining school/report-card and other conditional-rule reconciliation is still under Owner review
-- id: SCHOOL_GENDER_METADATA_NOT_MATERIALIZED
-  effect: gender filtering is Owner-confirmed, but current school-crosswalk exposes only code/name/norm_name; authoritative per-school gender metadata must be recovered/materialized before filtering and server validation can be implemented; Other=0 remains exempt
+- id: SCHOOL_FILTER_IMPLEMENTATION_PENDING
+  effect: authoritative gender metadata is available for all 946 retained school records and level metadata is available, but Gravity Forms filtering and server validation are not implemented or runtime-proven
 - id: SCHOOL_ACADEMIC_FILTER_MAPPING_UNRESOLVED
-  effect: Owner wants school filtering by education level/group if feasible, but current school data has no authoritative school-to-level/group mapping; do not infer from names or numbering
+  effect: SchoolReport provides authoritative school-to-level metadata but no school-to-group mapping; Owner must confirm the SRWF education-level to SchoolReport level mapping before materialization; do not infer group eligibility from school names
 - id: SERVER_BINDINGS_INCOMPLETE
   effect: DOB/mobile/group/status/school/report-card/discount/foundation/Hekmat/file-access server bindings and validation remain incomplete; Hekmat semantics are closed but implementation is not proven
 - id: GP_NESTED_FORMS_POC_NOT_PROVEN
@@ -74,8 +74,8 @@ governance:
   - DOCUMENTED != OBSERVED_IN_STAGING
   - NOT_PROVEN != PROVEN_ABSENT
 history:
-  last_event_seq: 82
-  last_event_id: OWNER-20260908-SCHOOL-GENDER-FILTER-AUTHORITATIVE-METADATA
+  last_event_seq: 83
+  last_event_id: OWNER-20260908-SCHOOL-SOURCE-1405-EXCLUDE-INVALID-4
   pre_cutover_event_count: 72
   pre_cutover_source: Google Sheet SRWF_RUNTIME_STATE / DECISION_HISTORY
   active_history_start_seq: 73
@@ -90,7 +90,7 @@ evidence_refs:
 - history/pre-runtime-ssot/MIGRATION_MANIFEST.json
 - history/pre-runtime-ssot/CURRENT_STATE_PRE_CUTOVER.yaml
 - history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json
-- Matrix2/docs/school-crosswalk.json@24a13e928808715953b3c1260b6ac7271c7dfe31
+- Owner-uploaded SchoolReport-1405_06_17-3570.xlsx sha256=f6f408cc59708fcff52186076763410aaa66a6b1bf57f938f9e955324119980a
 - Matrix2/app/infra/common/school_report_normalization.py@24a13e928808715953b3c1260b6ac7271c7dfe31
 - Matrix2/README-Eligibility-Matrix-Builder.md@24a13e928808715953b3c1260b6ac7271c7dfe31
 - PR#3
