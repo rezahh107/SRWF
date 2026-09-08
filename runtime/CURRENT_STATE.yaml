@@ -1,5 +1,5 @@
 schema_version: 1
-state_version: 9
+state_version: 10
 updated_at: '2026-09-08'
 ssot:
   provider: GitHub
@@ -16,11 +16,11 @@ ssot:
 current:
   stage: STAGE_0_IN_PROGRESS
   gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_AMENDMENT_IN_PROGRESS
-  decision: OWNER-20260908-HEKMAT-SERVER-DERIVED-CLEAR-ON-EXIT
+  decision: OWNER-20260908-SCHOOL-GENDER-FILTER-AUTHORITATIVE-METADATA
   candidate: LEGACY_GF_RULE_RECONCILIATION
-  last_observed_result: OWNER_HEKMAT_RULE_LOCKED / FIXED_SERVER_DERIVATION / CLEAR_ON_EXIT / LEGACY_HEKMAT_CHOICES_EXCLUDED
-  next_action_id: DECIDE_SCHOOL_GENDER_COMPATIBILITY
-  next_action: Decide whether and how the new single canonical school selector must enforce student-gender compatibility with school choices.
+  last_observed_result: OWNER_SCHOOL_GENDER_FILTER_CONFIRMED / CURRENT_CROSSWALK_HAS_NO_GENDER_METADATA / MATRIX2_SCHOOLREPORT_SUPPORTS_OPTIONAL_GENDER / ACADEMIC_SCHOOL_FILTER_REQUEST_NOT_YET_PROVEN_CONSTRUCTABLE
+  next_action_id: DECIDE_SCHOOL_ACADEMIC_FILTER_POLICY
+  next_action: Decide whether school choices should also be filtered by education level/group only when an authoritative school-to-level/group mapping is available, with no inference from school names.
 open_blockers:
 - id: PRIVACY_RETENTION_OPEN
   effect: blocks real PII in staging/UAT/production; synthetic work remains allowed
@@ -32,8 +32,10 @@ open_blockers:
   effect: finance fields are intended Registration-Officer-only/non-public, but the native Gravity Flow whitelist remains runtime-unproven
 - id: LEGACY_FINANCE_RULE_RECONCILIATION_INCOMPLETE
   effect: foundation, coded-discount and Hekmat semantics are locked; remaining school/report-card and other conditional-rule reconciliation is still under Owner review
-- id: SCHOOL_GENDER_RULE_UNRESOLVED
-  effect: the legacy four-school-selector structure implicitly constrained school choices by gender; the canonical school snapshot currently exposes code/name only, so the new single-selector gender compatibility rule remains unresolved
+- id: SCHOOL_GENDER_METADATA_NOT_MATERIALIZED
+  effect: gender filtering is Owner-confirmed, but current school-crosswalk exposes only code/name/norm_name; authoritative per-school gender metadata must be recovered/materialized before filtering and server validation can be implemented; Other=0 remains exempt
+- id: SCHOOL_ACADEMIC_FILTER_MAPPING_UNRESOLVED
+  effect: Owner wants school filtering by education level/group if feasible, but current school data has no authoritative school-to-level/group mapping; do not infer from names or numbering
 - id: SERVER_BINDINGS_INCOMPLETE
   effect: DOB/mobile/group/status/school/report-card/discount/foundation/Hekmat/file-access server bindings and validation remain incomplete; Hekmat semantics are closed but implementation is not proven
 - id: GP_NESTED_FORMS_POC_NOT_PROVEN
@@ -72,8 +74,8 @@ governance:
   - DOCUMENTED != OBSERVED_IN_STAGING
   - NOT_PROVEN != PROVEN_ABSENT
 history:
-  last_event_seq: 81
-  last_event_id: OWNER-20260908-HEKMAT-SERVER-DERIVED-CLEAR-ON-EXIT
+  last_event_seq: 82
+  last_event_id: OWNER-20260908-SCHOOL-GENDER-FILTER-AUTHORITATIVE-METADATA
   pre_cutover_event_count: 72
   pre_cutover_source: Google Sheet SRWF_RUNTIME_STATE / DECISION_HISTORY
   active_history_start_seq: 73
@@ -88,6 +90,9 @@ evidence_refs:
 - history/pre-runtime-ssot/MIGRATION_MANIFEST.json
 - history/pre-runtime-ssot/CURRENT_STATE_PRE_CUTOVER.yaml
 - history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json
+- Matrix2/docs/school-crosswalk.json@24a13e928808715953b3c1260b6ac7271c7dfe31
+- Matrix2/app/infra/common/school_report_normalization.py@24a13e928808715953b3c1260b6ac7271c7dfe31
+- Matrix2/README-Eligibility-Matrix-Builder.md@24a13e928808715953b3c1260b6ac7271c7dfe31
 - PR#3
 - GitHub Actions run 34160923750
 - PR#4
