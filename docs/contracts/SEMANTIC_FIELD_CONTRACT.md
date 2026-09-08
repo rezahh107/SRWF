@@ -1,99 +1,52 @@
 # Semantic Field Contract — Human Projection
 
 **Canonical machine-readable source:** `SEMANTIC_FIELD_CONTRACT.yaml`  
-**Gate:** `OWNER APPROVED / CLOSED` برای semantics؛ `UNBOUND` برای GF/Flow IDs تا بعد از scaffold.
+**Semantic scope:** `OWNER APPROVED / CLOSED THROUGH event86`  
+**Runtime binding:** `UNBOUND / NOT_PROVEN` تا staging import و read-back IDهای واقعی.
 
-## قاعده‌ای که نباید دوباره شکسته شود
+این projection تصمیم‌های Owner تا `OWNER-20260908-SFC-BATCH-MAIN-FORM-CONSTRUCTION-READY` را خلاصه می‌کند. وجود field با اجباری بودن value یکی نیست.
 
-`وجود فیلد در فرم` با `اجباری بودن مقدار` دو چیز جداست:
+## فرم عمومی
 
-- `include_in_form: true` یعنی field باید در scaffold وجود داشته باشد.
-- `value_required: true/false/conditional` یعنی آیا actor باید مقدار بدهد.
+- `first_name`, `last_name`, `father_name`, `national_id`, `dob_jalali`, `gender_code`, `student_mobile`, `student_photo`, `education_level`, `grade_group_selection`, `graduation_status`, `school_code` در مسیر عمومی هستند.
+- `home_phone`, `contact1_mobile`, `contact2_mobile` در فرم هستند ولی optional. `contact1_relationship=پدر` و `contact2_relationship=مادر` hidden/system-owned هستند.
+- `national_id`: PersianGravity، کد ملی معتبر، ۱۰ رقم ASCII downstream، leading zero حفظ، duplicate مجاز.
+- `dob_jalali`: PersianGravity Jalali، canonical `YYYY/MM/DD`، بدون age rule.
+- موبایل‌ها: normalize ارقام فارسی/عربی، حذف space/hyphen، canonical `09xxxxxxxxx`; تلفن منزل digits-only و بدون طول ساختگی.
 
-نمونهٔ قطعی: **تلفن منزل** باید در فرم باشد اما مقدار آن اختیاری است.
+## عکس و کارنامه
 
-## Public student fields
+`student_photo`: required، یک فایل `jpg/jpeg` تا 5MB، GP File Upload Pro، crop اجباری `3:4`، حداکثر `1200×1600`، بدون minimum dimensions و بدون AI/face/background checks. Crop/downscale maintained این Perk تنها supersession محدود `D-12` است؛ custom/background processing queue همچنان ممنوع است.
 
-| Contract | Machine purpose | در فرم | مقدار اجباری | نکته |
-|---|---|---:|---:|---|
-| `STUDENT_FIRST_NAME` | `first_name` | بله | بله | Owner-approved |
-| `STUDENT_LAST_NAME` | `last_name` | بله | بله | Owner-approved |
-| `STUDENT_FATHER_NAME` | `father_name` | بله | بله | Owner-approved؛ نباید دوباره از لیست حذف شود |
-| `STUDENT_NATIONAL_ID` | `national_id` | بله | بله | ASCII 10 digits + Iranian checksum؛ duplicate blocking ممنوع |
-| `STUDENT_MOBILE` | `student_mobile` | بله | بله | موبایل دانش‌آموز |
-| `HOME_PHONE` | `home_phone` | **بله** | **خیر** | Owner clarification 2026-09-07 |
-| `CONTACT1_MOBILE` | `contact1_mobile` | بله | خیر | رابط ۱ = پدر، ثابت/hidden |
-| `CONTACT2_MOBILE` | `contact2_mobile` | بله | خیر | رابط ۲ = مادر، ثابت/hidden |
-| `STUDENT_GENDER` | `gender_code` | بله | بله | دختر=0، پسر=1 |
-| `EDUCATION_LEVEL` | `education_level` | بله | بله | controlled choice |
-| `GRADE_GROUP_SELECTION` | `grade_group_selection` | بله | بله | label انسانی؛ `group_code` پشت‌صحنه |
-| `GROUP_CODE` | `group_code` | بله/hidden | بله | raw code مستقیم editable نیست |
-| `GRADUATION_STATUS` | `graduation_status` | بله | بله | بعضی گروه‌ها auto، بعضی visible choice |
-| `REGISTRATION_CENTER` | `registration_center_code` | بله | بله | choice catalog از Crosswalk/source |
-| `REGISTRATION_STATUS` | `registration_status_code` | بله | بله | exact current code catalog باید از accepted source materialize شود |
-| `DATE_OF_BIRTH_JALALI` | `dob_jalali` | بله | بله | canonical `YYYY/MM/DD` Jalali؛ no age/grade-age rule |
-| `STUDENT_PHOTO` | `student_photo` | بله | بله | native File Upload؛ no custom image processing |
+`report_card_file`: یک فایل `jpg/jpeg/pdf` تا 5MB. برای school codeهای `283,286,291,650,663,666,667,1320,1351` visible+required؛ برای `Other=0` visible+optional؛ برای سایر مدارس hidden. فایل نامرتبط پاک می‌شود؛ replace امن یعنی ابتدا فایل جدید persist/bind و فقط بعد فایل قبلی delete شود. Trash فایل را نگه می‌دارد؛ permanent Entry deletion فایل primary را حذف می‌کند. backup/export/log retention هنوز Privacy Gate باز دارد.
 
-## School fields
+## تحصیل و مدرسه
 
-- `school_code`: Value canonical؛ `0=Other`؛ raw code برای Officer editable نیست.
-- `school_name`: label انسانی؛ Officer انتخاب/نام را اصلاح می‌کند و سیستم code canonical را update می‌کند.
-- `school_name_other`: وقتی `school_code=0`، اجباری.
-- `report_card_file`: به‌طور پیش‌فرض اختیاری؛ فقط برای کدهای `283, 286, 291, 650, 663, 666, 667, 1320, 1351` اجباری.
+- `education_level`: Radio با پنج مقدار `کنکوری/متوسطه دوم/متوسطه اول/دبستان/هنرستان`.
+- `grade_group_selection`: یک Dropdown از 33 گروه، filtered by education level؛ `group_code` hidden/system-derived.
+- `graduation_status`: `1=دانش‌آموز`, `0=فارغ‌التحصیل`; برای 11 گروه dual-status نمایش داده می‌شود و برای بقیه server-authoritative set می‌شود.
+- `school_code`: یک Dropdown canonical + **GP Advanced Select الزامی**؛ GF Enhanced UI خاموش. Catalog = `946` مدرسه معتبر + `Other=0`؛ کدهای `1296,1314,1316,1319` حذف/رد می‌شوند.
+- فیلتر مدرسه فقط `gender + education_level` است؛ `Other=0` exempt؛ group-specific filter نداریم. Mapping مقطع SchoolReport: دبستان→دبستان، راهنمایی→متوسطه اول، دبیرستان→متوسطه دوم و کنکوری، هنرستان→هنرستان.
+- `school_name` system-owned mirror است؛ برای Other از `school_name_other` می‌آید.
 
-## Compatibility hidden fields
+## Registration Officer-only
 
-- `hekmat_package = آزمون` در حالت حکمت.
-- `hekmat_tracking = 1111111111111111` در حالت حکمت.
-
-این‌ها user input نیستند و برای compatibility فعلی hidden هستند.
+- `registration_center_code`: non-public Dropdown، `0=مرکز` default، `1=گلستان`, `2=صدرا`.
+- `finance_status`: non-public optional Radio، `0=عادی` default، `1=بنیاد شهید`, `3=حکمت`. `registration_status_code` مستقل حذف شده است.
+- Bonyad Shahid: `bonyad_shahid_case_number`, `bonyad_shahid_type_code` (18-choice)، `bonyad_shahid_type_name` mirror؛ فقط وقتی finance=1 و در خروج از آن پاک می‌شوند.
+- Hekmat: `hekmat_package=آزمون` و `hekmat_tracking=1111111111111111` فقط server-side وقتی finance=3؛ در خروج از Hekmat پاک می‌شوند.
+- `tuition_amount`, `discount_amount`, `discount_title` در submit اولیه خالی و optional هستند. مبلغ‌ها integer Rial. `discount_amount > tuition_amount` => error/no-save.
+- `net_payable_amount`: system-owned؛ اگر tuition خالی است خالی، وگرنه `tuition - discount` با treat کردن discount خالی به صفر بدون نوشتن صفر در `discount_amount`.
+- `discount_code`: optional، فقط finance=0، default `0=بدون تخفیف`، catalog دقیق 41 code/name؛ `109=سازمان زندان‌ها` موجود و `102=سپاه پاسداران` حذف. `discount_name` mirror system-owned است.
 
 ## Review/System
 
-- `review_status`: field معمولی Entry؛ نه workflow state دوم.
-- `review_reason`: دلیل Needs Review.
-- `registration_counter`: در public submit تولید نمی‌شود؛ فقط از external source با WP All Import sync می‌شود.
+`review_status` و `review_reason` ordinary Entry fields هستند و workflow state جدید نمی‌سازند. `registration_counter` فقط WP All Import و exact National ID؛ importer Flow را جلو نمی‌برد.
 
-## Finance — Registration Officer only
+## Cheque child form
 
-همهٔ این fieldها current-release **optional + non-public** هستند:
+Host انتخاب‌شده `GP Nested Forms` و `POC_NOT_PROVEN` است؛ هر cheque یک child Entry. manual cheque fields optional/Officer-only. inventory کامل machine-keyها هنوز `INCOMPLETE_ENUMERATION` است و قبل از child-form freeze باید bind شود. Scanner current release deferred و هفت Sayad field hidden/future-reserved هستند.
 
-- `tuition_amount` — ریال
-- `discount_amount` — ریال، default 0 مجاز
-- `discount_title`
-- `net_payable_amount = tuition_amount - discount_amount`
+## Gate باقی‌مانده
 
-اگر `discount_amount > tuition_amount` باشد، validation error و **no save**.
-
-## Cheque Child Form
-
-- cardinality: `1..N`
-- selected host: `GP Nested Forms` — `POC_NOT_PROVEN`
-- هر چک = child Gravity Forms Entry
-- parallel relationship DB/state ممنوع
-- همهٔ manual cheque fields current-release optional و Officer-only هستند.
-
-فیلدهای دستی که evidence جاری صریحاً پشتیبانی می‌کند:
-
-- `cheque_amount`
-- `cheque_due_date`
-
-**Gap آشکار:** current active Master نام machine-key همهٔ manual cheque fields را کامل enumerate نکرده است. تا source/Owner binding، key جدید اختراع نمی‌شود.
-
-## Future Sayad — Hidden
-
-این هفت field باید در Cheque Form future-reserved/Hidden باقی بمانند و current-release Scanner آن‌ها را populate نمی‌کند:
-
-`qr_version`, `owner_type`, `owner_identifier`, `iban`, `bank_branch`, `cheque_serial`, `sayad_id`.
-
-## Legacy fields
-
-وجود یک ستون در GF export/report قدیمی به‌تنهایی requirement جدید نیست. `contact1_name`, `contact2_name`, mentor/alias helpers و legacy output-shaping fields بدون current binding به scaffold برنمی‌گردند.
-
-## Materialization gaps
-
-1. **Choice catalog:** exact current education/group/center/registration-status mapping باید از accepted Crosswalk/source داخل repo materialize شود.
-2. **Manual cheque inventory:** exact manual cheque field list هنوز کامل enumerate نشده.
-3. **Privacy/retention:** policy فایل‌ها/مالی/چک قبل از real PII بسته شود.
-
-این gapها باید visible بمانند؛ `NOT_FOUND/INCOMPLETE` را به `PROVEN_ABSENT` تبدیل نکن.
+SFC semantics فرم اصلی بسته است، اما `DOCUMENTED != OBSERVED_IN_STAGING`: Import واقعی، ID mapping، server bindings، Flow whitelist، `V-01/V-03` و سایر validationها هنوز `NOT_PROVEN` هستند. تا Privacy/Retention sign-off فقط synthetic data.
