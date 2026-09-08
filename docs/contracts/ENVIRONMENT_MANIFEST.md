@@ -12,6 +12,7 @@
 | Workflow authority | Gravity Flow | OWNER_LOCKED |
 | PersianGravity | 4.1.0 installed/tested by Owner; no problem observed in unspecified smoke scope | OWNER_REPORTED_SMOKE_PASS; FULL_VALIDATION_NOT_PROVEN |
 | GP Nested Forms entitlement/install | not yet bound here | NOT_PROVEN |
+| GP File Upload Pro entitlement/install | required by event86 student_photo contract; exact target version/license/settings not yet read back | NOT_PROVEN |
 | Gravity PDF Free runtime | selected first POC candidate; target PASS not executed | NOT_PROVEN |
 | GravityRevisions target behavior | selected; V-04 unexecuted | NOT_PROVEN |
 | WP All Import counter sync | selected by D-15/D-16; V-06 unexecuted | NOT_PROVEN |
@@ -29,6 +30,7 @@ Populate from real target environment, not vendor-latest assumptions:
 - GravityRevisions exact version/license
 - WP All Import + GF add-on exact version/license
 - Gravity Perks + Nested Forms exact version/license/entitlement
+- GP File Upload Pro exact version/license/entitlement and post-import 3:4 / 1200×1600 setting read-back
 - PersianGravity exact installed build/commit/version
 - Gravity PDF exact version if POC proceeds
 - active theme

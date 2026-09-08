@@ -12,10 +12,10 @@
 - `D-06` routine/review edits: no notifications.
 - `D-07` native Live Refresh; no custom polling.
 - `D-08` no custom concurrency/locking.
-- `D-09` school search criterion = fast Persian-name search/mobile; first serious maintained candidate to PASS wins.
+- `D-09` school search criterion remains fast Persian-name search/mobile; native Enhanced UI failed target responsive behavior, and event86 locks GP Advanced Select with GF Enhanced UI off for the current main form; `V-03` remains `NOT_PROVEN`.
 - `D-10` repeated National ID allowed; no duplicate block.
 - `D-11` simple maintained Iranian mobile/Jalali/National-ID solution; no custom kernel.
-- `D-12` photo processing out of current scope; required upload only.
+- `D-12` amended by event86: no custom/background/AI image-processing pipeline. Required student photo remains a GF upload; maintained GP File Upload Pro crop/downscale is allowed/required only for 3:4 crop and max 1200×1600, with no minimum dimensions.
 - `D-13` human edit audit only via GravityRevisions; Admin-only.
 - `D-14` no direct GFAPI update path baseline.
 - `D-15` WP All Import owns counter sync by exact National ID.
@@ -27,17 +27,17 @@
 | Decision | Current effect | State |
 |---|---|---|
 | `OWNER-20260830-OFFICER-EDIT-NATIVE` | Officer corrections stay native Gravity Flow/GF; no custom edit UI. | CONFIRMED |
-| `OWNER-20260830-HEKMAT-PACKAGE-HIDDEN` | `hekmat_package=آزمون` hidden fixed value. | CONFIRMED |
-| `OWNER-20260830-STUDENT-PHOTO-REQUIRED` | `student_photo` included + value required; native File Upload only. | CONFIRMED |
-| `OWNER-20260830-REPORT-CARD-CONDITIONAL` | `report_card_file` optional by default, conditional required. | CONFIRMED |
+| `OWNER-20260830-HEKMAT-PACKAGE-HIDDEN` | `hekmat_package=آزمون` hidden fixed value. | CONFIRMED; refined by event81 server set/clear |
+| `OWNER-20260830-STUDENT-PHOTO-REQUIRED` | `student_photo` included + value required. | CONFIRMED; D-12 processing detail amended by event86 |
+| `OWNER-20260830-REPORT-CARD-CONDITIONAL` | `report_card_file` optional by default, conditional required. | CONFIRMED; visibility/lifecycle refined by event85 |
 | `OWNER-20260830-REPORT-CARD-SCHOOL-CODES` | Required school codes = 283,286,291,650,663,666,667,1320,1351. | CONFIRMED |
-| `OWNER-20260830-HEKMAT-TRACKING-HIDDEN` | `hekmat_tracking=1111111111111111` hidden fixed when Hekmat. | CONFIRMED |
+| `OWNER-20260830-HEKMAT-TRACKING-HIDDEN` | `hekmat_tracking=1111111111111111` hidden/system-owned when Hekmat. | CONFIRMED; refined by event81 server set/clear |
 | `OWNER-20260830-GROUP-CODE-DERIVATION` | user edits visible education/group; `group_code` derived/stored canonical; no redundant `exam_group`. | CONFIRMED |
 | `OWNER-20260830-MOBILE-REQUIREDNESS` | `student_mobile` required; contact mobiles optional. | CONFIRMED |
 | `OWNER-20260830-CONTACT-RELATION-MOBILE` | keep relationship+mobile for contacts; remove contact names. | CONFIRMED |
 | `OWNER-20260830-CONTACT-RELATION-FIXED` | contact1=پدر, contact2=مادر fixed/hidden. | CONFIRMED |
 | `OWNER-20260830-GRADUATION-STATUS-CONDITIONAL` | auto status for single-status groups; visible choice for dual-status groups. | CONFIRMED |
-| `OWNER-20260830-FILE-ACCESS-SCOPE` | photo/report-card access = Admin + Officer; retention deferred to privacy gate. | CONFIRMED |
+| `OWNER-20260830-FILE-ACCESS-SCOPE` | photo/report-card access = Admin + Officer. | CONFIRMED; primary lifecycle refined by event85/86; backup retention open |
 | `OWNER-20260830-FATHER-NAME-REQUIRED` | `father_name` required. | CONFIRMED |
 | `OWNER-20260830-NAME-REQUIRED` | `first_name`, `last_name` required. | CONFIRMED |
 | `OWNER-20260907-HOME-PHONE-INCLUDED-OPTIONAL` | `home_phone` must exist, but value is optional. | CONFIRMED; supersedes earlier ambiguous required-value row |
@@ -45,9 +45,10 @@
 ## Current Owner decisions — school selector
 
 - Native Gravity Forms Enhanced UI was observed to fail responsive requirement in target runtime: `PROBE-20260830-SCHOOL-ENHANCED-UI-RESPONSIVE-FAIL`.
-- `OWNER-20260830-SCHOOL-ADVANCED-SELECT`: current maintained candidate = GP Advanced Select with GF Enhanced UI disabled; `V-03` still `NOT_PROVEN` until target mobile/search PASS.
+- `OWNER-20260830-SCHOOL-ADVANCED-SELECT` selected GP Advanced Select as maintained candidate with GF Enhanced UI disabled.
+- event86 makes GP Advanced Select mandatory for the current main-form scaffold; final `V-03` still `NOT_PROVEN` until target mobile/search and stored-value PASS.
 
-This rejects only the failed candidate; D-09 architecture/criterion remains intact.
+This rejects only the failed native candidate; it does not promote `V-03`.
 
 ## Current Owner decisions — finance/cheque/scanner
 
@@ -64,6 +65,33 @@ This rejects only the failed candidate; D-09 architecture/criterion remains inta
 | `OWNER-20260906-D17-GRAVITY-PDF-FREE-POC` | first print POC = Gravity PDF Free + SRWF-owned print layer. |
 | `OWNER-20260905-FIN-POS-DEFER` + later POS decisions | POS/PC-POS deferred from current release. |
 
+## Event78–86 — current main-form refinements
+
+These Owner decisions extend/supersede only the named older projections; earlier unrelated decisions remain preserved above.
+
+| Decision | Durable current effect |
+|---|---|
+| `OWNER-20260908-FOUNDATION-FIELDS-OFFICER-ONLY` | Bonyad Shahid case/type fields restored as non-public Officer-only optional fields when `finance_status=1`. |
+| `OWNER-20260908-DISCOUNT-CODE-CATALOG-41-SEPARATE-FINANCE` | `discount_code` is separate from `discount_amount/title`; 41 controlled choices. |
+| `OWNER-20260908-DISCOUNT-CODE-CATALOG-NAME-CODE-ONLY` | percentage is not SRWF data; coded discount is code + name only. |
+| `OWNER-20260908-HEKMAT-SERVER-DERIVED-CLEAR-ON-EXIT` | Hekmat fixed values are server-owned and cleared when finance leaves 3. |
+| `OWNER-20260908-SCHOOL-GENDER-FILTER-AUTHORITATIVE-METADATA` | school gender compatibility uses authoritative metadata; `Other=0` exempt. |
+| `OWNER-20260908-SCHOOL-SOURCE-1405-EXCLUDE-INVALID-4` | SchoolReport 1405 selected; codes `1296,1314,1316,1319` excluded; retained named set = 946. |
+| `OWNER-20260908-SCHOOL-LEVEL-MAPPING-SECONDARY-AND-EXAM` | school filter uses gender + approved education-level mapping; no group inference. |
+| `OWNER-20260908-SFC-BATCH-SCHOOL-FINANCE-FILE-LIFECYCLE` | full-name school labels, school mirror/cleanup, report-card visibility/lifecycle, Bonyad/discount mirrors and stale-data cleanup closed. |
+| `OWNER-20260908-SFC-BATCH-MAIN-FORM-CONSTRUCTION-READY` | main-form business semantics closed for materialization; v0.6 synthetic scaffold authorized; implementation/runtime remains `NOT_PROVEN`. |
+
+### event86 exact finance / file consequences
+
+- independent `registration_status_code` is removed; `finance_status` is sole canonical registration/finance status.
+- `registration_center_code` is Officer-only/non-public with `0=مرکز` default, `1=گلستان`, `2=صدرا`.
+- `tuition_amount`, `discount_amount`, `discount_title` initial defaults are empty.
+- `net_payable_amount` is system-owned: empty if tuition is empty; otherwise `tuition - (discount if present else 0)` without writing zero into blank `discount_amount`.
+- final discount catalog has 41 code/name choices, explicitly includes `109=سازمان زندان‌ها` and excludes `102=سپاه پاسداران`.
+- `student_photo`: one jpg/jpeg <=5MB, GP File Upload Pro, required 3:4 crop, max 1200×1600, no minimum dimensions, no custom/background/AI pipeline.
+- `report_card_file`: one jpg/jpeg/pdf <=5MB; event85 visibility/requiredness and safe file lifecycle remain.
+- Trash retains primary photo/report-card files; permanent Entry deletion removes primary files; backup/export/log retention remains open Privacy scope.
+
 ## Current Owner decisions — code editing
 
 `OWNER-20260907-OFFICER-EDIT-LABELS-SYSTEM-CODES`: Officer edits human-readable school/group/status labels/choices. System writes matching canonical code/value. Raw technical codes are not directly editable. This refines old `school_code Admin-only` interpretation only for system-mediated updates caused by Officer-visible selection.
@@ -71,6 +99,8 @@ This rejects only the failed candidate; D-09 architecture/criterion remains inta
 ## Environment progression
 
 `OWNER-20260906-SKIP-RESIDUAL-ENV-INVENTORY`: Environment Inventory remains `PARTIAL/OWNER_ACCEPTED_FOR_PROGRESS`; residual staging/license/cache/build identity reopens only when decision-critical. This is not a PASS.
+
+event86 adds GP File Upload Pro exact installed version/license/entitlement and post-import `3:4` + `1200×1600` read-back to the environment facts that must be proven before release; this does not close Environment Inventory.
 
 ## Repository governance
 
@@ -105,6 +135,8 @@ These remain in history but do not control current behavior:
 - Scanner population as current-release cheque path — superseded by current-release scanner deferral.
 - older product-knowledge global Stage0 blockers — superseded by Addendum/current Master.
 - Google Sheet as live runtime SSOT — superseded by `OWNER-20260907-REPOSITORY-RUNTIME-SSOT` after completed repository cutover.
+- independent/public `registration_status_code` projection — superseded by event86; `finance_status` is sole canonical status.
+- old D-12 projection that disallowed all maintained crop/downscale — superseded only to the limited event86 GP File Upload Pro behavior; custom/background/AI processing remains forbidden.
 
 ## Evidence observations that must not be promoted
 
@@ -112,6 +144,7 @@ These remain in history but do not control current behavior:
 - PR merge/CI = source implementation evidence, not browser/Nested Forms lifecycle proof.
 - `V-01..V-06` remain unexecuted unless later live evidence explicitly updates them.
 - D-17 remains POC-gated/not-proven.
+- v0.6.0 local artifact conformance does not equal Gravity Forms staging import/read-back.
 
 ## Update rule
 

@@ -10,7 +10,7 @@ Release acceptance requires **executed evidence**, not only documentation.
 - machine values/crosswalk dependencies validated in UI and server paths.
 - National ID normalized/validated; duplicate National ID remains allowed.
 - Jalali DOB valid; student mobile validated through selected maintained solution.
-- finance contract enforced: Rial, optional/non-public/Registration-Officer-only, `net=tuition-discount`, invalid discount no save.
+- finance contract enforced: Rial, optional/non-public/Registration-Officer-only; amount inputs default empty; net empty if tuition empty else tuition-discount (empty discount treated as zero without persisting zero); invalid discount no save; finance/status/catalog cleanup rules enforced.
 - cheque cardinality `1..N`; child mapping bound; no parallel relationship DB/state.
 
 ## Workflow
@@ -30,7 +30,7 @@ Release acceptance requires **executed evidence**, not only documentation.
 ## Public form
 
 - `V-03 PASS` for Persian school search/mobile + correct canonical school value.
-- required student photo upload retained; no custom processing requirement.
+- `student_photo` read-back proves single jpg/jpeg <=5MB, GP File Upload Pro enabled, required 3:4 crop and max 1200×1600; no minimum dimensions/custom background/AI processing.
 - `home_phone` exists and remains optional.
 - `father_name`, names, student mobile required as SFC specifies.
 - if Nested Forms used, `PRB-NESTED-CHEQUE-001 PASS` with manual current-release entry path.
