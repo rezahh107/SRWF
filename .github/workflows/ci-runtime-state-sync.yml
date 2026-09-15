@@ -1,0 +1,161 @@
+name: SRWF CI Runtime Lab state sync
+
+on:
+  push:
+    branches:
+      - test/ci-runtime-lab-preflight
+    paths:
+      - '.github/workflows/ci-runtime-state-sync.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: test/ci-runtime-lab-preflight
+          fetch-depth: 1
+
+      - name: Record LAB_PASS in runtime SSOT
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          state_path = Path('runtime/CURRENT_STATE.yaml')
+          history_path = Path('runtime/DECISION_HISTORY.jsonl')
+          state = state_path.read_text(encoding='utf-8')
+          history = history_path.read_text(encoding='utf-8')
+
+          if '"event_seq":90' in history:
+              raise SystemExit('event 90 already exists; refusing duplicate append')
+          if not history.endswith('\n'):
+              raise SystemExit('decision history must end with newline before append')
+
+          def replace_once(old: str, new: str) -> None:
+              global state
+              count = state.count(old)
+              if count != 1:
+                  raise SystemExit(f'expected exactly one state match, found {count}: {old[:100]!r}')
+              state = state.replace(old, new, 1)
+
+          replace_once('state_version: 17', 'state_version: 18')
+          replace_once(
+              '  decision: OWNER-20260915-CI-RUNTIME-LAB-PREFLIGHT',
+              '  decision: OBS-20260915-CI-RUNTIME-LAB-V060-PASS',
+          )
+          replace_once(
+              '  last_observed_result: CI_RUNTIME_LAB_IMPLEMENTED_IN_PR9 / LAB_BLOCKED_EXACT_SCAFFOLD_BYTES_UNAVAILABLE / HARNESS_GUARD_PASS / DOCUMENTATION_INTEGRITY_PASS / PROJECT_BUNDLE_PASS / WORDPRESS_GF_IMPORT_READBACK_NOT_TESTED / STAGING_IMPORT_UNEXECUTED / FINANCE_SUSPENSION_PRESERVED',
+              '  last_observed_result: CI_RUNTIME_LAB_V060_PASS / EXACT_SCAFFOLD_SHA_VERIFIED / GF_3_1_1_1_REAL_IMPORT_READBACK_PASS / FORM_INACTIVE / 37_FIELDS / SOURCE_DEFINED_SETTINGS_PRESERVED / NEGATIVE_ASSERTION_REJECTED / STAGING_IMPORT_UNEXECUTED / FINANCE_SUSPENSION_PRESERVED',
+          )
+          replace_once(
+              '  next_action_id: RECOVER_GF_V060_EXACT_ARTIFACT_AND_RERUN_CI_LAB',
+              '  next_action_id: STAGING_IMPORT_GF_V060_SYNTHETIC',
+          )
+          replace_once(
+              '  next_action: Recover or provide the exact SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json bytes matching SHA-256 445f146b6c6d9ecf7badecce23b19be9dee59b653ec7c78c4537decaa3b31c89 as a repository-managed fixture or Owner-authorized public workflow-dispatch source, then rerun the disposable CI Runtime Lab. Only a meaningful LAB_PASS for those exact bytes justifies the governed real staging import/read-back. Never bind disposable CI Form/Field IDs into Implementation Mapping.',
+              '  next_action: Execute the governed real staging import of the exact SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json bytes matching SHA-256 445f146b6c6d9ecf7badecce23b19be9dee59b653ec7c78c4537decaa3b31c89 while the form remains inactive and using synthetic data only, then read back actual staging Form/Field IDs and critical settings before Implementation Mapping is bound. Never bind disposable CI Form/Field IDs into Implementation Mapping.',
+          )
+          replace_once(
+              '- id: CI_RUNTIME_LAB_EXACT_SCAFFOLD_UNAVAILABLE\n  effect: PR#9 CI Runtime Lab run 34983290750 ended LAB_BLOCKED before WordPress/Gravity Forms import because the exact v0.6.0 candidate bytes were not present in the repository and no Owner-authorized dispatch URL was available; no mock or regenerated substitute was admitted\n',
+              '',
+          )
+          replace_once(
+              '- id: GF_IMPORT_RUNTIME_UNEXECUTED\n  effect: v0.6.0 is the current provisional import candidate after event86 SFC synchronization, but CI import/read-back is blocked on the exact scaffold bytes and actual Gravity Forms staging import/post-import settings/ID read-back remain unexecuted\n',
+              '- id: GF_STAGING_IMPORT_UNEXECUTED\n  effect: exact v0.6.0 disposable CI import/read-back passed with authentic Gravity Forms 3.1.1.1, but the actual Gravity Forms staging import/post-import settings/ID read-back remains unexecuted; CI-generated IDs are disposable and must not be bound into Implementation Mapping\n',
+          )
+          replace_once(
+              '    observed_run: 34983290750\n    observed_status: LAB_BLOCKED\n    blocker: EXACT_SCAFFOLD_BYTES_UNAVAILABLE\n    evidence_artifact_id: 10402004610\n    evidence_artifact_digest: sha256:ef52d11723bf42d081a1578982e694c9b6bbc1ffe5a7ec5422ea83833947797e\n    evidence_file_sha256: 0321e11164dd94ddc8fd48c2cd280867c42256e8822f070a297cc0cf2bb24d1f\n    harness_guard: PASS\n    real_import_readback: NOT_TESTED\n    staging_exercised: false\n    ci_ids_authoritative_for_mapping: false',
+              '    observed_run: 34991101079\n    observed_status: LAB_PASS\n    blocker: null\n    evidence_artifact_id: 10405592986\n    evidence_artifact_digest: sha256:3ad44dacf4a4b1a402d09dd47e0b2a1ceff18b1c0ff9065247b76cb9cc7c0eee\n    evidence_file_sha256: 9af7d783825ffd4a63e1f12603a2a31648dae76293cfc07b2922422dee652f3c\n    readback_file_sha256: eb0dec54aac6fbece87885b66f61bdcaefa38f70a2703dfc3cb6b31fb719b92b\n    negative_evidence_sha256: 2861f1aac60daaabb25dc76d07a6873934b7401547fde9b76c415a3904700b00\n    negative_assertion_log_sha256: 2bd0e2c68859b51905398f854fecf8884b8248dda04b198c07e56d7dc625d3dd\n    harness_guard: PASS\n    real_import_readback: PASS\n    source_artifact: SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json\n    source_artifact_sha256: 445f146b6c6d9ecf7badecce23b19be9dee59b653ec7c78c4537decaa3b31c89\n    wordpress_version: 6.8.3\n    php_version: 8.2.33\n    gravityforms_version: 3.1.1.1\n    gravityforms_package_sha256: 542f56ae0747f3661d1474996527298027db3fb8ed3e6469a6391aaabf61069b\n    disposable_form_id: 1\n    field_count: 37\n    source_defined_form_settings_preserved: true\n    source_defined_field_settings_preserved: true\n    negative_assertion_guard: PASS\n    staging_exercised: false\n    ci_ids_authoritative_for_mapping: false',
+          )
+          replace_once('  last_event_seq: 89', '  last_event_seq: 90')
+          replace_once(
+              '  last_event_id: OWNER-20260915-CI-RUNTIME-LAB-PREFLIGHT',
+              '  last_event_id: OBS-20260915-CI-RUNTIME-LAB-V060-PASS',
+          )
+
+          evidence_anchor = '- Runtime Lab lab-evidence.json sha256=0321e11164dd94ddc8fd48c2cd280867c42256e8822f070a297cc0cf2bb24d1f\n'
+          if evidence_anchor not in state:
+              raise SystemExit('expected evidence anchor is missing')
+          new_refs = (
+              evidence_anchor
+              + '- Owner-provided SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json exact bytes verified sha256=445f146b6c6d9ecf7badecce23b19be9dee59b653ec7c78c4537decaa3b31c89\n'
+              + '- GitHub Actions SRWF CI Runtime Lab run 34991101079 = LAB_PASS / exact GF 3.1.1.1 import and GFAPI read-back PASS / staging not exercised\n'
+              + '- Runtime Lab artifact 10405592986 digest sha256:3ad44dacf4a4b1a402d09dd47e0b2a1ceff18b1c0ff9065247b76cb9cc7c0eee\n'
+              + '- Runtime Lab LAB_PASS lab-evidence.json sha256=9af7d783825ffd4a63e1f12603a2a31648dae76293cfc07b2922422dee652f3c\n'
+              + '- Runtime Lab lab-readback.json sha256=eb0dec54aac6fbece87885b66f61bdcaefa38f70a2703dfc3cb6b31fb719b92b\n'
+              + '- Runtime Lab negative-evidence.json sha256=2861f1aac60daaabb25dc76d07a6873934b7401547fde9b76c415a3904700b00\n'
+              + '- Runtime Lab negative-assertion.log sha256=2bd0e2c68859b51905398f854fecf8884b8248dda04b198c07e56d7dc625d3dd\n'
+              + '- GitHub Actions Documentation Integrity run 34991101276 = success\n'
+              + '- GitHub Actions Project Bundle run 34991101102 = success\n'
+          )
+          state = state.replace(evidence_anchor, new_refs, 1)
+
+          event = {
+              'schema_version': 1,
+              'event_seq': 90,
+              'date_time': '2026-09-15',
+              'stage_gate': 'STAGE_0 / CI_RUNTIME_LAB_V060_ACCEPTANCE',
+              'decision_id': 'OBS-20260915-CI-RUNTIME-LAB-V060-PASS',
+              'need': 'Resolve the event89 exact-artifact blocker and execute the bounded real-package CI preflight for the exact v0.6.0 Gravity Forms scaffold before governed staging.',
+              'candidates': 'Reconstruct/mock a substitute scaffold; bypass the Lab and proceed directly to staging; admit the Owner-provided exact bytes under the pinned SHA-256 and execute the existing disposable Lab.',
+              'probe_or_evidence': 'Owner supplied SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json and local byte-level verification matched SHA-256 445f146b6c6d9ecf7badecce23b19be9dee59b653ec7c78c4537decaa3b31c89. PR #9 stores a repository-managed deterministic encoded fixture that reconstructs those exact bytes and re-verifies the same SHA before execution. GitHub Actions run 34991101079 on head 2770fc1cc3f6359c1e18edd124bf1bf40be83461 completed success using WordPress 6.8.3, PHP 8.2.33, WP-CLI 2.12.0, and authentic Gravity Forms 3.1.1.1 package SHA-256 542f56ae0747f3661d1474996527298027db3fb8ed3e6469a6391aaabf61069b. The real GF import returned exactly one form and zero failed forms; GFAPI read-back observed disposable Form ID 1, 37 fields, exact title, inactive form, preserved source-defined form/field settings with explicitly bounded Gravity Forms normalization equivalence (runtime-owned form.version and HTML-entity-equivalent description text). The deliberately wrong-title negative assertion was rejected. Artifact 10405592986 digest sha256:3ad44dacf4a4b1a402d09dd47e0b2a1ceff18b1c0ff9065247b76cb9cc7c0eee; lab-evidence.json SHA-256 9af7d783825ffd4a63e1f12603a2a31648dae76293cfc07b2922422dee652f3c; lab-readback.json SHA-256 eb0dec54aac6fbece87885b66f61bdcaefa38f70a2703dfc3cb6b31fb719b92b; negative-evidence.json SHA-256 2861f1aac60daaabb25dc76d07a6873934b7401547fde9b76c415a3904700b00; negative-assertion.log SHA-256 2bd0e2c68859b51905398f854fecf8884b8248dda04b198c07e56d7dc625d3dd. Documentation Integrity run 34991101276 and Project Bundle run 34991101102 also succeeded on the same head.',
+              'observed_result': 'The exact v0.6.0 scaffold preflight is LAB_PASS in the disposable CI Runtime Lab: exact source hash admitted, authentic Gravity Forms 3.1.1.1 imported one inactive form, 37 source fields and source-defined settings survived read-back under the bounded normalization rules, and the negative assertion guard rejected a deliberately wrong expectation. No synthetic Entry data was created. Staging was not exercised; CI Form/Field IDs are disposable and not authoritative. Finance/manual-cheque behavior remains suspended and was not tested.',
+              'decision': 'Accept the exact v0.6.0 scaffold CI preflight as LAB_PASS and close the exact-artifact-availability blocker. Advance the next action to governed real staging import/read-back of the same exact scaffold while inactive and using synthetic data only. Read back actual staging Form/Field IDs and critical settings before any Implementation Mapping binding. Do not promote CI-generated IDs, LAB_PASS, or any V-01..V-06/runtime state to staging or production proof.',
+              'reopen_condition': 'Reopen this CI acceptance if the repository-managed fixture no longer reconstructs the pinned SHA, a replay of the bounded Lab fails materially, staging import/read-back changes or drops a locked setting, or Owner changes the CI-before-staging policy.',
+              'status': 'LAB_PASS / EXACT_SCAFFOLD_SHA_VERIFIED / AUTHENTIC_GF_3_1_1_1_IMPORT_READBACK_PASS / FORM_INACTIVE / 37_FIELDS / SOURCE_DEFINED_SETTINGS_PRESERVED / NEGATIVE_ASSERTION_REJECTED / STAGING_IMPORT_UNEXECUTED / CI_IDS_NON_AUTHORITATIVE / FINANCE_SUSPENSION_PRESERVED / NO_STAGING_VALIDATION_PROMOTION',
+              'source': {
+                  'kind': 'GITHUB_PR9_CI_RUNTIME_LAB_EXACT_ARTIFACT_PASS',
+                  'pr': 9,
+                  'lab_run': 34991101079,
+                  'lab_head': '2770fc1cc3f6359c1e18edd124bf1bf40be83461',
+                  'lab_artifact_id': 10405592986,
+                  'lab_artifact_digest': 'sha256:3ad44dacf4a4b1a402d09dd47e0b2a1ceff18b1c0ff9065247b76cb9cc7c0eee',
+                  'lab_evidence_sha256': '9af7d783825ffd4a63e1f12603a2a31648dae76293cfc07b2922422dee652f3c',
+                  'lab_readback_sha256': 'eb0dec54aac6fbece87885b66f61bdcaefa38f70a2703dfc3cb6b31fb719b92b',
+                  'negative_evidence_sha256': '2861f1aac60daaabb25dc76d07a6873934b7401547fde9b76c415a3904700b00',
+                  'negative_assertion_log_sha256': '2bd0e2c68859b51905398f854fecf8884b8248dda04b198c07e56d7dc625d3dd',
+                  'expected_scaffold_sha256': '445f146b6c6d9ecf7badecce23b19be9dee59b653ec7c78c4537decaa3b31c89',
+                  'gravityforms_version': '3.1.1.1',
+                  'gravityforms_sha256': '542f56ae0747f3661d1474996527298027db3fb8ed3e6469a6391aaabf61069b',
+                  'disposable_form_id': 1,
+                  'field_count': 37,
+                  'staging_exercised': False,
+              },
+          }
+
+          state_path.write_text(state, encoding='utf-8')
+          history_path.write_text(
+              history + json.dumps(event, ensure_ascii=False, separators=(',', ':')) + '\n',
+              encoding='utf-8',
+          )
+          PY
+
+          git diff --check
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          lines = Path('runtime/DECISION_HISTORY.jsonl').read_text(encoding='utf-8').splitlines()
+          parsed = [json.loads(line) for line in lines]
+          assert parsed[-1]['event_seq'] == 90
+          assert parsed[-1]['decision_id'] == 'OBS-20260915-CI-RUNTIME-LAB-V060-PASS'
+          state = Path('runtime/CURRENT_STATE.yaml').read_text(encoding='utf-8')
+          assert 'state_version: 18' in state
+          assert 'last_event_seq: 90' in state
+          assert 'observed_status: LAB_PASS' in state
+          assert 'CI_RUNTIME_LAB_EXACT_SCAFFOLD_UNAVAILABLE' not in state
+          print('SRWF_RUNTIME_STATE_SYNC_VALIDATION_PASS')
+          PY
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add runtime/CURRENT_STATE.yaml runtime/DECISION_HISTORY.jsonl
+          git commit -m 'docs: record CI Runtime Lab pass'
+          git push origin HEAD:test/ci-runtime-lab-preflight
