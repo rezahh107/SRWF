@@ -40,6 +40,7 @@ jobs:
       SRWF_PACKAGE_DIR: /tmp/srwf-ci-packages
       SRWF_SCAFFOLD_PATH: /tmp/srwf-ci-input/SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json
       SRWF_REPO_SCAFFOLD_PATH: tests/runtime-lab/fixtures/SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json
+      SRWF_REPO_SCAFFOLD_PART_PREFIX: tests/runtime-lab/fixtures/SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json.gz.b64.part-
       SRWF_REPO_SCAFFOLD_GZIP_B64_PATH: tests/runtime-lab/fixtures/SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json.gz.b64
       SRWF_SCAFFOLD_SHA256: 445f146b6c6d9ecf7badecce23b19be9dee59b653ec7c78c4537decaa3b31c89
       SRWF_GF_ZIP: /tmp/srwf-ci-packages/gravityforms-3.1.1.1-owner-supplied-source-package.zip
@@ -102,6 +103,18 @@ jobs:
             cp "$SRWF_REPO_SCAFFOLD_PATH" "$SRWF_SCAFFOLD_PATH"
             source_class='REPOSITORY_MANAGED_EXACT_ARTIFACT'
             source_locator="$SRWF_REPO_SCAFFOLD_PATH"
+          elif [[ -f "${SRWF_REPO_SCAFFOLD_PART_PREFIX}00" && -f "${SRWF_REPO_SCAFFOLD_PART_PREFIX}01" && -f "${SRWF_REPO_SCAFFOLD_PART_PREFIX}02" && -f "${SRWF_REPO_SCAFFOLD_PART_PREFIX}03" ]]; then
+            cat \
+              "${SRWF_REPO_SCAFFOLD_PART_PREFIX}00" \
+              "${SRWF_REPO_SCAFFOLD_PART_PREFIX}01" \
+              "${SRWF_REPO_SCAFFOLD_PART_PREFIX}02" \
+              "${SRWF_REPO_SCAFFOLD_PART_PREFIX}03" \
+              | tr -d '\r\n' \
+              | base64 --decode \
+              | gzip -dc \
+              > "$SRWF_SCAFFOLD_PATH"
+            source_class='REPOSITORY_MANAGED_EXACT_ARTIFACT_GZIP_B64_PARTS'
+            source_locator="${SRWF_REPO_SCAFFOLD_PART_PREFIX}{00..03}"
           elif [[ -f "$SRWF_REPO_SCAFFOLD_GZIP_B64_PATH" ]]; then
             base64 --decode "$SRWF_REPO_SCAFFOLD_GZIP_B64_PATH" | gzip -dc > "$SRWF_SCAFFOLD_PATH"
             source_class='REPOSITORY_MANAGED_EXACT_ARTIFACT_GZIP_B64'
