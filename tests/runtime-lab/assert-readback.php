@@ -2,7 +2,7 @@
 /**
  * Compare the exact pinned Gravity Forms export with disposable runtime read-back.
  *
- * The source artifact is already content-addressed by its Owner-recorded SHA-256. This
+ * The source artifact is content-addressed by its Owner-recorded SHA-256. This
  * verifier checks that source-defined form/field settings survive the real import path;
  * it does not turn disposable CI IDs into staging authority.
  */
@@ -90,6 +90,14 @@ function compare_source_subset(mixed $expected, mixed $actual, string $path, arr
         }
         compare_source_subset($value, $actual[$key], $path . '.' . $key, $failures);
     }
+}
+
+function failures_for_path(array $failures, string $path_prefix): array
+{
+    return array_values(array_filter(
+        $failures,
+        static fn(string $failure): bool => str_contains($failure, $path_prefix)
+    ));
 }
 
 $source = load_json_file($source_path, $failures);
@@ -190,12 +198,17 @@ $field_failures = array_slice($failures, $field_failure_start);
 $form_setting_failure_start = count($failures);
 if (is_array($source_form) && is_array($actual_form)) {
     $expected_settings = $source_form;
-    foreach (array('id', 'fields', 'is_active', 'date_created', 'notifications', 'confirmations', 'version') as $runtime_or_out_of_scope_key) {
-        unset($expected_settings[$runtime_or_out_of_scope_key]);
+    // Only runtime identity/state properties and fields (verified separately above) are
+    // outside form-setting equivalence. Source-defined notifications and confirmations
+    // deliberately remain in this projection and therefore fail closed on drift.
+    foreach (array('id', 'fields', 'is_active', 'date_created', 'version') as $runtime_owned_key) {
+        unset($expected_settings[$runtime_owned_key]);
     }
     compare_source_subset($expected_settings, $actual_form, 'form', $failures);
 }
 $form_setting_failures = array_slice($failures, $form_setting_failure_start);
+$confirmation_failures = failures_for_path($form_setting_failures, 'form.confirmations');
+$notification_failures = failures_for_path($form_setting_failures, 'form.notifications');
 
 $generated_form_id = is_array($readback) ? ($readback['import']['form_id'] ?? null) : null;
 if (!is_int($generated_form_id) && !ctype_digit((string) $generated_form_id)) {
@@ -223,6 +236,8 @@ $evidence = array(
         'field_inventory' => $field_inventory,
         'source_defined_form_settings_preserved' => empty($form_setting_failures),
         'source_defined_field_settings_preserved' => empty($field_failures),
+        'source_defined_confirmations_preserved' => empty($confirmation_failures),
+        'source_defined_notifications_preserved' => empty($notification_failures),
     ),
     'assertions' => array(
         'exact_scaffold_hash' => !in_array('source_sha256_mismatch', $failures, true),
@@ -235,6 +250,8 @@ $evidence = array(
             || str_starts_with($failure, 'source_field_without_id')
             || str_starts_with($failure, 'missing_runtime_field_id:')
         ),
+        'source_defined_confirmations_readback' => empty($confirmation_failures),
+        'source_defined_notifications_readback' => empty($notification_failures),
         'source_defined_settings_readback' => empty($field_failures) && empty($form_setting_failures),
     ),
     'failures' => $failures,
@@ -246,7 +263,9 @@ $evidence = array(
         'production_ready_claim' => false,
         'finance_manual_cheque_behavior' => 'NOT_TESTED_SUSPENDED',
         'synthetic_entry_data_created' => false,
-        'runtime_owned_form_version_excluded_from_source_setting_equivalence' => true,
+        'runtime_owned_form_identity_state_excluded_from_source_setting_equivalence' => array(
+            'id', 'is_active', 'date_created', 'version'
+        ),
         'description_html_entities_compared_by_decoded_text' => true,
     ),
 );
