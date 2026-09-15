@@ -11,13 +11,13 @@
 | Data authority | Gravity Forms | OWNER_LOCKED |
 | Workflow authority | Gravity Flow | OWNER_LOCKED |
 | PersianGravity | 4.1.0 installed/tested by Owner; no problem observed in unspecified smoke scope | OWNER_REPORTED_SMOKE_PASS; FULL_VALIDATION_NOT_PROVEN |
-| GP Nested Forms entitlement/install | not yet bound here | NOT_PROVEN |
+| GP Nested Forms entitlement/install | selected future cheque host, but finance/cheque implementation currently suspended | DEFERRED_WITH_FINANCE_SCOPE / NOT_PROVEN |
 | GP File Upload Pro entitlement/install | required by event86 student_photo contract; exact target version/license/settings not yet read back | NOT_PROVEN |
 | Gravity PDF Free runtime | selected first POC candidate; target PASS not executed | NOT_PROVEN |
 | GravityRevisions target behavior | selected; V-04 unexecuted | NOT_PROVEN |
 | WP All Import counter sync | selected by D-15/D-16; V-06 unexecuted | NOT_PROVEN |
 
-## Required target inventory before release
+## Required target inventory before current release
 
 Populate from real target environment, not vendor-latest assumptions:
 
@@ -29,7 +29,6 @@ Populate from real target environment, not vendor-latest assumptions:
 - GravityView exact version if installed/used
 - GravityRevisions exact version/license
 - WP All Import + GF add-on exact version/license
-- Gravity Perks + Nested Forms exact version/license/entitlement
 - GP File Upload Pro exact version/license/entitlement and post-import 3:4 / 1200×1600 setting read-back
 - PersianGravity exact installed build/commit/version
 - Gravity PDF exact version if POC proceeds
@@ -37,13 +36,19 @@ Populate from real target environment, not vendor-latest assumptions:
 - cache/optimizer/CDN configuration
 - staging identity
 - production identity
-- server upload/memory/execution limits relevant to files/PDF
+- server upload/memory/execution limits relevant to active file/PDF paths
+
+### Deferred inventory
+
+- Gravity Perks + Nested Forms exact version/license/entitlement is not a current release blocker while `FINANCE_IMPLEMENTATION_SUSPENDED` is active. Bind/prove it when Owner explicitly reopens finance/cheque scope.
+- SMS provider/integration environment facts are not yet required because `REQ-DAILY-MANAGER-SMS` implementation is `NOT_SELECTED` and not a current gate.
 
 ## Gate meaning
 
 - Missing residual inventory does **not** reopen the closed Semantic Field Contract.
 - If a compatibility/license/cache/build-identity fact later becomes decision-critical, reopen only that environment sub-unit.
 - Vendor current/latest documentation is not proof of installed target version.
+- Deferred finance/SMS environment facts must not be promoted to PASS; they are simply outside current required scope.
 
 ## PII boundary
 
