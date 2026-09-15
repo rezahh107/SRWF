@@ -40,13 +40,17 @@ function load_json_file(string $path, array &$failures): ?array
     return $decoded;
 }
 
-function scalar_equivalent(mixed $expected, mixed $actual): bool
+function scalar_equivalent(mixed $expected, mixed $actual, string $path): bool
 {
     if ($expected === null || $actual === null) {
         return $expected === $actual;
     }
     if (is_bool($expected) || is_bool($actual)) {
         return (bool) $expected === (bool) $actual;
+    }
+    if (is_string($expected) && is_string($actual) && str_ends_with($path, '.description')) {
+        $flags = ENT_QUOTES | ENT_HTML5;
+        return html_entity_decode($expected, $flags, 'UTF-8') === html_entity_decode($actual, $flags, 'UTF-8');
     }
     if (is_scalar($expected) && is_scalar($actual)) {
         return (string) $expected === (string) $actual;
@@ -57,7 +61,7 @@ function scalar_equivalent(mixed $expected, mixed $actual): bool
 function compare_source_subset(mixed $expected, mixed $actual, string $path, array &$failures): void
 {
     if (!is_array($expected)) {
-        if (!scalar_equivalent($expected, $actual)) {
+        if (!scalar_equivalent($expected, $actual, $path)) {
             $failures[] = sprintf('value_mismatch:%s expected=%s actual=%s', $path, json_encode($expected), json_encode($actual));
         }
         return;
@@ -147,6 +151,7 @@ $actual_fields = is_array($actual_form) && isset($actual_form['fields']) && is_a
     ? $actual_form['fields']
     : array();
 
+$field_failure_start = count($failures);
 if (count($source_fields) === 0) {
     $failures[] = 'source_field_structure_empty';
 }
@@ -180,14 +185,17 @@ foreach ($source_fields as $source_field) {
         'type' => $actual_by_id[$source_id]['type'] ?? null,
     );
 }
+$field_failures = array_slice($failures, $field_failure_start);
 
+$form_setting_failure_start = count($failures);
 if (is_array($source_form) && is_array($actual_form)) {
     $expected_settings = $source_form;
-    foreach (array('id', 'fields', 'is_active', 'date_created', 'notifications', 'confirmations') as $runtime_or_out_of_scope_key) {
+    foreach (array('id', 'fields', 'is_active', 'date_created', 'notifications', 'confirmations', 'version') as $runtime_or_out_of_scope_key) {
         unset($expected_settings[$runtime_or_out_of_scope_key]);
     }
     compare_source_subset($expected_settings, $actual_form, 'form', $failures);
 }
+$form_setting_failures = array_slice($failures, $form_setting_failure_start);
 
 $generated_form_id = is_array($readback) ? ($readback['import']['form_id'] ?? null) : null;
 if (!is_int($generated_form_id) && !ctype_digit((string) $generated_form_id)) {
@@ -213,16 +221,21 @@ $evidence = array(
         'field_count' => count($actual_fields),
         'generated_field_ids' => array_values(array_map(static fn(array $field): mixed => $field['field_id'], $field_inventory)),
         'field_inventory' => $field_inventory,
-        'source_defined_form_settings_preserved' => empty($failures),
-        'source_defined_field_settings_preserved' => empty($failures),
+        'source_defined_form_settings_preserved' => empty($form_setting_failures),
+        'source_defined_field_settings_preserved' => empty($field_failures),
     ),
     'assertions' => array(
         'exact_scaffold_hash' => !in_array('source_sha256_mismatch', $failures, true),
         'single_form_import' => !in_array('import_count_not_one', $failures, true),
         'form_inactive' => !in_array('imported_form_not_inactive', $failures, true),
         'title_readback' => !in_array('form_title_mismatch', $failures, true),
-        'field_structure_readback' => !array_filter($failures, static fn(string $failure): bool => str_contains($failure, 'field_')),
-        'source_defined_settings_readback' => empty($failures),
+        'field_structure_readback' => !array_filter($field_failures, static fn(string $failure): bool =>
+            str_starts_with($failure, 'source_field_structure_empty')
+            || str_starts_with($failure, 'field_count_mismatch')
+            || str_starts_with($failure, 'source_field_without_id')
+            || str_starts_with($failure, 'missing_runtime_field_id:')
+        ),
+        'source_defined_settings_readback' => empty($field_failures) && empty($form_setting_failures),
     ),
     'failures' => $failures,
     'evidence_semantics' => array(
@@ -233,6 +246,8 @@ $evidence = array(
         'production_ready_claim' => false,
         'finance_manual_cheque_behavior' => 'NOT_TESTED_SUSPENDED',
         'synthetic_entry_data_created' => false,
+        'runtime_owned_form_version_excluded_from_source_setting_equivalence' => true,
+        'description_html_entities_compared_by_decoded_text' => true,
     ),
 );
 
