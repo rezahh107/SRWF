@@ -42,7 +42,7 @@ jobs:
       SRWF_REPO_SCAFFOLD_PATH: tests/runtime-lab/fixtures/SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json
       SRWF_REPO_SCAFFOLD_PART_PREFIX: tests/runtime-lab/fixtures/SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json.gz.b64.part-
       SRWF_REPO_SCAFFOLD_GZIP_B64_PATH: tests/runtime-lab/fixtures/SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json.gz.b64
-      SRWF_SCAFFOLD_SHA256: 445f146b6c6d9ecf7badecce23b19be9dee59b653ec7c78c4537decaa3b31c89
+      SRWF_SCAFFOLD_SHA256: 5d099c908a245823aa0a3b40c718c35922e23a8afd56141cc7f97194d558c2fb
       SRWF_GF_ZIP: /tmp/srwf-ci-packages/gravityforms-3.1.1.1-owner-supplied-source-package.zip
       SRWF_GF_SHA256: 542f56ae0747f3661d1474996527298027db3fb8ed3e6469a6391aaabf61069b
       SRWF_GF_SIZE: '5300290'
@@ -91,6 +91,7 @@ jobs:
           php -l tests/runtime-lab/import-readback.php
           php -l tests/runtime-lab/assert-readback.php
           python3 -m py_compile \
+            tests/runtime-lab/assert-scaffold-photo-settings.py \
             tests/runtime-lab/finalize-evidence.py \
             tests/runtime-lab/render-summary.py
           bash tests/runtime-lab/self-test.sh
@@ -199,6 +200,7 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
+          python3 tests/runtime-lab/assert-scaffold-photo-settings.py "$SRWF_SCAFFOLD_PATH"
           php tests/runtime-lab/assert-readback.php \
             "$SRWF_SCAFFOLD_PATH" \
             "$SRWF_ARTIFACT_DIR/lab-readback.json" \
