@@ -6,15 +6,18 @@ This directory owns the smallest disposable CI preflight for the current Stage 0
 
 `GF_V060_IMPORT_READBACK`:
 
-1. Admit only the exact `SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json` bytes whose pinned SHA-256 is `445f146b6c6d9ecf7badecce23b19be9dee59b653ec7c78c4537decaa3b31c89`.
+1. Admit only the exact `SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json` bytes whose current pinned SHA-256 is `5d099c908a245823aa0a3b40c718c35922e23a8afd56141cc7f97194d558c2fb`.
 2. Boot disposable WordPress + MariaDB on a GitHub-hosted runner.
 3. Install the real Owner-authorized Gravity Forms `3.1.1.1` package pinned by SHA-256 `542f56ae0747f3661d1474996527298027db3fb8ed3e6469a6391aaabf61069b`.
 4. Import through Gravity Forms' own `GFExport::import_file()` path.
 5. Force the imported form inactive as a fail-safe and read it back through `GFAPI`.
-6. Compare source-defined form and field settings against runtime read-back. `confirmations` and `notifications` are source-defined settings and participate in equivalence; only demonstrated runtime-owned form identity/state properties are excluded.
-7. Record generated CI Form/Field IDs as evidence only. They are disposable and must never populate `docs/contracts/IMPLEMENTATION_MAPPING.yaml`.
+6. Assert the locked `student_photo` source profile: File Upload Pro enabled, crop enabled/required, aspect ratio `3:4`, maximum dimensions `1200×1600`, no minimum/exact dimensions, one `jpg/jpeg` file up to 5 MB.
+7. Compare source-defined form and field settings against runtime read-back. `confirmations` and `notifications` are source-defined settings and participate in equivalence; only demonstrated runtime-owned form identity/state properties are excluded. This comparison also verifies that the source-defined File Upload Pro metadata survives Gravity Forms import/GFAPI serialization.
+8. Record generated CI Form/Field IDs as evidence only. They are disposable and must never populate `docs/contracts/IMPLEMENTATION_MAPPING.yaml`.
 
-The first scenario intentionally does not activate Gravity Flow, PersianGravity, Gravity Perks, GravityView, GNM, or finance/cheque components because it tests import/read-back persistence only. Behavior owned by those plugins remains outside this scenario until a concrete SRWF test requires it.
+The earlier v0.6.0 SHA-256 `445f146b6c6d9ecf7badecce23b19be9dee59b653ec7c78c4537decaa3b31c89` remains historical evidence for the previous Lab execution. The current provisional bytes are identified by the new pinned SHA-256 above.
+
+The first scenario intentionally does not activate Gravity Flow, PersianGravity, Gravity Perks, GravityView, GNM, or finance/cheque components because it tests Gravity Forms import/read-back persistence only. File Upload Pro field metadata preservation is covered, but actual File Upload Pro crop/downscale behavior is not runtime-proven by this scenario. Behavior owned by those plugins remains outside this scenario until a concrete SRWF test requires it.
 
 ## Source admission
 
