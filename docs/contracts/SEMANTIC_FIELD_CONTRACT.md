@@ -2,9 +2,10 @@
 
 **Canonical machine-readable source:** `SEMANTIC_FIELD_CONTRACT.yaml`  
 **Semantic scope:** `OWNER APPROVED / CLOSED THROUGH event86`  
+**Current applicability override:** `OWNER-20260915-FINANCE-SUSPENSION-DAILY-MANAGER-SMS-SCOPE-SYNC` suspends finance/manual-cheque implementation and validation without deleting or changing the preserved finance semantics below.  
 **Runtime binding:** `UNBOUND / NOT_PROVEN` تا staging import و read-back IDهای واقعی.
 
-این projection تصمیم‌های Owner تا `OWNER-20260908-SFC-BATCH-MAIN-FORM-CONSTRUCTION-READY` را خلاصه می‌کند. وجود field با اجباری بودن value یکی نیست.
+این projection تصمیم‌های semantic Owner تا `OWNER-20260908-SFC-BATCH-MAIN-FORM-CONSTRUCTION-READY` را خلاصه می‌کند. وجود field با اجباری بودن value یکی نیست. تصمیم scope مورخ 2026-09-15 semantic rows مالی را بازنویسی نمی‌کند؛ فقط تعیین می‌کند فعلاً اجرای آن‌ها در مسیر جاری لازم نیست.
 
 ## فرم عمومی
 
@@ -29,7 +30,9 @@
 - فیلتر مدرسه فقط `gender + education_level` است؛ `Other=0` exempt؛ group-specific filter نداریم. Mapping مقطع SchoolReport: دبستان→دبستان، راهنمایی→متوسطه اول، دبیرستان→متوسطه دوم و کنکوری، هنرستان→هنرستان.
 - `school_name` system-owned mirror است؛ برای Other از `school_name_other` می‌آید.
 
-## Registration Officer-only
+## Registration Officer-only — finance semantics preserved, implementation suspended
+
+موارد زیر semantic contract محفوظ هستند تا اگر Owner بخش مالی را دوباره باز کرد، از صفر تصمیم‌گیری نشود. در وضعیت فعلی، finance-specific exposure/editing/server logic/validation جزو implementation جاری نیست:
 
 - `registration_center_code`: non-public Dropdown، `0=مرکز` default، `1=گلستان`, `2=صدرا`.
 - `finance_status`: non-public optional Radio، `0=عادی` default، `1=بنیاد شهید`, `3=حکمت`. `registration_status_code` مستقل حذف شده است.
@@ -39,14 +42,20 @@
 - `net_payable_amount`: system-owned؛ اگر tuition خالی است خالی، وگرنه `tuition - discount` با treat کردن discount خالی به صفر بدون نوشتن صفر در `discount_amount`.
 - `discount_code`: optional، فقط finance=0، default `0=بدون تخفیف`، catalog دقیق 41 code/name؛ `109=سازمان زندان‌ها` موجود و `102=سپاه پاسداران` حذف. `discount_name` mirror system-owned است.
 
+**Current applicability:** این قواعد فعلاً `PRESERVED / IMPLEMENTATION_SUSPENDED` هستند و نباید Flow whitelist، finance server bindings یا finance validation را به blocker مسیر جاری تبدیل کنند.
+
 ## Review/System
 
 `review_status` و `review_reason` ordinary Entry fields هستند و workflow state جدید نمی‌سازند. `registration_counter` فقط WP All Import و exact National ID؛ importer Flow را جلو نمی‌برد.
 
-## Cheque child form
+## Cheque child form — deferred with finance scope
 
-Host انتخاب‌شده `GP Nested Forms` و `POC_NOT_PROVEN` است؛ هر cheque یک child Entry. manual cheque fields optional/Officer-only. inventory کامل machine-keyها هنوز `INCOMPLETE_ENUMERATION` است و قبل از child-form freeze باید bind شود. Scanner current release deferred و هفت Sayad field hidden/future-reserved هستند.
+Host آینده انتخاب‌شده `GP Nested Forms` است و POC همچنان `NOT_PROVEN` است، اما اجرای آن `DEFERRED_WITH_FINANCE_SCOPE` است. هر cheque در صورت reopen یک child Entry خواهد بود؛ manual cheque fields optional/Officer-only می‌مانند. inventory کامل machine-keyها تا زمان reopen لازم نیست bind شود و نباید حدس زده شود. Scanner همچنان deferred و هفت Sayad field hidden/future-reserved هستند.
+
+## Daily manager SMS — خارج از SFC field semantics
+
+نیاز گزارش روزانه ثبت شده است: پایان هر روز کاری، تعداد پرونده‌هایی که Registration Officer واقعاً به Accountant approve/advance کرده برای مدیر SMS شود. این requirement field semantic جدیدی نمی‌سازد و workflow state را تغییر نمی‌دهد. mechanism/time/calendar/provider/mobile binding/retry هنوز `NOT_SELECTED` است و Cron/Cron-like shared-host baseline بدون re-adjudication Owner مجاز نیست.
 
 ## Gate باقی‌مانده
 
-SFC semantics فرم اصلی بسته است، اما `DOCUMENTED != OBSERVED_IN_STAGING`: Import واقعی، ID mapping، server bindings، Flow whitelist، `V-01/V-03` و سایر validationها هنوز `NOT_PROVEN` هستند. تا Privacy/Retention sign-off فقط synthetic data.
+SFC semantics فرم اصلی بسته است، اما `DOCUMENTED != OBSERVED_IN_STAGING`: Import واقعی، ID mapping، server bindings فعالِ غیرمالی، school filtering، `V-01/V-03` و سایر validationهای active scope هنوز `NOT_PROVEN` هستند. Finance/manual-cheque bindings و Nested Forms POC فعلاً deferred هستند و blocker جاری نیستند. تا Privacy/Retention sign-off فقط synthetic data.
