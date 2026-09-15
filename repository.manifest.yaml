@@ -39,7 +39,9 @@ architecture:
 
 active_documents:
   master: docs/authority/MASTER.md
+  ci_runtime_lab_authority: docs/authority/CI_RUNTIME_LAB.md
   execution_playbook: docs/operations/EXECUTION_PLAYBOOK.md
+  ci_runtime_lab_execution: docs/operations/CI_RUNTIME_LAB.md
   knowledge_addendum: docs/governance/KNOWLEDGE_COMPOSITION_ADDENDUM.md
   owner_comprehension: docs/governance/OWNER_COMPREHENSION_PROTOCOL.md
   decision_ledger: docs/governance/DECISION_LEDGER.md
@@ -61,6 +63,7 @@ validation:
   test_matrix: docs/validation/TEST_MATRIX.md
   definition_of_done: docs/validation/DEFINITION_OF_DONE.md
   poc_register: docs/validation/POC_REGISTER.md
+  ci_runtime_lab_workflow: .github/workflows/ci-runtime-lab.yml
 
 release:
   release_manifest: docs/release/RELEASE_MANIFEST.md
