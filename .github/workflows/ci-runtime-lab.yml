@@ -62,6 +62,7 @@ jobs:
           fetch-depth: 1
 
       - name: Assert repository and checkout identity
+        id: identity
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -74,23 +75,28 @@ jobs:
             "$GITHUB_REPOSITORY" "$expected" "$observed" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT"
 
       - name: Set up exact PHP runtime
+        id: php
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
         with:
           php-version: '8.2.33'
           coverage: none
           extensions: mysqli
 
-      - name: Validate harness syntax and fail-closed assertion guard
+      - name: Validate harness syntax and fail-closed guards
+        id: harness
         shell: bash
         run: |
           set -Eeuo pipefail
           test "$(php -r 'echo PHP_VERSION;')" = "$SRWF_PHP_VERSION"
           php -l tests/runtime-lab/import-readback.php
           php -l tests/runtime-lab/assert-readback.php
-          python3 -m py_compile tests/runtime-lab/write-blocked-evidence.py tests/runtime-lab/render-summary.py
+          python3 -m py_compile \
+            tests/runtime-lab/finalize-evidence.py \
+            tests/runtime-lab/render-summary.py
           bash tests/runtime-lab/self-test.sh
+          bash tests/runtime-lab/finalizer-self-test.sh
 
-      - name: Admit exact scaffold input or record blocker
+      - name: Admit exact scaffold input
         id: scaffold
         shell: bash
         env:
@@ -125,23 +131,24 @@ jobs:
             source_class='OWNER_AUTHORIZED_PUBLIC_SOURCE'
             source_locator='workflow_dispatch_url_redacted_from_evidence'
           else
-            python3 tests/runtime-lab/write-blocked-evidence.py \
-              "$SRWF_ARTIFACT_DIR/lab-evidence.json" \
-              'EXACT_SCAFFOLD_BYTES_UNAVAILABLE' \
-              "$SRWF_SCAFFOLD_SHA256"
             echo 'blocked=true' >> "$GITHUB_OUTPUT"
-            echo '### SRWF CI Runtime Lab — LAB_BLOCKED' >> "$GITHUB_STEP_SUMMARY"
-            echo '' >> "$GITHUB_STEP_SUMMARY"
-            echo 'Exact v0.6.0 scaffold bytes were not present in the repository-managed raw/encoded fixture paths and no Owner-authorized dispatch URL was supplied. No substitute scaffold was generated.' >> "$GITHUB_STEP_SUMMARY"
+            echo 'blocker=EXACT_SCAFFOLD_BYTES_UNAVAILABLE' >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          printf '%s  %s\n' "$SRWF_SCAFFOLD_SHA256" "$SRWF_SCAFFOLD_PATH" | sha256sum -c -
+          observed_sha="$(sha256sum "$SRWF_SCAFFOLD_PATH" | awk '{print $1}')"
+          if [[ "$observed_sha" != "$SRWF_SCAFFOLD_SHA256" ]]; then
+            echo 'blocked=true' >> "$GITHUB_OUTPUT"
+            echo 'blocker=EXACT_SCAFFOLD_SHA256_MISMATCH' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           printf 'SRWF_SCAFFOLD_SOURCE_CLASS=%s\n' "$source_class" >> "$GITHUB_ENV"
           printf 'SRWF_SCAFFOLD_SOURCE_LOCATOR=%s\n' "$source_locator" >> "$GITHUB_ENV"
           echo 'blocked=false' >> "$GITHUB_OUTPUT"
+          echo 'blocker=' >> "$GITHUB_OUTPUT"
 
       - name: Install exact WP-CLI and WordPress
+        id: wordpress
         if: steps.scaffold.outputs.blocked != 'true'
         shell: bash
         run: |
@@ -163,6 +170,7 @@ jobs:
           test "$(php "$SRWF_WP_CLI" core version --path="$SRWF_WP_PATH")" = "$SRWF_WP_VERSION"
 
       - name: Fetch, verify, and activate authentic Gravity Forms
+        id: gravityforms
         if: steps.scaffold.outputs.blocked != 'true'
         shell: bash
         run: |
@@ -177,6 +185,7 @@ jobs:
           test "$(php "$SRWF_WP_CLI" plugin get gravityforms --field=version --path="$SRWF_WP_PATH")" = "$SRWF_GF_VERSION"
 
       - name: Import exact scaffold and capture runtime read-back
+        id: import
         if: steps.scaffold.outputs.blocked != 'true'
         shell: bash
         run: |
@@ -185,6 +194,7 @@ jobs:
           test -s "$SRWF_ARTIFACT_DIR/lab-readback.json"
 
       - name: Assert exact import/read-back contract
+        id: assertion
         if: steps.scaffold.outputs.blocked != 'true'
         shell: bash
         run: |
@@ -196,6 +206,7 @@ jobs:
           grep -q '"lab_status": "LAB_PASS"' "$SRWF_ARTIFACT_DIR/lab-evidence.json"
 
       - name: Prove broken read-back assertion is rejected
+        id: negative
         if: steps.scaffold.outputs.blocked != 'true'
         shell: bash
         run: |
@@ -216,20 +227,36 @@ jobs:
           grep -q '"lab_status": "LAB_FAIL"' "$SRWF_ARTIFACT_DIR/negative-evidence.json"
           echo 'NEGATIVE_ASSERTION_REJECTED'
 
-      - name: Publish concise Lab summary
+      - name: Finalize canonical terminal Lab evidence
+        id: finalize
+        if: always()
+        shell: bash
+        env:
+          SRWF_PHASE_OUTCOMES_JSON: >-
+            {"identity":"${{ steps.identity.outcome }}","php":"${{ steps.php.outcome }}","harness":"${{ steps.harness.outcome }}","scaffold":"${{ steps.scaffold.outcome }}","wordpress":"${{ steps.wordpress.outcome }}","gravityforms":"${{ steps.gravityforms.outcome }}","import":"${{ steps.import.outcome }}","assertion":"${{ steps.assertion.outcome }}","negative":"${{ steps.negative.outcome }}"}
+          SRWF_ADMISSION_BLOCKED: ${{ steps.scaffold.outputs.blocked }}
+          SRWF_ADMISSION_BLOCKER: ${{ steps.scaffold.outputs.blocker }}
+        run: |
+          set -Eeuo pipefail
+          evidence="$SRWF_ARTIFACT_DIR/lab-evidence.json"
+          python3 tests/runtime-lab/finalize-evidence.py "$evidence" "$SRWF_SCAFFOLD_SHA256"
+          evidence_sha="$(sha256sum "$evidence" | awk '{print $1}')"
+          printf '%s  %s\n' "$evidence_sha" "$evidence" > "$SRWF_ARTIFACT_DIR/terminal-evidence.sha256"
+          printf 'SRWF_TERMINAL_EVIDENCE_SHA256=%s\n' "$evidence_sha" >> "$GITHUB_ENV"
+
+      - name: Publish concise Lab summary from canonical evidence
         if: always()
         shell: bash
         run: |
           set -Eeuo pipefail
+          evidence="$SRWF_ARTIFACT_DIR/lab-evidence.json"
+          test -n "${SRWF_TERMINAL_EVIDENCE_SHA256:-}"
+          printf '%s  %s\n' "$SRWF_TERMINAL_EVIDENCE_SHA256" "$evidence" | sha256sum -c -
           echo '### SRWF CI Runtime Lab' >> "$GITHUB_STEP_SUMMARY"
-          if [[ -s "$SRWF_ARTIFACT_DIR/lab-evidence.json" ]]; then
-            python3 tests/runtime-lab/render-summary.py "$SRWF_ARTIFACT_DIR/lab-evidence.json" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo '- status: `LAB_FAIL`' >> "$GITHUB_STEP_SUMMARY"
-            echo '- evidence: expected machine-readable evidence file was not produced' >> "$GITHUB_STEP_SUMMARY"
-          fi
+          python3 tests/runtime-lab/render-summary.py "$evidence" >> "$GITHUB_STEP_SUMMARY"
+          printf '%s\n' "- terminal evidence SHA-256: \`$SRWF_TERMINAL_EVIDENCE_SHA256\`" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload machine-readable Lab evidence
+      - name: Upload canonical machine-readable Lab evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -238,22 +265,12 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Enforce Lab outcome
+      - name: Enforce canonical Lab outcome
         if: always()
         shell: bash
         run: |
           set -Eeuo pipefail
           evidence="$SRWF_ARTIFACT_DIR/lab-evidence.json"
-          test -s "$evidence"
-          status="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["lab_status"])' "$evidence")"
-          case "$status" in
-            LAB_PASS) exit 0 ;;
-            LAB_BLOCKED)
-              echo 'SRWF Runtime Lab is blocked; see machine-readable evidence.' >&2
-              exit 78
-              ;;
-            *)
-              echo "SRWF Runtime Lab failed with status: $status" >&2
-              exit 1
-              ;;
-          esac
+          test -n "${SRWF_TERMINAL_EVIDENCE_SHA256:-}"
+          printf '%s  %s\n' "$SRWF_TERMINAL_EVIDENCE_SHA256" "$evidence" | sha256sum -c -
+          python3 tests/runtime-lab/finalize-evidence.py --enforce "$evidence"
