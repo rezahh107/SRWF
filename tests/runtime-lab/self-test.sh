@@ -113,3 +113,26 @@ grep -q '"lab_status": "LAB_FAIL"' "$title_drift_json"
 grep -q 'form_title_mismatch' "$title_drift_json"
 
 echo 'SRWF_LAB_VERIFIER_SELF_TEST_PASS confirmation_drift=REJECTED notification_drift=REJECTED runtime_identity_difference=ACCEPTED title_drift=REJECTED'
+
+# One-shot repair qualification: execute the same confirmation falsification against
+# the exact pre-repair verifier from the required starting head. The old verifier is
+# expected to incorrectly return LAB_PASS; that proves the new falsification would fail
+# against the pre-repair implementation rather than merely exercising the happy path.
+pre_repair='bd818bbe8a596a67356f45c54524a03a04d07959'
+git -C "$root" fetch --no-tags --depth=1 origin "$pre_repair" >/dev/null 2>&1
+old_verifier="$tmp/pre-repair-assert-readback.php"
+git -C "$root" show "$pre_repair:tests/runtime-lab/assert-readback.php" > "$old_verifier"
+old_evidence="$tmp/pre-repair-confirmation-drift.json"
+set +e
+SRWF_SCAFFOLD_SHA256="$source_sha" \
+SRWF_GF_SHA256="$gf_sha" \
+SRWF_GF_VERSION='3.1.1.1' \
+php "$old_verifier" "$source_json" "$tmp/confirmation-drift-readback.json" "$old_evidence" >/dev/null 2>&1
+old_status=$?
+set -e
+if [[ "$old_status" -ne 0 ]]; then
+  echo 'Pre-repair verifier did not reproduce the confirmed confirmation-coverage defect.' >&2
+  exit 1
+fi
+grep -q '"lab_status": "LAB_PASS"' "$old_evidence"
+echo 'SRWF_PRE_REPAIR_FALSIFICATION_CONFIRMED starting_head=bd818bbe8a596a67356f45c54524a03a04d07959 confirmation_drift=INCORRECTLY_ACCEPTED_BY_OLD_VERIFIER new_test_would_fail=YES'
