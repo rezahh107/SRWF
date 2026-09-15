@@ -13,7 +13,9 @@
 ## Durable authority and governance
 
 - `authority/MASTER.md`
+- `authority/CI_RUNTIME_LAB.md` — Owner-approved pre-staging CI Runtime Lab boundary and evidence semantics
 - `operations/EXECUTION_PLAYBOOK.md`
+- `operations/CI_RUNTIME_LAB.md` — disposable Lab invocation/runtime/evidence procedure
 - `governance/KNOWLEDGE_COMPOSITION_ADDENDUM.md`
 - `governance/OWNER_COMPREHENSION_PROTOCOL.md`
 - `governance/DECISION_LEDGER.md`

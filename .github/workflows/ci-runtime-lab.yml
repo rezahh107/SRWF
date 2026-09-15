@@ -1,0 +1,276 @@
+name: SRWF CI Runtime Lab
+
+on:
+  workflow_dispatch:
+    inputs:
+      scaffold_url:
+        description: Optional Owner-authorized public URL for the exact pinned v0.6.0 Gravity Forms export JSON
+        required: false
+        type: string
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/ci-runtime-lab.yml'
+      - 'tests/runtime-lab/**'
+
+permissions:
+  contents: read
+
+jobs:
+  gf-import-readback:
+    name: GF 3.1.1.1 import/read-back
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      database:
+        image: mariadb:11.4.8@sha256:bc474f00629f0123c10f9e1bca193a45d18af15a274cf0656acda64f1086c3b6
+        env:
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: '1'
+          MARIADB_DATABASE: wordpress
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mariadb-admin ping -h 127.0.0.1 -uroot --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      SRWF_WP_PATH: /tmp/srwf-ci-wordpress
+      SRWF_ARTIFACT_DIR: /tmp/srwf-ci-artifacts
+      SRWF_PACKAGE_DIR: /tmp/srwf-ci-packages
+      SRWF_SCAFFOLD_PATH: /tmp/srwf-ci-input/SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json
+      SRWF_REPO_SCAFFOLD_PATH: tests/runtime-lab/fixtures/SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json
+      SRWF_REPO_SCAFFOLD_PART_PREFIX: tests/runtime-lab/fixtures/SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json.gz.b64.part-
+      SRWF_REPO_SCAFFOLD_GZIP_B64_PATH: tests/runtime-lab/fixtures/SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json.gz.b64
+      SRWF_SCAFFOLD_SHA256: 445f146b6c6d9ecf7badecce23b19be9dee59b653ec7c78c4537decaa3b31c89
+      SRWF_GF_ZIP: /tmp/srwf-ci-packages/gravityforms-3.1.1.1-owner-supplied-source-package.zip
+      SRWF_GF_SHA256: 542f56ae0747f3661d1474996527298027db3fb8ed3e6469a6391aaabf61069b
+      SRWF_GF_SIZE: '5300290'
+      SRWF_GF_VERSION: '3.1.1.1'
+      SRWF_WP_VERSION: '6.8.3'
+      SRWF_PHP_VERSION: '8.2.33'
+      SRWF_WP_CLI: /tmp/wp-cli.phar
+      SRWF_WP_CLI_VERSION: '2.12.0'
+      SRWF_WP_CLI_SHA256: ce34ddd838f7351d6759068d09793f26755463b4a4610a5a5c0a97b68220d85c
+      SRWF_GF_URL: 'https://drive.usercontent.google.com/download?id=10pDROZVyqELKzSzIiJrOyEWKjxS8r22Q&export=download&confirm=t'
+
+    steps:
+      - name: Checkout exact target
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+
+      - name: Assert repository and checkout identity
+        id: identity
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$GITHUB_REPOSITORY" = 'rezahh107/SRWF'
+          observed="$(git rev-parse HEAD)"
+          expected="${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}"
+          test "$observed" = "$expected"
+          mkdir -p "$SRWF_ARTIFACT_DIR" "$SRWF_PACKAGE_DIR" "$(dirname "$SRWF_SCAFFOLD_PATH")"
+          printf 'repository=%s expected_sha=%s observed_sha=%s run=%s attempt=%s\n' \
+            "$GITHUB_REPOSITORY" "$expected" "$observed" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT"
+
+      - name: Set up exact PHP runtime
+        id: php
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        with:
+          php-version: '8.2.33'
+          coverage: none
+          extensions: mysqli
+
+      - name: Validate harness syntax and fail-closed guards
+        id: harness
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(php -r 'echo PHP_VERSION;')" = "$SRWF_PHP_VERSION"
+          php -l tests/runtime-lab/import-readback.php
+          php -l tests/runtime-lab/assert-readback.php
+          python3 -m py_compile \
+            tests/runtime-lab/finalize-evidence.py \
+            tests/runtime-lab/render-summary.py
+          bash tests/runtime-lab/self-test.sh
+          bash tests/runtime-lab/finalizer-self-test.sh
+
+      - name: Admit exact scaffold input
+        id: scaffold
+        shell: bash
+        env:
+          DISPATCH_SCAFFOLD_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.scaffold_url || '' }}
+        run: |
+          set -Eeuo pipefail
+          source_class=''
+          source_locator=''
+          if [[ -f "$SRWF_REPO_SCAFFOLD_PATH" ]]; then
+            cp "$SRWF_REPO_SCAFFOLD_PATH" "$SRWF_SCAFFOLD_PATH"
+            source_class='REPOSITORY_MANAGED_EXACT_ARTIFACT'
+            source_locator="$SRWF_REPO_SCAFFOLD_PATH"
+          elif [[ -f "${SRWF_REPO_SCAFFOLD_PART_PREFIX}00" && -f "${SRWF_REPO_SCAFFOLD_PART_PREFIX}01" && -f "${SRWF_REPO_SCAFFOLD_PART_PREFIX}02" && -f "${SRWF_REPO_SCAFFOLD_PART_PREFIX}03" ]]; then
+            cat \
+              "${SRWF_REPO_SCAFFOLD_PART_PREFIX}00" \
+              "${SRWF_REPO_SCAFFOLD_PART_PREFIX}01" \
+              "${SRWF_REPO_SCAFFOLD_PART_PREFIX}02" \
+              "${SRWF_REPO_SCAFFOLD_PART_PREFIX}03" \
+              | tr -d '\r\n' \
+              | base64 --decode \
+              | gzip -dc \
+              > "$SRWF_SCAFFOLD_PATH"
+            source_class='REPOSITORY_MANAGED_EXACT_ARTIFACT_GZIP_B64_PARTS'
+            source_locator="${SRWF_REPO_SCAFFOLD_PART_PREFIX}{00..03}"
+          elif [[ -f "$SRWF_REPO_SCAFFOLD_GZIP_B64_PATH" ]]; then
+            base64 --decode "$SRWF_REPO_SCAFFOLD_GZIP_B64_PATH" | gzip -dc > "$SRWF_SCAFFOLD_PATH"
+            source_class='REPOSITORY_MANAGED_EXACT_ARTIFACT_GZIP_B64'
+            source_locator="$SRWF_REPO_SCAFFOLD_GZIP_B64_PATH"
+          elif [[ -n "$DISPATCH_SCAFFOLD_URL" ]]; then
+            curl --fail --show-error --location --retry 3 --retry-all-errors \
+              "$DISPATCH_SCAFFOLD_URL" --output "$SRWF_SCAFFOLD_PATH"
+            source_class='OWNER_AUTHORIZED_PUBLIC_SOURCE'
+            source_locator='workflow_dispatch_url_redacted_from_evidence'
+          else
+            echo 'blocked=true' >> "$GITHUB_OUTPUT"
+            echo 'blocker=EXACT_SCAFFOLD_BYTES_UNAVAILABLE' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          observed_sha="$(sha256sum "$SRWF_SCAFFOLD_PATH" | awk '{print $1}')"
+          if [[ "$observed_sha" != "$SRWF_SCAFFOLD_SHA256" ]]; then
+            echo 'blocked=true' >> "$GITHUB_OUTPUT"
+            echo 'blocker=EXACT_SCAFFOLD_SHA256_MISMATCH' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          printf 'SRWF_SCAFFOLD_SOURCE_CLASS=%s\n' "$source_class" >> "$GITHUB_ENV"
+          printf 'SRWF_SCAFFOLD_SOURCE_LOCATOR=%s\n' "$source_locator" >> "$GITHUB_ENV"
+          echo 'blocked=false' >> "$GITHUB_OUTPUT"
+          echo 'blocker=' >> "$GITHUB_OUTPUT"
+
+      - name: Install exact WP-CLI and WordPress
+        id: wordpress
+        if: steps.scaffold.outputs.blocked != 'true'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          curl -L --fail --retry 3 \
+            -o "$SRWF_WP_CLI" \
+            "https://github.com/wp-cli/wp-cli/releases/download/v${SRWF_WP_CLI_VERSION}/wp-cli-${SRWF_WP_CLI_VERSION}.phar"
+          printf '%s  %s\n' "$SRWF_WP_CLI_SHA256" "$SRWF_WP_CLI" | sha256sum -c -
+          mkdir -p "$SRWF_WP_PATH"
+          php "$SRWF_WP_CLI" core download --path="$SRWF_WP_PATH" --version="$SRWF_WP_VERSION" --force --skip-content
+          php "$SRWF_WP_CLI" config create --path="$SRWF_WP_PATH" \
+            --dbname=wordpress --dbuser=root --dbpass='' --dbhost=127.0.0.1:3306 --skip-check
+          admin_password="$(openssl rand -hex 24)"
+          php "$SRWF_WP_CLI" core install --path="$SRWF_WP_PATH" \
+            --url=http://127.0.0.1:8080 --title='SRWF CI Runtime Lab' \
+            --admin_user=runtime_admin --admin_password="$admin_password" \
+            --admin_email='runtime@example.invalid' --skip-email
+          unset admin_password
+          test "$(php "$SRWF_WP_CLI" core version --path="$SRWF_WP_PATH")" = "$SRWF_WP_VERSION"
+
+      - name: Fetch, verify, and activate authentic Gravity Forms
+        id: gravityforms
+        if: steps.scaffold.outputs.blocked != 'true'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          curl -L --fail --retry 4 -o "$SRWF_GF_ZIP" "$SRWF_GF_URL"
+          test "$(stat -c '%s' "$SRWF_GF_ZIP")" = "$SRWF_GF_SIZE"
+          printf '%s  %s\n' "$SRWF_GF_SHA256" "$SRWF_GF_ZIP" | sha256sum -c -
+          unzip -tq "$SRWF_GF_ZIP" >/dev/null
+          unzip -q "$SRWF_GF_ZIP" -d "$SRWF_WP_PATH/wp-content/plugins"
+          grep -q '^Version: 3\.1\.1\.1$' "$SRWF_WP_PATH/wp-content/plugins/gravityforms/gravityforms.php"
+          php "$SRWF_WP_CLI" plugin activate gravityforms --path="$SRWF_WP_PATH"
+          test "$(php "$SRWF_WP_CLI" plugin get gravityforms --field=version --path="$SRWF_WP_PATH")" = "$SRWF_GF_VERSION"
+
+      - name: Import exact scaffold and capture runtime read-back
+        id: import
+        if: steps.scaffold.outputs.blocked != 'true'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          php "$SRWF_WP_CLI" --path="$SRWF_WP_PATH" eval-file tests/runtime-lab/import-readback.php
+          test -s "$SRWF_ARTIFACT_DIR/lab-readback.json"
+
+      - name: Assert exact import/read-back contract
+        id: assertion
+        if: steps.scaffold.outputs.blocked != 'true'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          php tests/runtime-lab/assert-readback.php \
+            "$SRWF_SCAFFOLD_PATH" \
+            "$SRWF_ARTIFACT_DIR/lab-readback.json" \
+            "$SRWF_ARTIFACT_DIR/lab-evidence.json"
+          grep -q '"lab_status": "LAB_PASS"' "$SRWF_ARTIFACT_DIR/lab-evidence.json"
+
+      - name: Prove broken read-back assertion is rejected
+        id: negative
+        if: steps.scaffold.outputs.blocked != 'true'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          set +e
+          SRWF_LAB_EXPECT_TITLE_OVERRIDE='__SRWF_DELIBERATELY_WRONG_TITLE__' \
+            php tests/runtime-lab/assert-readback.php \
+              "$SRWF_SCAFFOLD_PATH" \
+              "$SRWF_ARTIFACT_DIR/lab-readback.json" \
+              "$SRWF_ARTIFACT_DIR/negative-evidence.json" \
+              >"$SRWF_ARTIFACT_DIR/negative-assertion.log" 2>&1
+          status=$?
+          set -e
+          if [[ "$status" -eq 0 ]]; then
+            echo 'Broken read-back assertion was incorrectly accepted.' >&2
+            exit 1
+          fi
+          grep -q '"lab_status": "LAB_FAIL"' "$SRWF_ARTIFACT_DIR/negative-evidence.json"
+          echo 'NEGATIVE_ASSERTION_REJECTED'
+
+      - name: Finalize canonical terminal Lab evidence
+        id: finalize
+        if: always()
+        shell: bash
+        env:
+          SRWF_PHASE_OUTCOMES_JSON: >-
+            {"identity":"${{ steps.identity.outcome }}","php":"${{ steps.php.outcome }}","harness":"${{ steps.harness.outcome }}","scaffold":"${{ steps.scaffold.outcome }}","wordpress":"${{ steps.wordpress.outcome }}","gravityforms":"${{ steps.gravityforms.outcome }}","import":"${{ steps.import.outcome }}","assertion":"${{ steps.assertion.outcome }}","negative":"${{ steps.negative.outcome }}"}
+          SRWF_ADMISSION_BLOCKED: ${{ steps.scaffold.outputs.blocked }}
+          SRWF_ADMISSION_BLOCKER: ${{ steps.scaffold.outputs.blocker }}
+        run: |
+          set -Eeuo pipefail
+          evidence="$SRWF_ARTIFACT_DIR/lab-evidence.json"
+          python3 tests/runtime-lab/finalize-evidence.py "$evidence" "$SRWF_SCAFFOLD_SHA256"
+          evidence_sha="$(sha256sum "$evidence" | awk '{print $1}')"
+          printf '%s  %s\n' "$evidence_sha" "$evidence" > "$SRWF_ARTIFACT_DIR/terminal-evidence.sha256"
+          printf 'SRWF_TERMINAL_EVIDENCE_SHA256=%s\n' "$evidence_sha" >> "$GITHUB_ENV"
+
+      - name: Publish concise Lab summary from canonical evidence
+        if: always()
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          evidence="$SRWF_ARTIFACT_DIR/lab-evidence.json"
+          test -n "${SRWF_TERMINAL_EVIDENCE_SHA256:-}"
+          printf '%s  %s\n' "$SRWF_TERMINAL_EVIDENCE_SHA256" "$evidence" | sha256sum -c -
+          echo '### SRWF CI Runtime Lab' >> "$GITHUB_STEP_SUMMARY"
+          python3 tests/runtime-lab/render-summary.py "$evidence" >> "$GITHUB_STEP_SUMMARY"
+          printf '%s\n' "- terminal evidence SHA-256: \`$SRWF_TERMINAL_EVIDENCE_SHA256\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload canonical machine-readable Lab evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: srwf-ci-runtime-lab-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/srwf-ci-artifacts/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Enforce canonical Lab outcome
+        if: always()
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          evidence="$SRWF_ARTIFACT_DIR/lab-evidence.json"
+          test -n "${SRWF_TERMINAL_EVIDENCE_SHA256:-}"
+          printf '%s  %s\n' "$SRWF_TERMINAL_EVIDENCE_SHA256" "$evidence" | sha256sum -c -
+          python3 tests/runtime-lab/finalize-evidence.py --enforce "$evidence"
