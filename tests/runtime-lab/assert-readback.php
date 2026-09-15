@@ -230,7 +230,9 @@ $evidence = array(
         'form_created' => $generated_form_id !== null,
         'generated_form_id' => $generated_form_id,
         'title' => $actual_title,
-        'inactive' => is_array($readback) ? ($readback['import']['is_active'] ?? null) : null,
+        'inactive' => is_array($readback) && array_key_exists('is_active', $readback['import'] ?? array())
+            ? (($readback['import']['is_active'] ?? null) === false)
+            : null,
         'field_count' => count($actual_fields),
         'generated_field_ids' => array_values(array_map(static fn(array $field): mixed => $field['field_id'], $field_inventory)),
         'field_inventory' => $field_inventory,
