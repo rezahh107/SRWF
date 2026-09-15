@@ -5,8 +5,6 @@
  * Executed with `wp eval-file`; production/staging state is never touched.
  */
 
-declare(strict_types=1);
-
 if (!defined('ABSPATH')) {
     fwrite(STDERR, "WordPress bootstrap is required.\n");
     exit(2);
