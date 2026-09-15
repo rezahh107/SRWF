@@ -24,15 +24,27 @@ The first cell reuses the established GPP disposable-runtime shape:
 
 The form is imported through Gravity Forms' own `GFExport::import_file()` path, explicitly kept inactive, and read back through `GFAPI`.
 
-## Evidence contract
+## Source-defined settings verification
 
-Machine-readable evidence is uploaded for every run that reaches the evidence step, including blockers. Human-readable GitHub Step Summary is derived from the same evidence.
+`LAB_PASS` requires the exact scaffold hash plus successful real import/read-back assertions. The source-to-runtime verifier compares source-defined form and field settings against authentic GFAPI read-back. Source-defined `confirmations` and `notifications` are included in that form-setting projection; they are not blanket-excluded. Only demonstrated runtime-owned form identity/state properties are excluded, and fields are verified separately.
 
-`LAB_PASS` requires the exact scaffold hash plus successful real import/read-back assertions. The verifier compares source-defined form and field settings to runtime read-back and records generated CI IDs while marking them non-authoritative.
+The focused verifier self-test proves confirmation drift and notification drift produce `LAB_FAIL`, while an intentionally different runtime-owned form identity/state value remains acceptable. The current exact scaffold must still pass this stricter verifier.
 
-The harness includes a deliberately broken read-back assertion check. The guard must reject the bad expectation and emit `LAB_FAIL`; accepting it is a workflow failure.
+## Canonical terminal evidence
 
-`LAB_BLOCKED` is a failing job outcome, not a green skip. The current admission layer records why runtime could not be exercised and does not manufacture substitute evidence.
+All reachable Lab phases have stable step IDs. `tests/runtime-lab/finalize-evidence.py` runs with `if: always()` before summary/upload/enforcement and is the sole terminal evidence finalizer:
+
+- a valid scenario evidence file is preserved when phase outcomes are consistent with it;
+- exact-input/admission and pre-runtime dependency blockers become machine-readable `LAB_BLOCKED`;
+- runtime/import/assertion/guard defects become machine-readable `LAB_FAIL`;
+- missing or corrupt terminal evidence becomes `LAB_FAIL` and cannot be green;
+- the finalizer never manufactures `LAB_PASS`.
+
+The finalizer writes or preserves one canonical `lab-evidence.json` and records its SHA-256. GitHub Step Summary and final enforcement verify and consume that same file; the artifact upload includes that file and its checksum. `LAB_BLOCKED` and `LAB_FAIL` remain failing job outcomes.
+
+The harness includes deliberately broken verifier cases. The guards must reject bad expectations; accepting one is a workflow failure.
+
+GitHub-hosted runner or service-container failures that occur before any repository step can execute are outside the reachable in-workflow finalization boundary; no repository code can materialize an artifact before checkout/step execution exists. This limit is not represented as Lab PASS.
 
 ## Scope boundaries
 
