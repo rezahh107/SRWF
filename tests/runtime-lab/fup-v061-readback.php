@@ -6,8 +6,6 @@
  * GP File Upload Pro active. This is CI-only evidence and never writes staging IDs.
  */
 
-declare(strict_types=1);
-
 if (!defined('ABSPATH')) {
     fwrite(STDERR, "WordPress bootstrap is required.\n");
     exit(2);
