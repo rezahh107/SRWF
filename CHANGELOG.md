@@ -2,6 +2,23 @@
 
 All material SRWF documentation/contract/runtime-governance changes are recorded here. Runtime evidence is canonical only when reflected in `runtime/CURRENT_STATE.yaml` and appended to `runtime/DECISION_HISTORY.jsonl`; documentation alone does not promote validation status.
 
+## Unreleased — finance implementation suspension + daily manager SMS scope sync
+
+### Changed
+- Recorded `OWNER-20260915-FINANCE-SUSPENSION-DAILY-MANAGER-SMS-SCOPE-SYNC` as event88/state_version16.
+- Preserved prior finance/manual-cheque semantics and optional/non-public reserved field definitions, while suspending finance-specific implementation/validation until explicit Owner reopen.
+- Removed finance-specific Flow whitelist proof, amount/discount/Bonyad/Hekmat bindings and `PRB-NESTED-CHEQUE-001` from current blockers/release gates; Nested cheque POC remains `DEFERRED_WITH_FINANCE_SCOPE / NOT_PROVEN`.
+- Kept the active non-finance v0.6.0 synthetic scaffold path as the current next action; no runtime validation/PASS was promoted.
+- Recorded the future daily manager SMS requirement: end-of-working-day count of Registration Officer approvals/advances to Accountant, derived read-only from canonical Gravity Forms/Gravity Flow evidence.
+- Daily SMS implementation mechanism/time/calendar/provider/mobile binding/retry behavior remain unselected; Gravity Forms Notification Scheduler and `gravity-notification-manager` remain candidates only.
+- Cron/Cron-like shared-host scheduling is not an accepted baseline for the daily SMS feature without Owner re-adjudication.
+- Refreshed Master, Playbook, Workflow Contract, Decision Ledger, Remaining Owner Bindings, Test Matrix, Definition of Done and Release Manifest to reflect current applicability.
+
+### Preserved truth
+- Finance suspension changes applicability, not historical semantic authority; deferred/not-proven does not mean PASS or removal.
+- `V-01..V-06`, D-17 and staging import remain unexecuted/not-proven as previously recorded.
+- Privacy/retention still blocks real PII.
+
 ## Unreleased — event86 SFC sync / v0.6.0 scaffold
 
 ### Changed
