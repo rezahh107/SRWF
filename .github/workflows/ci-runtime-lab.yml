@@ -71,6 +71,23 @@ jobs:
           printf 'repository=%s expected_sha=%s observed_sha=%s run=%s attempt=%s\n' \
             "$GITHUB_REPOSITORY" "$expected" "$observed" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT"
 
+      - name: Set up exact PHP runtime
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        with:
+          php-version: '8.2.33'
+          coverage: none
+          extensions: mysqli
+
+      - name: Validate harness syntax and fail-closed assertion guard
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(php -r 'echo PHP_VERSION;')" = "$SRWF_PHP_VERSION"
+          php -l tests/runtime-lab/import-readback.php
+          php -l tests/runtime-lab/assert-readback.php
+          python3 -m py_compile tests/runtime-lab/write-blocked-evidence.py tests/runtime-lab/render-summary.py
+          bash tests/runtime-lab/self-test.sh
+
       - name: Admit exact scaffold input or record blocker
         id: scaffold
         shell: bash
@@ -106,20 +123,11 @@ jobs:
           printf 'SRWF_SCAFFOLD_SOURCE_LOCATOR=%s\n' "$source_locator" >> "$GITHUB_ENV"
           echo 'blocked=false' >> "$GITHUB_OUTPUT"
 
-      - name: Set up exact PHP runtime
-        if: steps.scaffold.outputs.blocked != 'true'
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
-        with:
-          php-version: '8.2.33'
-          coverage: none
-          extensions: mysqli
-
       - name: Install exact WP-CLI and WordPress
         if: steps.scaffold.outputs.blocked != 'true'
         shell: bash
         run: |
           set -Eeuo pipefail
-          test "$(php -r 'echo PHP_VERSION;')" = "$SRWF_PHP_VERSION"
           curl -L --fail --retry 3 \
             -o "$SRWF_WP_CLI" \
             "https://github.com/wp-cli/wp-cli/releases/download/v${SRWF_WP_CLI_VERSION}/wp-cli-${SRWF_WP_CLI_VERSION}.phar"
