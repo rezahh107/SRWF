@@ -4,7 +4,7 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 finalizer="$root/tests/runtime-lab/finalize-evidence.py"
-expected_sha='445f146b6c6d9ecf7badecce23b19be9dee59b653ec7c78c4537decaa3b31c89'
+expected_sha='5d099c908a245823aa0a3b40c718c35922e23a8afd56141cc7f97194d558c2fb'
 
 all_success='{"identity":"success","php":"success","harness":"success","scaffold":"success","wordpress":"success","gravityforms":"success","import":"success","assertion":"success","negative":"success"}'
 
