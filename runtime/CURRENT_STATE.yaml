@@ -1,6 +1,6 @@
 schema_version: 1
-state_version: 15
-updated_at: '2026-09-08'
+state_version: 16
+updated_at: '2026-09-15'
 ssot:
   provider: GitHub
   repository: rezahh107/SRWF
@@ -16,26 +16,29 @@ ssot:
 current:
   stage: STAGE_0_IN_PROGRESS
   gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_CLOSED
-  decision: OBS-20260908-SFC-EVENT86-MAIN-READBACK
+  decision: OWNER-20260915-FINANCE-SUSPENSION-DAILY-MANAGER-SMS-SCOPE-SYNC
   candidate: GF_IMPORT_SCAFFOLD_V060_PROVISIONAL
-  last_observed_result: SFC_EVENT86_SYNC_ACCEPTED_ON_MAIN / PR6_DOCUMENTATION_INTEGRITY_PASS / PR6_PROJECT_BUNDLE_PASS / GF_V060_PROVISIONAL_NEXT_CANDIDATE / STAGING_IMPORT_UNEXECUTED / IMPLEMENTATION_NOT_PROVEN
-  next_action_id: STAGING_IMPORT_GF_V060_SYNTHETIC
-  next_action: Import SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json into staging while the form remains inactive, using synthetic data only; then read back real Form/Field IDs and critical settings before binding Implementation Mapping.
+  last_observed_result: OWNER_SCOPE_SYNC_CONFIRMED / FINANCE_IMPLEMENTATION_SUSPENDED / NESTED_CHEQUE_POC_DEFERRED_WITH_FINANCE / DAILY_MANAGER_SMS_REQUIREMENT_RECORDED_IMPLEMENTATION_UNSELECTED / STAGING_IMPORT_UNEXECUTED / NO_RUNTIME_VALIDATION_PROMOTION
+  next_action_id: STAGING_IMPORT_GF_V060_SYNTHETIC_ACTIVE_SCOPE
+  next_action: Import SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json into staging while the form remains inactive, using synthetic data only; read back real Form/Field IDs and active-scope critical settings before binding Implementation Mapping. Reserved optional/non-public finance fields may remain present, but do not implement or validate finance/manual-cheque behavior, Nested Forms cheque composition, or daily-SMS execution in this action.
 open_blockers:
 - id: PRIVACY_RETENTION_OPEN
   effect: blocks real PII in staging/UAT/production; synthetic scaffold/POC work is allowed; primary student-file retention through permanent Entry deletion is Owner-locked but backup/export/log policy remains open
 - id: ENVIRONMENT_INVENTORY_PARTIAL
   effect: OWNER_ACCEPTED_FOR_PROGRESS; reopen only when a compatibility/deployment fact becomes decision-critical
-- id: FLOW_FINANCE_WHITELIST_NOT_PROVEN
-  effect: finance/Bonyad Shahid/discount/registration-center fields are intended Registration-Officer-only/non-public, but the native Gravity Flow whitelist remains runtime-unproven
 - id: SCHOOL_FILTER_IMPLEMENTATION_PENDING
   effect: authoritative gender and level metadata plus the Owner-approved level mapping are materialized in the event86 contract, but Gravity Forms filtering and server validation are not implemented or runtime-proven; no current authoritative school-to-group mapping exists
-- id: SERVER_BINDINGS_INCOMPLETE
-  effect: DOB/mobile/group/status/school/report-card/discount/Bonyad-Shahid/Hekmat/file-access/file-lifecycle/amount-derivation bindings and validation remain incomplete; semantics are locked where stated but implementation is not proven
-- id: GP_NESTED_FORMS_POC_NOT_PROVEN
-  effect: multi-cheque child composition is selected but not runtime-proven; manual cheque field inventory must be bound before Cheque Child Form freeze
+- id: SERVER_BINDINGS_ACTIVE_SCOPE_INCOMPLETE
+  effect: active non-finance DOB/mobile/group/status/school/report-card/file-access/file-lifecycle canonical bindings and validation remain incomplete; finance-specific amount/discount/Bonyad-Shahid/Hekmat/cheque bindings are suspended and are not part of this blocker
 - id: GF_IMPORT_RUNTIME_UNEXECUTED
   effect: v0.6.0 is the current provisional import candidate after event86 SFC synchronization, but actual Gravity Forms staging import and post-import settings/ID read-back have not executed
+deferred_non_blockers:
+- id: FINANCE_IMPLEMENTATION_SUSPENDED
+  effect: prior finance semantics remain preserved and reserved fields may remain optional/non-public, but finance-specific Flow whitelist, calculations, discount/Bonyad/Hekmat bindings, cheque handling and finance validation are suspended until explicit Owner reopen
+- id: GP_NESTED_FORMS_POC_DEFERRED_WITH_FINANCE
+  effect: selected host and PASS contract are preserved, but PRB-NESTED-CHEQUE-001 remains NOT_PROVEN and is not a current progression/release gate until finance/cheque scope is reopened
+- id: DAILY_MANAGER_SMS_IMPLEMENTATION_UNSELECTED
+  effect: end-of-working-day manager SMS count requirement is recorded; implementation mechanism/time/calendar/provider/mobile binding/retry behavior remain open and non-blocking for current Stage 0; Cron/Cron-like shared-host scheduling is not an accepted baseline without Owner re-adjudication
 governance:
   repository_baseline: ACCEPTED_CURRENT
   runtime_ssot_decision: OWNER-20260907-REPOSITORY-RUNTIME-SSOT
@@ -67,9 +70,11 @@ governance:
   - SELECTED != IMPLEMENTED
   - DOCUMENTED != OBSERVED_IN_STAGING
   - NOT_PROVEN != PROVEN_ABSENT
+  - DEFERRED != PASS
+  - SUSPENDED_SEMANTICS_PRESERVED != IMPLEMENTATION_REQUIRED
 history:
-  last_event_seq: 87
-  last_event_id: OBS-20260908-SFC-EVENT86-MAIN-READBACK
+  last_event_seq: 88
+  last_event_id: OWNER-20260915-FINANCE-SUSPENSION-DAILY-MANAGER-SMS-SCOPE-SYNC
   pre_cutover_event_count: 72
   pre_cutover_source: Google Sheet SRWF_RUNTIME_STATE / DECISION_HISTORY
   active_history_start_seq: 73
@@ -77,14 +82,21 @@ history:
   pre_cutover_migration_manifest: history/pre-runtime-ssot/MIGRATION_MANIFEST.json
 evidence_refs:
 - docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml
+- docs/contracts/WORKFLOW_CONTRACT.md
 - docs/contracts/PRIVACY_RETENTION_CONTRACT.md
 - docs/governance/DECISION_LEDGER.md
+- docs/governance/REMAINING_OWNER_BINDINGS.md
 - docs/authority/MASTER.md
 - docs/operations/EXECUTION_PLAYBOOK.md
+- docs/validation/TEST_MATRIX.md
+- docs/validation/DEFINITION_OF_DONE.md
+- docs/release/RELEASE_MANIFEST.md
 - runtime/DECISION_HISTORY.jsonl
 - history/pre-runtime-ssot/MIGRATION_MANIFEST.json
 - history/pre-runtime-ssot/CURRENT_STATE_PRE_CUTOVER.yaml
 - history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json
+- Owner explicit reconfirmation in SRWF Project session 2026-09-15 that finance is outside the current decision/implementation scope while prior optional Officer-only semantics remain valid
+- SRWF Project conversation 2026-09-14 recording the daily manager SMS count requirement and Owner rejection of Cron/Cron-like shared-host scheduling as baseline
 - Owner-uploaded SchoolReport-1405_06_17-3570.xlsx sha256=f6f408cc59708fcff52186076763410aaa66a6b1bf57f938f9e955324119980a
 - Owner-uploaded Crosswalk.xlsx used for current center/status/group corroboration; discount catalog explicitly re-adjudicated by Owner in event86
 - Matrix2@24a13e928808715953b3c1260b6ac7271c7dfe31 historical export/schema evidence

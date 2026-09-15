@@ -1,8 +1,8 @@
 ---
 document_id: SRWF-MASTER
-source_version: 1.9.0
+source_version: 1.9.1
 repository_materialization: 1.1.0-runtime-ssot
-status: NATIVE_FIRST_SELECTED_PRESERVED__IMPLEMENTATION_AUTHORIZED_NOT_COMPLETED
+status: NATIVE_FIRST_SELECTED_PRESERVED__IMPLEMENTATION_AUTHORIZED_NOT_COMPLETED__FINANCE_IMPLEMENTATION_SUSPENDED
 language: fa-IR
 repository_baseline: ACCEPTED_CURRENT
 runtime_ssot: runtime/CURRENT_STATE.yaml
@@ -79,10 +79,12 @@ provenance_archive: history/pre-repository/SRWF_PRE_REPOSITORY_SOURCES_01_11.tar
 | Authoritative scaffold | authorized only after SFC Gate; use synthetic data until privacy/retention sign-off |
 | Implementation Mapping | after scaffold; bind only actual runtime IDs |
 | Privacy/retention | Owner sign-off required before real PII |
-| GP Nested Forms cheque host | `SELECTED / POC_NOT_PROVEN` |
+| Finance/manual-cheque implementation | `SUSPENDED` until explicit Owner reopen; preserved semantics/fields do not create a current gate |
+| GP Nested Forms cheque host | `SELECTED / POC_NOT_PROVEN / DEFERRED_WITH_FINANCE_SCOPE` |
 | Structured Scanner in current SRWF release | `DEFERRED` |
+| Daily manager SMS | `REQUIREMENT_RECORDED / IMPLEMENTATION_UNSELECTED / NOT_CURRENT_GATE` |
 | D-17 renderer | `POC_GATED / NOT_PROVEN` |
-| Production readiness | requires executed release evidence; documentation alone cannot establish it |
+| Production readiness | requires executed release evidence for active scope; documentation alone cannot establish it |
 
 **Current execution progress is not duplicated here.** For current Stage/Gate/decision/candidate/result/blockers/next action, read `runtime/CURRENT_STATE.yaml` from `main`. For repository-era material history, read `runtime/DECISION_HISTORY.jsonl`. Do not use chat memory or the deprecated Google Sheet as a parallel current-state authority.
 
@@ -107,6 +109,15 @@ For every material field explicitly separate:
 
 Legacy GF/report column presence alone is not a current requirement. An unbound field stays `UNBOUND`; do not infer it into the scaffold.
 
+### Finance applicability override
+
+`OWNER-20260915-FINANCE-SUSPENSION-DAILY-MANAGER-SMS-SCOPE-SYNC` does **not** erase or reopen the finance semantics already locked in the SFC/history. It changes current applicability:
+
+- finance/manual-cheque semantic definitions remain preserved for future reuse;
+- reserved finance fields may remain in the scaffold as optional/non-public fields;
+- finance-specific implementation, workflow exposure, server binding, validation, cheque composition and POCs are suspended until explicit Owner reopen;
+- a preserved SFC finance row must not be interpreted as a current implementation/release gate while this suspension is active.
+
 ## Implementation Mapping Gate
 
 After scaffold, bind actual runtime IDs only in `docs/contracts/IMPLEMENTATION_MAPPING.yaml`:
@@ -119,12 +130,14 @@ After scaffold, bind actual runtime IDs only in `docs/contracts/IMPLEMENTATION_M
 - route/page/View IDs where applicable
 - plugin/version manifest
 
-Binding by translated label or invented ID has no authority.
+Binding by translated label or invented ID has no authority. For suspended finance/cheque surfaces, binding may remain deferred until scope reopen; do not invent IDs to make the mapping look complete.
 
-## Current-release finance
+## Preserved finance semantics — implementation suspended
+
+The following semantics remain authoritative **if/when finance scope is reopened** and for interpreting any reserved fields already present in the scaffold. They are not current implementation blockers:
 
 - canonical/display unit = Rial.
-- `tuition_amount`, `discount_amount`, `discount_title`, `net_payable_amount` current-release optional and non-public/Registration-Officer-only.
+- `tuition_amount`, `discount_amount`, `discount_title`, `net_payable_amount` optional and non-public/Registration-Officer-only.
 - `discount_amount` initial submit default = empty under event86; calculation may treat empty as zero without persisting `0`.
 - `net_payable_amount` is system-owned: empty when tuition is empty; otherwise `tuition_amount - (discount_amount if present else 0)`.
 - `discount_amount > tuition_amount` => validation error + no save.
@@ -132,18 +145,33 @@ Binding by translated label or invented ID has no authority.
 - `registration_center_code` is non-public/Officer-only: `0=مرکز` default, `1=گلستان`, `2=صدرا`.
 - `discount_code` is separate from `discount_amount/title`: Officer-only, finance=0, default `0`, 41 code/name choices; event86 explicitly retains `109` and excludes `102`.
 - Bonyad Shahid fields are Officer-only/conditional on finance=1; Hekmat values are system-owned/conditional on finance=3 with stale-data cleanup.
-- manual cheque fields current-release optional/Officer-only.
-- POS/PC-POS and online Sayad inquiry deferred.
+- manual cheque fields are optional/Officer-only when that scope is active.
+- POS/PC-POS and online Sayad inquiry remain deferred.
+
+Current applicability: `FINANCE_IMPLEMENTATION = SUSPENDED`. Do not require finance whitelist proof, amount/discount server logic, Bonyad/Hekmat bindings, cheque child implementation or finance regression before progressing the active non-finance path. Reopen only by explicit Owner decision.
 
 ## Multi-cheque / Scanner
 
-- requirement = `1..N` cheques.
-- selected host = GP Nested Forms; each cheque = child Entry.
+- preserved requirement = `1..N` cheques if/when finance/cheque scope reopens.
+- selected future host = GP Nested Forms; each cheque = child Entry.
 - Parent-Child Forms fallback only after bounded Nested Forms FAIL.
 - no custom relationship DB/workflow/state.
-- current release = manual cheque entry only.
-- Scanner path deferred; seven Sayad fields hidden/future-reserved: `qr_version`, `owner_type`, `owner_identifier`, `iban`, `bank_branch`, `cheque_serial`, `sayad_id`.
+- `PRB-NESTED-CHEQUE-001` is retained as `NOT_PROVEN` but `DEFERRED_WITH_FINANCE_SCOPE`; it is not a current progression/release gate.
+- Scanner path remains deferred; seven Sayad fields hidden/future-reserved: `qr_version`, `owner_type`, `owner_identifier`, `iban`, `bank_branch`, `cheque_serial`, `sayad_id`.
 - generic PersianGravity Structured Scanner capability may exist independently; it does not own SRWF data/workflow and raw payload must not persist.
+
+## Daily manager SMS — recorded requirement
+
+A separate operational reporting requirement is recorded:
+
+- at the end of each working day, send the manager an SMS with the count of Entries that the Registration Officer actually approved/advanced to Accountant during that business day;
+- the count must be derived read-only from canonical Gravity Forms/Gravity Flow evidence;
+- the reporting mechanism must not own, duplicate or mutate workflow state/assignment/Approval;
+- exact send time, business-day calendar, SMS provider, manager-mobile binding/source and retry/failure semantics remain `OPEN / NOT_SELECTED`;
+- Cron or Cron-like shared-host scheduling is not an accepted baseline. Any candidate that requires it must return to Owner re-adjudication rather than being silently adopted;
+- Gravity Forms Notification Scheduler, `gravity-notification-manager`, and other mechanisms remain candidates only; none is selected by this requirement record.
+
+This requirement is not a current Stage 0/release blocker until the Owner explicitly activates implementation scope.
 
 ## Officer operational contract
 
@@ -160,6 +188,7 @@ Binding by translated label or invented ID has no authority.
 - school source = `SchoolReport-1405_06_17-3570.xlsx` SHA-256 `f6f408cc59708fcff52186076763410aaa66a6b1bf57f938f9e955324119980a`; 946 retained named schools + Other=0; excluded `1296,1314,1316,1319`.
 - school filter = gender + education level only; Other exempt; no group-specific filter without authoritative mapping.
 - current provisional artifact candidate = `SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json`; artifact conformance may be documented, but staging import/runtime behavior remains separate evidence.
+- reserved finance fields already present in that artifact may remain present/non-public/optional; their finance-specific runtime behavior is not promoted or required while finance scope is suspended.
 - `student_photo`: one jpg/jpeg <=5MB, File Upload Pro, required crop 3:4, max 1200×1600; exact installed-plugin settings/read-back remain implementation evidence.
 - `report_card_file`: one jpg/jpeg/pdf <=5MB; required 9 school codes, optional Other, hidden otherwise; safe replace/delete lifecycle applies.
 
@@ -174,7 +203,7 @@ Binding by translated label or invented ID has no authority.
 
 ## Required release artifacts
 
-Before release, repo must contain current/verified:
+Before release, repo must contain current/verified for active scope:
 
 - Semantic Field Contract
 - Implementation Mapping
@@ -185,7 +214,7 @@ Before release, repo must contain current/verified:
 - Rollback Runbook
 - Privacy/Retention sign-off
 
-`DOCUMENTED` does not equal `OBSERVED_IN_STAGING`.
+Suspended finance/cheque POCs are not current release artifacts until Owner reopen. `DOCUMENTED` does not equal `OBSERVED_IN_STAGING`.
 
 ## Repository SSOT and provenance
 
@@ -205,4 +234,4 @@ For each material runtime change, update `runtime/CURRENT_STATE.yaml` and append
 
 ## Execution handoff
 
-For any progress-dependent work, first read `runtime/CURRENT_STATE.yaml` from `main`, then recent relevant `runtime/DECISION_HISTORY.jsonl`, then the Playbook and the current contract/evidence unit. Under the governing Stage 0 contract, real PII remains blocked until privacy/retention sign-off and actual IDs are bound to Implementation Mapping only after they exist in runtime.
+For any progress-dependent work, first read `runtime/CURRENT_STATE.yaml` from `main`, then recent relevant `runtime/DECISION_HISTORY.jsonl`, then the Playbook and the current contract/evidence unit. Under the governing Stage 0 contract, real PII remains blocked until privacy/retention sign-off and actual IDs are bound to Implementation Mapping only after they exist in runtime. While the finance suspension is active, do not allow preserved finance semantics to pull the execution path back into finance-specific implementation/POCs without an explicit Owner reopen.

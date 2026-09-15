@@ -27,11 +27,11 @@
 | Decision | Current effect | State |
 |---|---|---|
 | `OWNER-20260830-OFFICER-EDIT-NATIVE` | Officer corrections stay native Gravity Flow/GF; no custom edit UI. | CONFIRMED |
-| `OWNER-20260830-HEKMAT-PACKAGE-HIDDEN` | `hekmat_package=آزمون` hidden fixed value. | CONFIRMED; refined by event81 server set/clear |
+| `OWNER-20260830-HEKMAT-PACKAGE-HIDDEN` | `hekmat_package=آزمون` hidden fixed value. | CONFIRMED; refined by event81 server set/clear; implementation applicability later suspended |
 | `OWNER-20260830-STUDENT-PHOTO-REQUIRED` | `student_photo` included + value required. | CONFIRMED; D-12 processing detail amended by event86 |
 | `OWNER-20260830-REPORT-CARD-CONDITIONAL` | `report_card_file` optional by default, conditional required. | CONFIRMED; visibility/lifecycle refined by event85 |
 | `OWNER-20260830-REPORT-CARD-SCHOOL-CODES` | Required school codes = 283,286,291,650,663,666,667,1320,1351. | CONFIRMED |
-| `OWNER-20260830-HEKMAT-TRACKING-HIDDEN` | `hekmat_tracking=1111111111111111` hidden/system-owned when Hekmat. | CONFIRMED; refined by event81 server set/clear |
+| `OWNER-20260830-HEKMAT-TRACKING-HIDDEN` | `hekmat_tracking=1111111111111111` hidden/system-owned when Hekmat. | CONFIRMED; refined by event81 server set/clear; implementation applicability later suspended |
 | `OWNER-20260830-GROUP-CODE-DERIVATION` | user edits visible education/group; `group_code` derived/stored canonical; no redundant `exam_group`. | CONFIRMED |
 | `OWNER-20260830-MOBILE-REQUIREDNESS` | `student_mobile` required; contact mobiles optional. | CONFIRMED |
 | `OWNER-20260830-CONTACT-RELATION-MOBILE` | keep relationship+mobile for contacts; remove contact names. | CONFIRMED |
@@ -50,44 +50,67 @@
 
 This rejects only the failed native candidate; it does not promote `V-03`.
 
-## Current Owner decisions — finance/cheque/scanner
+## Current Owner decisions — finance/cheque/scanner semantics
+
+The decisions below remain durable semantic history. Their **current implementation applicability** is overridden by the later finance-suspension decision; they are not deleted.
 
 | Decision | Effect |
 |---|---|
 | `OWNER-20260906-FINANCE-UNIT-RIAL` | canonical/display money unit = Rial. |
 | `OWNER-20260906-FINANCE-INVALID-DISCOUNT-BLOCK` | discount > tuition => validation error + no save. |
-| `OWNER-20260907-FINANCE-OFFICER-ONLY-NONE-REQUIRED` | all current-release finance/manual-cheque fields optional, non-public, Registration-Officer-only. |
+| `OWNER-20260907-FINANCE-OFFICER-ONLY-NONE-REQUIRED` | finance/manual-cheque fields optional, non-public, Registration-Officer-only when finance scope is active. |
 | `OWNER-20260907-FINANCE-STATUS-OFFICER-DEFAULT-NORMAL` | `finance_status`: Officer-only, non-public, optional; canonical default `0=عادی`; allowed values remain `0,1,3`. |
-| `OWNER-20260906-NESTED-FORMS-SELECTED` | multi-cheque host = GP Nested Forms; Parent-Child Forms fallback only after bounded FAIL. |
+| `OWNER-20260906-NESTED-FORMS-SELECTED` | future multi-cheque host = GP Nested Forms; Parent-Child Forms fallback only after bounded FAIL. Current POC applicability is deferred with finance scope. |
 | `OWNER-20260906-SCANNER-NONPERSISTENT-CONTROLLER` | Structured Scanner does not own/persist canonical data/raw payload. |
 | `OWNER-20260906-SAYAD-V01-ATOMIC-SEVEN-OUTPUT` | seven deterministic outputs; atomic population if scanner phase is active. |
-| `OWNER-20260907-DEFER-SCANNER-HIDE-SAYAD-FIELDS` | SRWF current release defers scanner; seven Sayad fields remain hidden/future-reserved. |
+| `OWNER-20260907-DEFER-SCANNER-HIDE-SAYAD-FIELDS` | scanner deferred; seven Sayad fields remain hidden/future-reserved. |
 | `OWNER-20260906-D17-GRAVITY-PDF-FREE-POC` | first print POC = Gravity PDF Free + SRWF-owned print layer. |
-| `OWNER-20260905-FIN-POS-DEFER` + later POS decisions | POS/PC-POS deferred from current release. |
+| `OWNER-20260905-FIN-POS-DEFER` + later POS decisions | POS/PC-POS deferred. |
 
-## Event78–86 — current main-form refinements
+## Owner scope decision — finance suspension + daily manager SMS
 
-These Owner decisions extend/supersede only the named older projections; earlier unrelated decisions remain preserved above.
+### `OWNER-20260915-FINANCE-SUSPENSION-DAILY-MANAGER-SMS-SCOPE-SYNC`
+
+This is an **applicability/scope decision**, not deletion of prior finance semantics.
+
+- Finance/manual-cheque implementation and validation are `SUSPENDED` until explicit Owner reopen.
+- Existing finance semantics/catalogs remain preserved for future reuse and for interpreting reserved scaffold fields.
+- Optional/non-public finance fields may remain present in the scaffold, but finance-specific Flow whitelist proof, calculations, discount/Bonyad/Hekmat server bindings, cheque composition and `PRB-NESTED-CHEQUE-001` are not current blockers/release gates.
+- `PRB-NESTED-CHEQUE-001` becomes `DEFERRED_WITH_FINANCE_SCOPE / NOT_PROVEN`.
+- The active non-finance scaffold/workflow path continues; suspension must not be misread as removal of fields or runtime PASS.
+- A new reporting requirement is recorded: at the end of each working day, SMS the manager the count of Entries the Registration Officer approved/advanced to Accountant during that working day.
+- Daily SMS reporting must be read-only relative to GF/Flow state and may not own/advance workflow.
+- exact send time, business calendar, SMS provider, manager-mobile binding/source and retry/idempotency behavior remain `OPEN / NOT_SELECTED`.
+- Cron/Cron-like shared-host scheduling is not an accepted baseline; a candidate that depends on it requires Owner re-adjudication.
+- Gravity Forms Notification Scheduler and `gravity-notification-manager` remain candidates only; no implementation candidate is selected by this decision.
+- Daily SMS is recorded but not a current Stage 0/release gate until Owner explicitly activates its implementation scope.
+
+Reopen finance implementation only by explicit Owner instruction. Reopen the Cron constraint only by explicit Owner re-adjudication.
+
+## Event78–86 — preserved main-form refinements
+
+These Owner decisions extend/supersede only the named older projections; earlier unrelated decisions remain preserved. Finance-related rows remain semantically valid but implementation applicability is suspended by the later 2026-09-15 scope decision.
 
 | Decision | Durable current effect |
 |---|---|
-| `OWNER-20260908-FOUNDATION-FIELDS-OFFICER-ONLY` | Bonyad Shahid case/type fields restored as non-public Officer-only optional fields when `finance_status=1`. |
-| `OWNER-20260908-DISCOUNT-CODE-CATALOG-41-SEPARATE-FINANCE` | `discount_code` is separate from `discount_amount/title`; 41 controlled choices. |
+| `OWNER-20260908-FOUNDATION-FIELDS-OFFICER-ONLY` | Bonyad Shahid case/type field semantics preserved as non-public Officer-only optional fields when `finance_status=1`; implementation suspended. |
+| `OWNER-20260908-DISCOUNT-CODE-CATALOG-41-SEPARATE-FINANCE` | `discount_code` remains semantically separate from `discount_amount/title`; 41 controlled choices. |
 | `OWNER-20260908-DISCOUNT-CODE-CATALOG-NAME-CODE-ONLY` | percentage is not SRWF data; coded discount is code + name only. |
-| `OWNER-20260908-HEKMAT-SERVER-DERIVED-CLEAR-ON-EXIT` | Hekmat fixed values are server-owned and cleared when finance leaves 3. |
+| `OWNER-20260908-HEKMAT-SERVER-DERIVED-CLEAR-ON-EXIT` | Hekmat server-owned set/clear semantics preserved; implementation suspended. |
 | `OWNER-20260908-SCHOOL-GENDER-FILTER-AUTHORITATIVE-METADATA` | school gender compatibility uses authoritative metadata; `Other=0` exempt. |
 | `OWNER-20260908-SCHOOL-SOURCE-1405-EXCLUDE-INVALID-4` | SchoolReport 1405 selected; codes `1296,1314,1316,1319` excluded; retained named set = 946. |
 | `OWNER-20260908-SCHOOL-LEVEL-MAPPING-SECONDARY-AND-EXAM` | school filter uses gender + approved education-level mapping; no group inference. |
-| `OWNER-20260908-SFC-BATCH-SCHOOL-FINANCE-FILE-LIFECYCLE` | full-name school labels, school mirror/cleanup, report-card visibility/lifecycle, Bonyad/discount mirrors and stale-data cleanup closed. |
-| `OWNER-20260908-SFC-BATCH-MAIN-FORM-CONSTRUCTION-READY` | main-form business semantics closed for materialization; v0.6 synthetic scaffold authorized; implementation/runtime remains `NOT_PROVEN`. |
+| `OWNER-20260908-SFC-BATCH-SCHOOL-FINANCE-FILE-LIFECYCLE` | school/file semantics remain active; finance mirror/cleanup semantics preserved but implementation suspended. |
+| `OWNER-20260908-SFC-BATCH-MAIN-FORM-CONSTRUCTION-READY` | main-form semantics closed for materialization; v0.6 synthetic scaffold authorized; implementation/runtime remains `NOT_PROVEN`; later finance suspension narrows active implementation scope. |
 
-### event86 exact finance / file consequences
+### event86 exact finance / file consequences — finance semantics preserved
 
-- independent `registration_status_code` is removed; `finance_status` is sole canonical registration/finance status.
-- `registration_center_code` is Officer-only/non-public with `0=مرکز` default, `1=گلستان`, `2=صدرا`.
+- independent `registration_status_code` is removed; `finance_status` remains the preserved canonical status field definition.
+- `registration_center_code` semantics remain Officer-only/non-public with `0=مرکز` default, `1=گلستان`, `2=صدرا`.
 - `tuition_amount`, `discount_amount`, `discount_title` initial defaults are empty.
-- `net_payable_amount` is system-owned: empty if tuition is empty; otherwise `tuition - (discount if present else 0)` without writing zero into blank `discount_amount`.
+- `net_payable_amount` semantic is system-owned: empty if tuition is empty; otherwise `tuition - (discount if present else 0)` without writing zero into blank `discount_amount`.
 - final discount catalog has 41 code/name choices, explicitly includes `109=سازمان زندان‌ها` and excludes `102=سپاه پاسداران`.
+- all finance-specific runtime implementation/validation above is suspended until Owner reopen.
 - `student_photo`: one jpg/jpeg <=5MB, GP File Upload Pro, required 3:4 crop, max 1200×1600, no minimum dimensions, no custom/background/AI pipeline.
 - `report_card_file`: one jpg/jpeg/pdf <=5MB; event85 visibility/requiredness and safe file lifecycle remain.
 - Trash retains primary photo/report-card files; permanent Entry deletion removes primary files; backup/export/log retention remains open Privacy scope.
@@ -132,19 +155,22 @@ These remain in history but do not control current behavior:
 - `OWNER-20260907-HOME-PHONE-REQUIRED` — superseded by `OWNER-20260907-HOME-PHONE-INCLUDED-OPTIONAL`.
 - native List field as primary multi-cheque candidate — superseded by later Owner host decision.
 - Gravity Flow Parent-Child Forms as selected primary host — superseded by GP Nested Forms selection; retained only as fallback.
-- Scanner population as current-release cheque path — superseded by current-release scanner deferral.
+- Scanner population as current-release cheque path — superseded by scanner deferral.
 - older product-knowledge global Stage0 blockers — superseded by Addendum/current Master.
 - Google Sheet as live runtime SSOT — superseded by `OWNER-20260907-REPOSITORY-RUNTIME-SSOT` after completed repository cutover.
-- independent/public `registration_status_code` projection — superseded by event86; `finance_status` is sole canonical status.
+- independent/public `registration_status_code` projection — superseded by event86; `finance_status` remains the preserved canonical status definition.
 - old D-12 projection that disallowed all maintained crop/downscale — superseded only to the limited event86 GP File Upload Pro behavior; custom/background/AI processing remains forbidden.
+- prior projection that finance/manual-cheque implementation and Nested Forms POC are current progression/release gates — applicability superseded by `OWNER-20260915-FINANCE-SUSPENSION-DAILY-MANAGER-SMS-SCOPE-SYNC`; finance semantics themselves are preserved.
 
 ## Evidence observations that must not be promoted
 
 - PersianGravity 4.1.0 Owner smoke = `OWNER_REPORTED_SMOKE_PASS` with unspecified coverage, not full runtime validation.
 - PR merge/CI = source implementation evidence, not browser/Nested Forms lifecycle proof.
 - `V-01..V-06` remain unexecuted unless later live evidence explicitly updates them.
+- `PRB-NESTED-CHEQUE-001` remains `NOT_PROVEN` even while deferred; deferred does not mean PASS or absence.
 - D-17 remains POC-gated/not-proven.
 - v0.6.0 local artifact conformance does not equal Gravity Forms staging import/read-back.
+- recording the daily manager SMS requirement does not prove a scheduler/provider/candidate has been selected or implemented.
 
 ## Update rule
 

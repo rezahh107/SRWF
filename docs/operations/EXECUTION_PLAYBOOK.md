@@ -1,4 +1,4 @@
-# SRWF Execution Playbook — Runtime Source v1.3.1
+# SRWF Execution Playbook — Runtime Source v1.3.2
 
 ## Purpose
 This is the compact execution map for the SRWF implementation Project. It does not replace the full Master. When details matter, retrieve `docs/authority/MASTER.md`. Current execution progress is always read from `runtime/CURRENT_STATE.yaml` on `main`.
@@ -10,9 +10,10 @@ This is the compact execution map for the SRWF implementation Project. It does n
 - `Elementor` = outside the current operational baseline.
 - Custom code/add-ons are allowed only for a named residual native-capability gap and must stay thin; never create parallel data/workflow/state authority.
 - D-01..D-16 remain locked. `D-17` is Owner-refined to `POC_GATED / NOT_PROVEN`: first print candidate = `Gravity PDF Free` + SRWF-owned print layer, with no paid Gravity PDF template/extension and no custom PDF engine. A failed print candidate does not reopen parent architecture; it triggers Owner re-adjudication of the next renderer. A direct runtime contradiction to a lock must be escalated to the Owner.
-- Current-release finance remains in Gravity Forms and on the Registration Officer's native Gravity Flow surface only: canonical/display unit = Rial; financial/manual-cheque fields are optional and non-public; `discount_amount` initial default is empty under event86; net is system-owned and empty when tuition is empty, otherwise tuition minus discount treating empty discount as zero without persisting zero; `discount_amount > tuition_amount` must fail validation and not save. `finance_status` remains `0=عادی, 1=بنیاد شهید, 3=حکمت`, is non-public/Officer-only/optional and defaults to canonical `0`. POS/PC-POS and online Sayad inquiry are deferred.
-- Multi-cheque requirement is `1..N`. Current host selection = `GP Nested Forms` with one cheque per child Entry; runtime/entitlement are `NOT_PROVEN`. Parent-Child Forms is fallback only after a bounded Nested Forms failure.
-- `PersianGravity Structured Scanner` remains a generic, host-agnostic, non-persistent capability, but the SRWF scanner path is **deferred from the current release**. All seven Sayad v01 output fields remain Hidden/future-reserved and are not populated by Scanner now.
+- Finance/manual-cheque semantics remain preserved in the SFC/history, but `OWNER-20260915-FINANCE-SUSPENSION-DAILY-MANAGER-SMS-SCOPE-SYNC` sets **finance implementation/validation = SUSPENDED** until explicit Owner reopen. Reserved finance fields may remain optional/non-public in the scaffold; finance-specific Flow whitelist, calculations, Bonyad/Hekmat bindings, cheque composition and POCs are not current blockers/gates.
+- Multi-cheque requirement/host selection is preserved for future reopen: `1..N`, `GP Nested Forms` selected, Parent-Child Forms fallback after bounded FAIL. Current applicability = `DEFERRED_WITH_FINANCE_SCOPE / NOT_PROVEN`.
+- `PersianGravity Structured Scanner` remains a generic, host-agnostic, non-persistent capability, but the SRWF scanner path is deferred. All seven Sayad v01 output fields remain Hidden/future-reserved.
+- Daily manager SMS is a recorded future reporting requirement with implementation `NOT_SELECTED`; it must remain read-only relative to GF/Flow workflow state. Cron/Cron-like shared-host scheduling is not an accepted baseline without Owner re-adjudication.
 
 ## Session execution boot
 Before any progress-dependent recommendation or `ادامه`:
@@ -27,24 +28,26 @@ Do not use the deprecated Google Sheet as a parallel current-state source.
 ## Execution sequence
 ### Stage 0 — Contract + environment
 1. Runtime/environment inventory may remain `PARTIAL/OWNER_ACCEPTED_FOR_PROGRESS`. Preserve already-observed production facts; reopen residual staging/license/cache/build-identity details only when a later compatibility/deployment decision requires them.
-2. Semantic Field Contract must be `OWNER APPROVED / CLOSED` before authoritative scaffold. After scaffold, bind the real Form/Field/Input/Step IDs in Implementation Mapping.
+2. Semantic Field Contract must be `OWNER APPROVED / CLOSED` before authoritative scaffold. After scaffold, bind the real Form/Field/Input/Step IDs in Implementation Mapping for active scope.
 3. Keep real PII out of staging/UAT until privacy/retention is signed off.
+4. Do not allow preserved finance semantics to become a finance implementation task while the Owner suspension remains active.
 
 ### Stage 1 — Public form
 - Build Gravity Forms after Field Contract Gate.
 - School selector: event86 locks GP Advanced Select for the current main form with GF Enhanced UI off; gate `V-03` still requires real Persian-name mobile search at real-scale plus correct stored school value.
 - Iranian data quality: use simplest maintained solution; no custom kernel unless a proven gap remains.
 - Photo field: required single jpg/jpeg <=5MB using GP File Upload Pro; required 3:4 crop and max 1200×1600 are the Owner-approved limited D-12 amendment. No custom/background/AI processing pipeline or minimum dimensions.
+- Finance fields already present in the provisional scaffold may remain as optional/non-public reserved fields; do not add finance-specific runtime behavior as part of this stage while suspension is active.
 
 ### Stage 2 — Native workflow
-- Registration Officer Approval uses the Owner-approved native whitelist. Officer edits human-readable code-backed school/group/status choices; the system writes the matching canonical code/value, while raw technical codes are not directly editable. Optional current-release finance fields stay on this native Officer-only surface; no Windows/POS utility replaces Officer editing.
-- Current-release finance semantics are closed: unit=Rial; `tuition_amount`, `discount_amount`, `discount_title`, `net_payable_amount`, `finance_status` and manual-cheque finance fields are non-public/Registration-Officer-only; current-release values are optional unless a narrower current contract says otherwise. `discount_amount` initial default is empty under event86; net is system-owned and empty when tuition is empty, otherwise tuition minus discount treating empty discount as zero without persisting zero; `discount_amount > tuition_amount` => validation error and no save. `finance_status` defaults to `0=عادی`.
-- Multi-cheque: one Cheque child Entry per cheque through GP Nested Forms when the host POC passes. Current release uses manual editing only; Scanner population is deferred.
-- Accountant Approval and final external-pending step.
-- Gate `V-01`: Inbox → Entry Details → edit allowed field without leaving current step/assignee → native Approve → correct next step.
+- Registration Officer Approval uses the Owner-approved native whitelist for active scope. Officer edits human-readable code-backed school/group/status choices; the system writes the matching canonical code/value, while raw technical codes are not directly editable.
+- Finance/manual-cheque editing/whitelist proof is **suspended**. Do not implement or validate amount derivation, discount rules, Bonyad/Hekmat conditional bindings, cheque child composition or finance-specific visibility as a prerequisite for current progression. When finance is reopened, all editing must remain native Gravity Flow and the preserved finance semantics apply.
+- Accountant Approval and final external-pending step remain part of the native workflow.
+- Gate `V-01`: Inbox → Entry Details → edit allowed active-scope field without leaving current step/assignee → native Approve → correct next step.
 
 ### Stage 3 — Access
 - Minimal Officer role/capabilities; no anonymous/display-all bypass on operational pages.
+- Preserved finance fields must not become public merely because finance implementation is suspended.
 - Gate `V-02`.
 
 ### Stage 4 — Officer operational UI
@@ -64,17 +67,36 @@ Do not use the deprecated Google Sheet as a parallel current-state source.
 - Compatibility/regression on staging; privacy/retention sign-off; release/rollback evidence.
 - `D-17` must be closed before the print/dossier surface is release-ready: `Gravity PDF Free` must PASS the bounded print POC, and the final dossier template is built only after the Semantic Field Contract is stable.
 - No paid Gravity PDF template/extension is a baseline dependency; Browser Print is not maintained as a parallel production renderer.
-- Current-release SRWF does **not** require a cheque Scanner path or `PRB-SCANNER-SOURCE-001`. The selected GP Nested Forms host still requires its bounded current-release POC for render/manual-edit/submit/link/reload/composition before that surface is release-ready.
-- POS/PC-POS and online Sayad must remain absent from current-release runtime dependencies.
+- `PRB-NESTED-CHEQUE-001` is retained but `DEFERRED_WITH_FINANCE_SCOPE`; it is not a current release gate until explicit Owner finance/cheque reopen.
+- POS/PC-POS and online Sayad remain absent from current runtime dependencies.
+- Daily manager SMS is not a release gate until the Owner explicitly activates that implementation scope.
 
-## Current-release finance + cheque contract
-- `POS/PC-POS = DEFERRED`; do not build a Windows agent/utility, localhost bridge, payment queue, local payment ledger, or WordPress payment state for the current release.
+## Preserved finance + cheque contract — suspended applicability
+The following rules are preserved for future finance reopen and for interpreting reserved scaffold fields; they are **not current implementation requirements**:
+
+- canonical/display money unit = Rial.
+- finance/manual-cheque fields are optional and non-public/Registration-Officer-only.
+- `discount_amount` initial default is empty; net is system-owned and empty when tuition is empty, otherwise tuition minus discount treating empty discount as zero without persisting zero.
+- `discount_amount > tuition_amount` => validation error and no save.
+- `finance_status` values remain `0=عادی, 1=بنیاد شهید, 3=حکمت`, optional/non-public/Officer-only, default `0`; independent `registration_status_code` remains removed by event86.
+- Bonyad/Hekmat/coded-discount semantics remain preserved as locked by event78–86.
+- `POS/PC-POS = DEFERRED`; do not build a Windows agent/utility, localhost bridge, payment queue, local payment ledger, or WordPress payment state.
 - `ONLINE_SAYAD_INQUIRY = DEFERRED`.
-- Manual cheque entry is the current-release path. Structured Scanner is deferred to a later phase; its seven Sayad output fields remain Hidden/future-reserved and no Scanner-based finance/cheque population occurs now.
-- Each cheque is a separate GF child Entry under the selected maintained host; no custom relationship DB/state.
+- selected future multi-cheque host = GP Nested Forms; no custom relationship DB/state.
+
+Reopen this implementation surface only by explicit Owner decision. A finance contract row in SFC is not permission to resume implementation by itself.
+
+## Daily manager SMS — future requirement contract
+- Need: at the end of each working day, send the manager an SMS containing the count of Entries the Registration Officer approved/advanced to Accountant during that working day.
+- Source of truth for the count: read-only canonical Gravity Forms/Gravity Flow evidence.
+- The reporting mechanism may not own, advance, rewrite, mirror or duplicate workflow state.
+- Exact send time, business-day calendar, SMS provider, manager-mobile binding/source, retry/idempotency/failure behavior remain `OPEN / NOT_SELECTED`.
+- Cron or Cron-like background scheduling on shared hosting is not an accepted baseline. If a serious candidate requires it, stop that candidate and return to Owner re-adjudication.
+- Gravity Forms Notification Scheduler and `gravity-notification-manager` remain candidates only; no candidate is selected yet.
+- Do not add a probe until the execution mechanism is an active decision unit. When activated, evaluate at most 3 serious candidates and stop at the first sufficient PASS.
 
 ## Structured Scanner source-code contract — future-phase retained capability
-This remains a technical capability contract, not runtime proof and **not a current-release SRWF gate**. It applies only if/when the Owner reopens scanner-based input in a future phase:
+This remains a technical capability contract, not runtime proof and not a current SRWF gate. It applies only if/when the Owner reopens scanner-based input in a future phase:
 1. `parseScan(raw, profile)` is a pure JS module with no DOM dependency.
 2. `buildUpdatePlan(parsed, mappings, existingTargets)` is pure and returns `updateSet | error`; it must enforce all-or-nothing planning.
 3. `applyUpdatePlan(updateSet)` is the thin DOM layer; no target is changed if parse/plan fails.
@@ -90,15 +112,17 @@ This remains a technical capability contract, not runtime proof and **not a curr
 - Seven-output Sayad v01 ordering is deterministic.
 - Multiple scanner instances keep independent state in unit/integration coverage available to the repo.
 
-### `PRB-NESTED-CHEQUE-001` PASS
-With synthetic data on the target stack:
+### `PRB-NESTED-CHEQUE-001` PASS — retained future contract
+Current applicability: `DEFERRED_WITH_FINANCE_SCOPE / NOT_PROVEN`.
+
+When finance/cheque scope is explicitly reopened, with synthetic data on the target stack:
 - Cheque child form opens/renders in the required Gravity Flow editable surface.
-- Current-release criterion: manual child entry works without Scanner. Scanner initialization/population is excluded from this POC until a future Owner reopen.
+- manual child entry works without Scanner unless Scanner is separately reopened.
 - Officer can manually correct permitted fields.
 - Child submit persists and remains linked to the correct parent.
 - Reload preserves values and multi-cheque finance/print composition can read every child Entry.
 
-**FAIL:** reject only the failing candidate/surface. A Nested Forms failure routes to the already-recorded Parent-Child Forms fallback; it does not authorize a custom relationship DB/workflow/state. Scanner behavior is outside the current-release POC and cannot be used to block this release path.
+**FAIL after reopen:** reject only the failing candidate/surface. A Nested Forms failure routes to the already-recorded Parent-Child Forms fallback; it does not authorize a custom relationship DB/workflow/state.
 
 ## D-17 print POC gate
 `D-17` remains `NOT_PROVEN` until a synthetic-data POC on the target stack passes all of the following:
@@ -106,7 +130,7 @@ With synthetic data on the target stack:
 2. ZWNJ is preserved visually and through copy/paste.
 3. A leading-zero National ID remains exact.
 4. Jalali date text remains exact.
-5. Amounts and at least one cheque/table row render correctly.
+5. Representative amounts and at least one table row render correctly; this may use synthetic representative content and does not reopen finance workflow implementation.
 6. A4 pagination and page breaks are stable.
 7. PDF text is searchable/copyable as logical Unicode, not only visually correct.
 8. Normal Officer UX is `Print dossier` → PDF opens directly for viewing/printing; manual file download is not a required normal step. Automatic browser print-dialog opening is not required.
@@ -153,9 +177,10 @@ For a material state change, state + one appended event must be committed togeth
 
 ## Current Owner-decision / Gate sync
 - Semantic Field Contract is Owner-approved/closed; authoritative scaffold is allowed with synthetic data subject to the current runtime blockers/next action in `runtime/CURRENT_STATE.yaml`.
-- Scanner-based financial/cheque input is deferred from the current release; seven Sayad output fields stay Hidden/future-reserved.
+- Scanner-based financial/cheque input remains deferred; seven Sayad output fields stay Hidden/future-reserved.
 - Officer edits human-readable code-backed choices and the system updates canonical codes; raw codes are not directly editable.
-- Current-release finance/manual-cheque fields are optional, non-public and Registration-Officer-only; Rial is canonical/display; discount above tuition is rejected without save; `finance_status` defaults to `0=عادی`; independent `registration_status_code` is removed. Event86 keeps amount defaults empty and keeps coded discount separate.
+- Finance/manual-cheque semantics are preserved, but implementation/validation is `SUSPENDED` until Owner reopen. Reserved fields may remain optional/non-public; finance-specific blockers/POCs must not control the active path.
+- Daily manager SMS requirement is recorded; implementation is unselected and non-blocking until activated. No Cron/Cron-like baseline without Owner re-adjudication.
 - Residual Environment Inventory remains partial/Owner-accepted for progression; privacy/retention still blocks real PII.
 - Repository is the single runtime SSOT after accepted cutover; no Google Sheet dual-write.
 - No runtime PASS/validation claim is promoted by documentation/state migration.
