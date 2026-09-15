@@ -112,4 +112,6 @@ fi
 grep -q '"lab_status": "LAB_FAIL"' "$title_drift_json"
 grep -q 'form_title_mismatch' "$title_drift_json"
 
-echo 'SRWF_LAB_VERIFIER_SELF_TEST_PASS confirmation_drift=REJECTED notification_drift=REJECTED runtime_identity_difference=ACCEPTED title_drift=REJECTED'
+bash "$root/tests/runtime-lab/photo-settings-self-test.sh"
+
+echo 'SRWF_LAB_VERIFIER_SELF_TEST_PASS confirmation_drift=REJECTED notification_drift=REJECTED runtime_identity_difference=ACCEPTED title_drift=REJECTED photo_settings_guard=PASS'
