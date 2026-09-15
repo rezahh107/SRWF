@@ -32,10 +32,10 @@ status=$?
 set -e
 [[ "$status" -ne 0 ]]
 
-# Existing valid LAB_PASS is byte-for-byte preserved on the successful path.
+# Existing structurally valid LAB_PASS is byte-for-byte preserved on the successful path.
 pass="$tmp/pass.json"
-cat >"$pass" <<'JSON'
-{"schema_version":"1.0.0","lab_status":"LAB_PASS","scenario":"GF_V060_IMPORT_READBACK","sentinel":"preserve-me"}
+cat >"$pass" <<JSON
+{"schema_version":"1.0.0","lab_status":"LAB_PASS","scenario":"GF_V060_IMPORT_READBACK","source_artifact":{"sha256":"$expected_sha","expected_sha256":"$expected_sha"},"runtime":{"gravity_forms":"3.1.1.1","gravity_forms_package_sha256":"synthetic-package-sha"},"observed":{"form_created":true,"generated_form_id":77,"inactive":true,"field_count":1},"assertions":{"exact_scaffold_hash":true,"single_form_import":true,"form_inactive":true,"title_readback":true,"field_structure_readback":true,"source_defined_confirmations_readback":true,"source_defined_notifications_readback":true,"source_defined_settings_readback":true},"failures":[],"evidence_semantics":{"ci_form_field_ids_are_disposable":true,"write_ids_to_implementation_mapping":false,"staging_exercised":false,"staging_pass":false},"sentinel":"preserve-me"}
 JSON
 before="$(sha256sum "$pass" | awk '{print $1}')"
 SRWF_PHASE_OUTCOMES_JSON="$all_success" python3 "$finalizer" "$pass" "$expected_sha" >/dev/null
@@ -43,10 +43,11 @@ after="$(sha256sum "$pass" | awk '{print $1}')"
 [[ "$before" = "$after" ]]
 python3 "$finalizer" --enforce "$pass"
 
-# Missing/corrupt evidence can never become green after otherwise-successful phases.
-for kind in missing corrupt; do
+# Missing, malformed JSON, or structurally incomplete PASS evidence cannot become green.
+for kind in missing corrupt semantic-corrupt; do
   evidence="$tmp/$kind.json"
   if [[ "$kind" = corrupt ]]; then printf '{not-json' >"$evidence"; fi
+  if [[ "$kind" = semantic-corrupt ]]; then printf '{"schema_version":"1.0.0","lab_status":"LAB_PASS","scenario":"GF_V060_IMPORT_READBACK"}\n' >"$evidence"; fi
   SRWF_PHASE_OUTCOMES_JSON="$all_success" python3 "$finalizer" "$evidence" "$expected_sha" >/dev/null
   grep -q '"lab_status": "LAB_FAIL"' "$evidence"
   set +e
