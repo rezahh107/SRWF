@@ -4,7 +4,7 @@ repository:
   canonical_platform: GitHub
   default_branch: main
   phase: ACTIVE_PROJECT_SSOT
-  visibility: private
+  visibility: public
 
 acceptance:
   accepted_current_ref: main
