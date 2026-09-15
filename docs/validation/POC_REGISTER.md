@@ -10,8 +10,20 @@
 | `V-04 / PRB-NF-V04-HUMAN-REVISION` | GravityRevisions human edits | `UNEXECUTED / NOT_PROVEN` | required before release |
 | `V-05 / PRB-NF-V05` | Live Refresh + cache | `UNEXECUTED / NOT_PROVEN` | required before release |
 | `V-06 / PRB-NF-V06` | WP All Import counter sync | `UNEXECUTED / NOT_PROVEN` | required before release |
-| `PRB-NESTED-CHEQUE-001` | GP Nested Forms cheque child Entries | `SELECTED / POC_NOT_PROVEN` | Parent-Child Forms fallback only after bounded FAIL |
+| `PRB-NESTED-CHEQUE-001` | GP Nested Forms cheque child Entries | `DEFERRED_WITH_FINANCE_SCOPE / NOT_PROVEN` | selected future host retained; not a current gate; Parent-Child Forms fallback only after bounded FAIL following Owner reopen |
 | `D-17-GRAVITY-PDF` | Gravity PDF Free + SRWF print layer | `POC_GATED / NOT_PROVEN` | first print renderer candidate |
+
+`OWNER-20260915-FINANCE-SUSPENSION-DAILY-MANAGER-SMS-SCOPE-SYNC` preserves the Nested Forms candidate/PASS contract but suspends execution until finance/cheque scope is explicitly reopened. `DEFERRED` does not mean PASS or proven absence.
+
+## Recorded requirement without active POC
+
+### `REQ-DAILY-MANAGER-SMS`
+
+State: `REQUIREMENT_RECORDED / IMPLEMENTATION_UNSELECTED / NOT_A_CURRENT_GATE`.
+
+Need: at the end of each working day, send the manager an SMS containing the count of Entries the Registration Officer approved/advanced to Accountant during that business day, derived read-only from canonical Gravity Forms/Gravity Flow evidence.
+
+No POC is authorized yet because implementation mechanism/time/calendar/provider/mobile binding/retry behavior remain open. Cron/Cron-like shared-host scheduling is not an accepted baseline without Owner re-adjudication. Gravity Forms Notification Scheduler and `gravity-notification-manager` remain candidates only.
 
 ## Closed candidate observations
 
@@ -32,7 +44,7 @@ PersianGravity Structured Scanner source/CI and some browser UI presence were ob
 
 - raw scanner capture is designed non-persistent;
 - scan-to-populate target behavior is not a current SRWF release gate;
-- current release defers scanner population entirely;
+- scanner population remains deferred;
 - seven Sayad fields remain hidden/future-reserved.
 
 ## POC record format
