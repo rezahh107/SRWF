@@ -10,6 +10,16 @@ from typing import Any
 
 SCENARIO = "GF_V060_IMPORT_READBACK"
 ALLOWED_STATUSES = {"LAB_PASS", "LAB_FAIL", "LAB_BLOCKED", "NOT_TESTED"}
+REQUIRED_PASS_ASSERTIONS = (
+    "exact_scaffold_hash",
+    "single_form_import",
+    "form_inactive",
+    "title_readback",
+    "field_structure_readback",
+    "source_defined_confirmations_readback",
+    "source_defined_notifications_readback",
+    "source_defined_settings_readback",
+)
 
 PHASE_RULES = (
     ("identity", "LAB_FAIL", "REPOSITORY_IDENTITY_CHECK_FAILED"),
@@ -24,19 +34,70 @@ PHASE_RULES = (
 )
 
 
-def read_existing(path: Path) -> tuple[dict[str, Any] | None, str | None]:
+def validate_evidence(data: Any, expected_sha: str | None = None) -> str | None:
+    if not isinstance(data, dict):
+        return "TERMINAL_EVIDENCE_NOT_OBJECT"
+    if data.get("schema_version") != "1.0.0":
+        return "TERMINAL_EVIDENCE_SCHEMA_INVALID"
+    if data.get("scenario") != SCENARIO:
+        return "TERMINAL_EVIDENCE_SCENARIO_INVALID"
+    status = data.get("lab_status")
+    if status not in ALLOWED_STATUSES:
+        return "TERMINAL_EVIDENCE_STATUS_INVALID"
+
+    if status == "LAB_PASS":
+        source = data.get("source_artifact")
+        runtime = data.get("runtime")
+        observed = data.get("observed")
+        assertions = data.get("assertions")
+        semantics = data.get("evidence_semantics")
+        failures = data.get("failures")
+        if not all(isinstance(value, dict) for value in (source, runtime, observed, assertions, semantics)):
+            return "TERMINAL_PASS_EVIDENCE_STRUCTURE_INVALID"
+        source_sha = source.get("sha256")
+        pinned_sha = source.get("expected_sha256")
+        if not isinstance(source_sha, str) or source_sha == "" or source_sha != pinned_sha:
+            return "TERMINAL_PASS_SOURCE_SHA_INVALID"
+        if expected_sha is not None and source_sha != expected_sha:
+            return "TERMINAL_PASS_SOURCE_SHA_UNEXPECTED"
+        if not runtime.get("gravity_forms") or not runtime.get("gravity_forms_package_sha256"):
+            return "TERMINAL_PASS_RUNTIME_IDENTITY_MISSING"
+        if observed.get("form_created") is not True or observed.get("inactive") is not True:
+            return "TERMINAL_PASS_FORM_STATE_INVALID"
+        if not isinstance(observed.get("generated_form_id"), (int, str)) or not isinstance(observed.get("field_count"), int):
+            return "TERMINAL_PASS_RUNTIME_IDS_INVALID"
+        if observed.get("field_count", 0) <= 0:
+            return "TERMINAL_PASS_FIELD_COUNT_INVALID"
+        if any(assertions.get(name) is not True for name in REQUIRED_PASS_ASSERTIONS):
+            return "TERMINAL_PASS_ASSERTIONS_INCOMPLETE"
+        if failures != []:
+            return "TERMINAL_PASS_FAILURES_NONEMPTY"
+        if semantics.get("ci_form_field_ids_are_disposable") is not True:
+            return "TERMINAL_PASS_CI_ID_SEMANTICS_INVALID"
+        if semantics.get("write_ids_to_implementation_mapping") is not False:
+            return "TERMINAL_PASS_MAPPING_SEMANTICS_INVALID"
+        if semantics.get("staging_exercised") is not False or semantics.get("staging_pass") is not False:
+            return "TERMINAL_PASS_STAGING_SEMANTICS_INVALID"
+    elif status == "LAB_BLOCKED":
+        if not isinstance(data.get("blocker") or data.get("terminal_reason"), str):
+            return "TERMINAL_BLOCKED_REASON_MISSING"
+    elif status == "LAB_FAIL":
+        failures = data.get("failures")
+        if not isinstance(failures, list) or len(failures) == 0:
+            return "TERMINAL_FAIL_REASON_MISSING"
+    return None
+
+
+def read_existing(path: Path, expected_sha: str | None = None) -> tuple[dict[str, Any] | None, str | None]:
     if not path.exists():
         return None, "TERMINAL_EVIDENCE_MISSING"
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return None, "TERMINAL_EVIDENCE_CORRUPT"
-    if not isinstance(data, dict):
-        return None, "TERMINAL_EVIDENCE_NOT_OBJECT"
-    if data.get("scenario") != SCENARIO:
-        return None, "TERMINAL_EVIDENCE_SCENARIO_INVALID"
-    if data.get("lab_status") not in ALLOWED_STATUSES:
-        return None, "TERMINAL_EVIDENCE_STATUS_INVALID"
+    error = validate_evidence(data, expected_sha)
+    if error is not None:
+        return None, error
     return data, None
 
 
@@ -123,7 +184,7 @@ def write_payload(path: Path, payload: dict[str, Any]) -> None:
 
 def finalize(path: Path, expected_sha: str) -> int:
     outcomes = load_phase_outcomes()
-    existing, existing_error = read_existing(path)
+    existing, existing_error = read_existing(path, expected_sha)
 
     phase_failure = first_phase_failure(outcomes)
     if phase_failure is not None:
