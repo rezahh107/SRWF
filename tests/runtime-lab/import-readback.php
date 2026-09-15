@@ -46,14 +46,32 @@ if (!class_exists('GFExport')) {
     require_once $export_file;
 }
 
-$imported_forms = null;
-$count = GFExport::import_file($scaffold, $imported_forms);
-if ($count !== 1 || !is_array($imported_forms) || count($imported_forms) !== 1) {
-    throw new RuntimeException(sprintf('Expected one imported form, observed import count %s.', var_export($count, true)));
+$legacy_imported_forms = null;
+$import_result = GFExport::import_file($scaffold, $legacy_imported_forms);
+if (!is_array($import_result)) {
+    throw new RuntimeException(sprintf(
+        'Gravity Forms import returned unexpected result type: %s.',
+        get_debug_type($import_result)
+    ));
 }
 
-$imported = array_values($imported_forms)[0];
-$form_id = isset($imported['id']) ? (int) $imported['id'] : 0;
+$form_ids = isset($import_result['form_ids']) && is_array($import_result['form_ids'])
+    ? array_values($import_result['form_ids'])
+    : array();
+$failed_forms = isset($import_result['failed_forms']) && is_array($import_result['failed_forms'])
+    ? $import_result['failed_forms']
+    : array();
+
+if (count($form_ids) !== 1 || count($failed_forms) !== 0) {
+    throw new RuntimeException(sprintf(
+        'Expected one successful imported form and no failures; observed form_ids=%s failed_forms=%s.',
+        wp_json_encode($form_ids),
+        wp_json_encode($failed_forms)
+    ));
+}
+
+$count = count($form_ids);
+$form_id = (int) $form_ids[0];
 if ($form_id < 1) {
     throw new RuntimeException('Imported form did not expose a runtime Form ID.');
 }
