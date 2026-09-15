@@ -1,5 +1,5 @@
 schema_version: 1
-state_version: 16
+state_version: 17
 updated_at: '2026-09-15'
 ssot:
   provider: GitHub
@@ -16,11 +16,11 @@ ssot:
 current:
   stage: STAGE_0_IN_PROGRESS
   gate: STAGE_0_SEMANTIC_FIELD_CONTRACT_CLOSED
-  decision: OWNER-20260915-FINANCE-SUSPENSION-DAILY-MANAGER-SMS-SCOPE-SYNC
+  decision: OWNER-20260915-CI-RUNTIME-LAB-PREFLIGHT
   candidate: GF_IMPORT_SCAFFOLD_V060_PROVISIONAL
-  last_observed_result: OWNER_SCOPE_SYNC_CONFIRMED / FINANCE_IMPLEMENTATION_SUSPENDED / NESTED_CHEQUE_POC_DEFERRED_WITH_FINANCE / DAILY_MANAGER_SMS_REQUIREMENT_RECORDED_IMPLEMENTATION_UNSELECTED / STAGING_IMPORT_UNEXECUTED / NO_RUNTIME_VALIDATION_PROMOTION
-  next_action_id: STAGING_IMPORT_GF_V060_SYNTHETIC_ACTIVE_SCOPE
-  next_action: Import SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json into staging while the form remains inactive, using synthetic data only; read back real Form/Field IDs and active-scope critical settings before binding Implementation Mapping. Reserved optional/non-public finance fields may remain present, but do not implement or validate finance/manual-cheque behavior, Nested Forms cheque composition, or daily-SMS execution in this action.
+  last_observed_result: CI_RUNTIME_LAB_IMPLEMENTED_IN_PR9 / LAB_BLOCKED_EXACT_SCAFFOLD_BYTES_UNAVAILABLE / HARNESS_GUARD_PASS / DOCUMENTATION_INTEGRITY_PASS / PROJECT_BUNDLE_PASS / WORDPRESS_GF_IMPORT_READBACK_NOT_TESTED / STAGING_IMPORT_UNEXECUTED / FINANCE_SUSPENSION_PRESERVED
+  next_action_id: RECOVER_GF_V060_EXACT_ARTIFACT_AND_RERUN_CI_LAB
+  next_action: Recover or provide the exact SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json bytes matching SHA-256 445f146b6c6d9ecf7badecce23b19be9dee59b653ec7c78c4537decaa3b31c89 as a repository-managed fixture or Owner-authorized public workflow-dispatch source, then rerun the disposable CI Runtime Lab. Only a meaningful LAB_PASS for those exact bytes justifies the governed real staging import/read-back. Never bind disposable CI Form/Field IDs into Implementation Mapping.
 open_blockers:
 - id: PRIVACY_RETENTION_OPEN
   effect: blocks real PII in staging/UAT/production; synthetic scaffold/POC work is allowed; primary student-file retention through permanent Entry deletion is Owner-locked but backup/export/log policy remains open
@@ -30,8 +30,10 @@ open_blockers:
   effect: authoritative gender and level metadata plus the Owner-approved level mapping are materialized in the event86 contract, but Gravity Forms filtering and server validation are not implemented or runtime-proven; no current authoritative school-to-group mapping exists
 - id: SERVER_BINDINGS_ACTIVE_SCOPE_INCOMPLETE
   effect: active non-finance DOB/mobile/group/status/school/report-card/file-access/file-lifecycle canonical bindings and validation remain incomplete; finance-specific amount/discount/Bonyad-Shahid/Hekmat/cheque bindings are suspended and are not part of this blocker
+- id: CI_RUNTIME_LAB_EXACT_SCAFFOLD_UNAVAILABLE
+  effect: PR#9 CI Runtime Lab run 34983290750 ended LAB_BLOCKED before WordPress/Gravity Forms import because the exact v0.6.0 candidate bytes were not present in the repository and no Owner-authorized dispatch URL was available; no mock or regenerated substitute was admitted
 - id: GF_IMPORT_RUNTIME_UNEXECUTED
-  effect: v0.6.0 is the current provisional import candidate after event86 SFC synchronization, but actual Gravity Forms staging import and post-import settings/ID read-back have not executed
+  effect: v0.6.0 is the current provisional import candidate after event86 SFC synchronization, but CI import/read-back is blocked on the exact scaffold bytes and actual Gravity Forms staging import/post-import settings/ID read-back remain unexecuted
 deferred_non_blockers:
 - id: FINANCE_IMPLEMENTATION_SUSPENDED
   effect: prior finance semantics remain preserved and reserved fields may remain optional/non-public, but finance-specific Flow whitelist, calculations, discount/Bonyad/Hekmat bindings, cheque handling and finance validation are suspended until explicit Owner reopen
@@ -46,6 +48,21 @@ governance:
   cutover_merge_commit: 14e4cef22535a1311e81802e317d955b7e5526cd
   cutover_integrity_run: 34160923750
   cutover_integrity_result: PASS
+  ci_runtime_lab:
+    authority: docs/authority/CI_RUNTIME_LAB.md
+    execution_procedure: docs/operations/CI_RUNTIME_LAB.md
+    workflow: .github/workflows/ci-runtime-lab.yml
+    initial_pr: 9
+    observed_run: 34983290750
+    observed_status: LAB_BLOCKED
+    blocker: EXACT_SCAFFOLD_BYTES_UNAVAILABLE
+    evidence_artifact_id: 10402004610
+    evidence_artifact_digest: sha256:ef52d11723bf42d081a1578982e694c9b6bbc1ffe5a7ec5422ea83833947797e
+    evidence_file_sha256: 0321e11164dd94ddc8fd48c2cd280867c42256e8822f070a297cc0cf2bb24d1f
+    harness_guard: PASS
+    real_import_readback: NOT_TESTED
+    staging_exercised: false
+    ci_ids_authoritative_for_mapping: false
   project_package:
     version: 1.2.0
     status: ACCEPTED_ON_MAIN_BUILD_PASS
@@ -72,9 +89,12 @@ governance:
   - NOT_PROVEN != PROVEN_ABSENT
   - DEFERRED != PASS
   - SUSPENDED_SEMANTICS_PRESERVED != IMPLEMENTATION_REQUIRED
+  - LAB_PASS != OBSERVED_IN_STAGING
+  - LAB_BLOCKED != LAB_FAIL
+  - DISPOSABLE_CI_IDS != AUTHORITATIVE_STAGING_IDS
 history:
-  last_event_seq: 88
-  last_event_id: OWNER-20260915-FINANCE-SUSPENSION-DAILY-MANAGER-SMS-SCOPE-SYNC
+  last_event_seq: 89
+  last_event_id: OWNER-20260915-CI-RUNTIME-LAB-PREFLIGHT
   pre_cutover_event_count: 72
   pre_cutover_source: Google Sheet SRWF_RUNTIME_STATE / DECISION_HISTORY
   active_history_start_seq: 73
@@ -87,14 +107,26 @@ evidence_refs:
 - docs/governance/DECISION_LEDGER.md
 - docs/governance/REMAINING_OWNER_BINDINGS.md
 - docs/authority/MASTER.md
+- docs/authority/CI_RUNTIME_LAB.md
 - docs/operations/EXECUTION_PLAYBOOK.md
+- docs/operations/CI_RUNTIME_LAB.md
 - docs/validation/TEST_MATRIX.md
 - docs/validation/DEFINITION_OF_DONE.md
 - docs/release/RELEASE_MANIFEST.md
+- .github/workflows/ci-runtime-lab.yml
+- tests/runtime-lab/README.md
 - runtime/DECISION_HISTORY.jsonl
 - history/pre-runtime-ssot/MIGRATION_MANIFEST.json
 - history/pre-runtime-ssot/CURRENT_STATE_PRE_CUTOVER.yaml
 - history/pre-runtime-ssot/DECISION_HISTORY_INDEX.json
+- Owner explicit 2026-09-15 decision requiring materially simulatable runtime work to use a disposable CI Runtime Lab before real staging when useful, without treating LAB_PASS as staging proof
+- SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json expected sha256=445f146b6c6d9ecf7badecce23b19be9dee59b653ec7c78c4537decaa3b31c89; exact bytes not admitted in PR#9 run 34983290750
+- PR#9
+- GitHub Actions SRWF CI Runtime Lab run 34983290750 = LAB_BLOCKED / job failure by enforced exit 78
+- Runtime Lab artifact 10402004610 digest sha256:ef52d11723bf42d081a1578982e694c9b6bbc1ffe5a7ec5422ea83833947797e
+- Runtime Lab lab-evidence.json sha256=0321e11164dd94ddc8fd48c2cd280867c42256e8822f070a297cc0cf2bb24d1f
+- GitHub Actions Documentation Integrity run 34983290835 = success
+- GitHub Actions Project Bundle run 34983290662 = success
 - Owner explicit reconfirmation in SRWF Project session 2026-09-15 that finance is outside the current decision/implementation scope while prior optional Officer-only semantics remain valid
 - SRWF Project conversation 2026-09-14 recording the daily manager SMS count requirement and Owner rejection of Cron/Cron-like shared-host scheduling as baseline
 - Owner-uploaded SchoolReport-1405_06_17-3570.xlsx sha256=f6f408cc59708fcff52186076763410aaa66a6b1bf57f938f9e955324119980a
