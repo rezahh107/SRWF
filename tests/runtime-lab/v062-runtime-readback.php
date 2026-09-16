@@ -272,14 +272,25 @@ if ($fullStack) {
     $observed['gp_advanced_select_field_recognized'] = true;
 }
 
+// Gravity Forms 3.1.1.1 returns one numeric form payload plus a top-level
+// "version" metadata entry. Historical v0.6.1 authentic round-trip evidence
+// has this exact shape; count($exported) is therefore expected to be 2.
 $runtimeForms = GFFormsModel::get_form_meta_by_id(array($formId));
 $exported = GFExport::prepare_forms_for_export($runtimeForms);
-if (!is_array($exported) || count($exported) !== 1) {
-    srwf_v062_fail('Authentic Gravity Forms round-trip export preparation failed.');
+if (!is_array($exported) || !array_key_exists('version', $exported)) {
+    srwf_v062_fail('Authentic Gravity Forms round-trip export metadata is missing.');
+}
+$roundtripForms = array_filter(
+    $exported,
+    static fn($key): bool => $key !== 'version',
+    ARRAY_FILTER_USE_KEY
+);
+if (count($roundtripForms) !== 1 || !isset($roundtripForms[0]) || !is_array($roundtripForms[0])) {
+    srwf_v062_fail('Authentic Gravity Forms round-trip must contain exactly one form payload.');
 }
 $roundtripNational = null;
 $roundtripDob = null;
-foreach (($exported[0]['fields'] ?? array()) as $field) {
+foreach (($roundtripForms[0]['fields'] ?? array()) as $field) {
     if (is_object($field) && (string) $field->adminLabel === 'national_id') {
         $roundtripNational = $field;
     }
