@@ -2,7 +2,7 @@
 /**
  * Authentic runtime read-back for the SRWF v0.6.2 provisional candidate.
  *
- * Always exercises Gravity Forms + current PersianGravity. When
+ * Always exercises Gravity Forms + maintained PersianGravity. When
  * SRWF_V062_RUNTIME_MODE=FULL_STACK it additionally requires authentic
  * Gravity Perks, GP File Upload Pro and GP Advanced Select.
  */
@@ -33,8 +33,24 @@ function srwf_v062_find_field(array $form, string $adminLabel): ?GF_Field {
     return null;
 }
 
+function srwf_v062_field_prop(GF_Field $field, string $name, mixed $default = null): mixed {
+    return $field->{$name} ?? $default;
+}
+
 function srwf_v062_empty_dimension(mixed $value): bool {
     return $value === null || $value === '';
+}
+
+function srwf_v062_plugin_version_by_prefix(string $prefix): string {
+    if (!function_exists('get_plugins')) {
+        require_once ABSPATH . 'wp-admin/includes/plugin.php';
+    }
+    foreach (get_plugins() as $pluginFile => $data) {
+        if (str_starts_with((string) $pluginFile, $prefix . '/')) {
+            return (string) ($data['Version'] ?? '');
+        }
+    }
+    return '';
 }
 
 if (!in_array($mode, array('MINIMAL_CURRENT_PG', 'FULL_STACK'), true)) {
@@ -46,6 +62,7 @@ if ($candidate === '' || !is_readable($candidate)) {
 if ($artifactDir === '' || !is_dir($artifactDir)) {
     srwf_v062_fail('Artifact directory is unavailable.');
 }
+
 $actualSha = hash_file('sha256', $candidate);
 if (!is_string($actualSha) || $expectedSha === '' || !hash_equals($expectedSha, $actualSha)) {
     srwf_v062_fail('Candidate SHA-256 mismatch.');
@@ -60,7 +77,7 @@ if (!defined('PGR_VERSION') || $expectedPgr === '' || PGR_VERSION !== $expectedP
     srwf_v062_fail('Unexpected PersianGravity version.');
 }
 if (!class_exists('PGR_GF_Field_National_ID') || !class_exists('PGR_GF_Field_Jalali_Date')) {
-    srwf_v062_fail('Current PersianGravity field classes are unavailable.');
+    srwf_v062_fail('Maintained PersianGravity field classes are unavailable.');
 }
 
 $existing = GFAPI::get_forms(null, null, 'id', 'ASC');
@@ -128,11 +145,11 @@ $checks = array(
     'national_type_current' => $national->type === 'pgr_national_id',
     'national_required' => (bool) $national->isRequired === true,
     'national_duplicates_allowed' => (bool) $national->noDuplicates === false,
-    'national_force_english' => (bool) rgar($national, 'forceEnglish') === true,
+    'national_force_english' => (bool) srwf_v062_field_prop($national, 'forceEnglish') === true,
     'dob_type_current' => $dob->type === 'pgr_jalali_date',
     'dob_required' => (bool) $dob->isRequired === true,
-    'dob_presentation_ymd_slash' => (string) rgar($dob, 'jalali_format') === 'ymd_slash',
-    'school_gpadvs_enabled_metadata' => (bool) rgar($school, 'gpadvsEnable') === true,
+    'dob_presentation_ymd_slash' => (string) srwf_v062_field_prop($dob, 'jalali_format') === 'ymd_slash',
+    'school_gpadvs_enabled_metadata' => (bool) srwf_v062_field_prop($school, 'gpadvsEnable') === true,
     'school_gf_enhanced_ui_off' => empty($school->enableEnhancedUI),
     'school_choice_count_947' => is_array($school->choices) && count($school->choices) === 947,
     'photo_type_fileupload' => $photo->type === 'fileupload',
@@ -140,17 +157,17 @@ $checks = array(
     'photo_extensions_jpg_jpeg' => (string) $photo->allowedExtensions === 'jpg,jpeg',
     'photo_max_file_size_5mb' => (string) $photo->maxFileSize === '5',
     'photo_single_file_limit' => (bool) $photo->multipleFiles === true && (string) $photo->maxFiles === '1',
-    'photo_fup_enabled_metadata' => (bool) rgar($photo, 'gpfupEnable') === true,
-    'photo_crop_enabled_metadata' => (bool) rgar($photo, 'gpfupEnableCrop') === true,
-    'photo_crop_required_metadata' => (bool) rgar($photo, 'gpfupCropRequired') === true,
-    'photo_ratio_3_4_metadata' => (string) rgar($photo, 'gpfupAspectRatioAntecedent') === '3'
-        && (string) rgar($photo, 'gpfupAspectRatioConsequent') === '4',
-    'photo_max_1200_1600_metadata' => (string) rgar($photo, 'gpfupMaxWidth') === '1200'
-        && (string) rgar($photo, 'gpfupMaxHeight') === '1600',
-    'photo_no_min_exact_metadata' => srwf_v062_empty_dimension(rgar($photo, 'gpfupMinWidth'))
-        && srwf_v062_empty_dimension(rgar($photo, 'gpfupMinHeight'))
-        && srwf_v062_empty_dimension(rgar($photo, 'gpfupExactWidth'))
-        && srwf_v062_empty_dimension(rgar($photo, 'gpfupExactHeight')),
+    'photo_fup_enabled_metadata' => (bool) srwf_v062_field_prop($photo, 'gpfupEnable') === true,
+    'photo_crop_enabled_metadata' => (bool) srwf_v062_field_prop($photo, 'gpfupEnableCrop') === true,
+    'photo_crop_required_metadata' => (bool) srwf_v062_field_prop($photo, 'gpfupCropRequired') === true,
+    'photo_ratio_3_4_metadata' => (string) srwf_v062_field_prop($photo, 'gpfupAspectRatioAntecedent') === '3'
+        && (string) srwf_v062_field_prop($photo, 'gpfupAspectRatioConsequent') === '4',
+    'photo_max_1200_1600_metadata' => (string) srwf_v062_field_prop($photo, 'gpfupMaxWidth') === '1200'
+        && (string) srwf_v062_field_prop($photo, 'gpfupMaxHeight') === '1600',
+    'photo_no_min_exact_metadata' => srwf_v062_empty_dimension(srwf_v062_field_prop($photo, 'gpfupMinWidth'))
+        && srwf_v062_empty_dimension(srwf_v062_field_prop($photo, 'gpfupMinHeight'))
+        && srwf_v062_empty_dimension(srwf_v062_field_prop($photo, 'gpfupExactWidth'))
+        && srwf_v062_empty_dimension(srwf_v062_field_prop($photo, 'gpfupExactHeight')),
 );
 
 $checks['national_canonical_ascii'] = $national->get_value_save_entry('۰۰۰۰۰۰۰۰۱۹', $form, '', 0, array()) === '0000000019';
@@ -182,7 +199,7 @@ $observed = array(
     'national_canonical_sample' => $national->get_value_save_entry('۰۰۰۰۰۰۰۰۱۹', $form, '', 0, array()),
     'dob_field_class' => get_class($dob),
     'dob_type' => $dob->type,
-    'dob_jalali_format' => rgar($dob, 'jalali_format'),
+    'dob_jalali_format' => srwf_v062_field_prop($dob, 'jalali_format'),
     'dob_canonical_sample' => $dob->get_value_save_entry('۱۴۰۰/۰۱/۰۲', $form, '', 0, array()),
     'school_field_id' => (int) $school->id,
     'photo_field_id' => (int) $photo->id,
@@ -202,6 +219,11 @@ if ($fullStack) {
         srwf_v062_fail('GP Advanced Select runtime accessor is unavailable.');
     }
 
+    $advsVersion = srwf_v062_plugin_version_by_prefix('gp-advanced-select');
+    if ($expectedAdvs === '' || $advsVersion !== $expectedAdvs) {
+        srwf_v062_fail('Unexpected GP Advanced Select version: ' . $advsVersion);
+    }
+
     $fup = gp_file_upload_pro();
     if (!$fup instanceof GP_File_Upload_Pro) {
         srwf_v062_fail('GP File Upload Pro runtime instance is unavailable.');
@@ -209,11 +231,6 @@ if ($fullStack) {
     $advs = gp_advanced_select();
     if (!is_object($advs) || !method_exists($advs, 'is_advanced_select_field')) {
         srwf_v062_fail('GP Advanced Select runtime instance is unavailable.');
-    }
-
-    $advsVersion = defined('GPADVS_VERSION') ? GPADVS_VERSION : '';
-    if ($expectedAdvs !== '' && $advsVersion !== '' && $advsVersion !== $expectedAdvs) {
-        srwf_v062_fail('Unexpected GP Advanced Select version: ' . $advsVersion);
     }
 
     $checks['fup_runtime_ratio_0_75'] = abs((float) $fup->get_aspect_ratio_float($photo) - 0.75) < 0.0000001;
@@ -274,7 +291,7 @@ $checks['gf_roundtrip_national_current_type'] = $roundtripNational instanceof GF
     && (string) $roundtripNational->type === 'pgr_national_id';
 $checks['gf_roundtrip_dob_current_type'] = $roundtripDob instanceof GF_Field
     && (string) $roundtripDob->type === 'pgr_jalali_date'
-    && (string) rgar($roundtripDob, 'jalali_format') === 'ymd_slash';
+    && (string) srwf_v062_field_prop($roundtripDob, 'jalali_format') === 'ymd_slash';
 
 $failures = array_keys(array_filter($checks, static fn(bool $ok): bool => !$ok));
 $status = empty($failures) ? 'LAB_PASS' : 'LAB_FAIL';
@@ -291,7 +308,7 @@ if ($fullStack) {
     $runtime['gravity_perks_package_sha256'] = getenv('SRWF_GP_SHA256') ?: '';
     $runtime['gp_file_upload_pro'] = defined('GPFUP_VERSION') ? GPFUP_VERSION : '';
     $runtime['gp_file_upload_pro_package_sha256'] = getenv('SRWF_FUP_SHA256') ?: '';
-    $runtime['gp_advanced_select'] = defined('GPADVS_VERSION') ? GPADVS_VERSION : (getenv('SRWF_ADVS_VERSION') ?: 'version_constant_unavailable');
+    $runtime['gp_advanced_select'] = srwf_v062_plugin_version_by_prefix('gp-advanced-select');
     $runtime['gp_advanced_select_package_sha256'] = getenv('SRWF_ADVS_SHA256') ?: '';
 }
 
