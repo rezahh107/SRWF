@@ -1,18 +1,20 @@
 # Semantic Field Contract — Human Projection
 
 **Canonical machine-readable source:** `SEMANTIC_FIELD_CONTRACT.yaml`  
-**Semantic scope:** `OWNER APPROVED / CLOSED THROUGH event86`  
+**Semantic scope:** `OWNER APPROVED / CURRENT PERSIANGRAVITY SYNC — event92`  
 **Current applicability override:** `OWNER-20260915-FINANCE-SUSPENSION-DAILY-MANAGER-SMS-SCOPE-SYNC` suspends finance/manual-cheque implementation and validation without deleting or changing the preserved finance semantics below.  
 **Runtime binding:** `UNBOUND / NOT_PROVEN` تا staging import و read-back IDهای واقعی.
 
-این projection تصمیم‌های semantic Owner تا `OWNER-20260908-SFC-BATCH-MAIN-FORM-CONSTRUCTION-READY` را خلاصه می‌کند. وجود field با اجباری بودن value یکی نیست. تصمیم scope مورخ 2026-09-15 semantic rows مالی را بازنویسی نمی‌کند؛ فقط تعیین می‌کند فعلاً اجرای آن‌ها در مسیر جاری لازم نیست.
+این projection تصمیم‌های semantic Owner تا همگام‌سازی 2026-09-16 با PersianGravity جاری را خلاصه می‌کند. وجود field با اجباری بودن value یکی نیست. تصمیم scope مورخ 2026-09-15 semantic rows مالی را بازنویسی نمی‌کند؛ فقط تعیین می‌کند فعلاً اجرای آن‌ها در مسیر جاری لازم نیست.
+
+`SRWF_GravityForms_Import_v0.6.1_PROVISIONAL.json` آخرین staging candidate دارای full-stack qualification پذیرفته‌شده است. `SRWF_GravityForms_Import_v0.6.2_PROVISIONAL.json` successor تحت qualification است و تا exact-head FULL_STACK PASS نباید صرفاً بر مبنای minimal current-PersianGravity PASS به staging candidate ارتقا یابد.
 
 ## فرم عمومی
 
 - `first_name`, `last_name`, `father_name`, `national_id`, `dob_jalali`, `gender_code`, `student_mobile`, `student_photo`, `education_level`, `grade_group_selection`, `graduation_status`, `school_code` در مسیر عمومی هستند.
 - `home_phone`, `contact1_mobile`, `contact2_mobile` در فرم هستند ولی optional. `contact1_relationship=پدر` و `contact2_relationship=مادر` hidden/system-owned هستند.
-- `national_id`: PersianGravity، کد ملی معتبر، ۱۰ رقم ASCII downstream، leading zero حفظ، duplicate مجاز.
-- `dob_jalali`: PersianGravity Jalali، canonical `YYYY/MM/DD`، بدون age rule.
+- `national_id`: فیلد جاری PersianGravity با type=`pgr_national_id`، کد ملی معتبر، canonical ده رقم ASCII با حفظ leading zero، duplicate مجاز.
+- `dob_jalali`: فیلد جاری PersianGravity با type=`pgr_jalali_date` و `jalali_format=ymd_slash`؛ ورودی/نمایش جلالی `YYYY/MM/DD` و canonical persisted value برابر ASCII `YYYY-MM-DD` با همان semantics تقویم جلالی است؛ بدون age rule.
 - موبایل‌ها: normalize ارقام فارسی/عربی، حذف space/hyphen، canonical `09xxxxxxxxx`; تلفن منزل digits-only و بدون طول ساختگی.
 
 ## عکس و کارنامه
@@ -46,7 +48,7 @@
 
 ## Review/System
 
-`review_status` و `review_reason` ordinary Entry fields هستند و workflow state جدید نمی‌سازند. `registration_counter` فقط WP All Import و exact National ID؛ importer Flow را جلو نمی‌برد.
+`review_status` و `review_reason` ordinary Entry fields هستند و workflow state جدیدی نمی‌سازند. `registration_counter` فقط WP All Import و exact National ID؛ importer Flow را جلو نمی‌برد.
 
 ## Cheque child form — deferred with finance scope
 
@@ -58,4 +60,4 @@ Host آینده انتخاب‌شده `GP Nested Forms` است و POC همچنا
 
 ## Gate باقی‌مانده
 
-SFC semantics فرم اصلی بسته است، اما `DOCUMENTED != OBSERVED_IN_STAGING`: Import واقعی، ID mapping، server bindings فعالِ غیرمالی، school filtering، `V-01/V-03` و سایر validationهای active scope هنوز `NOT_PROVEN` هستند. Finance/manual-cheque bindings و Nested Forms POC فعلاً deferred هستند و blocker جاری نیستند. تا Privacy/Retention sign-off فقط synthetic data.
+SFC semantics فرم اصلی با PersianGravity جاری همگام است، اما `DOCUMENTED != OBSERVED_IN_STAGING`: v0.6.2 full-stack qualification، Import واقعی staging، ID mapping، server bindings فعالِ غیرمالی، school filtering، `V-01/V-03` و سایر validationهای active scope هنوز `NOT_PROVEN` هستند. Finance/manual-cheque bindings و Nested Forms POC فعلاً deferred هستند و blocker جاری نیستند. تا Privacy/Retention sign-off فقط synthetic data.
