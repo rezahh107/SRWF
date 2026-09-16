@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       runtime_mode:
-        description: Runtime scope. FULL_STACK requires exact licensed package URLs/hashes in repository secrets.
+        description: Runtime scope. FULL_STACK requires exact licensed package URLs in repository secrets; identities are repository-pinned.
         type: choice
         required: true
         default: MINIMAL_CURRENT_PG
@@ -73,7 +73,8 @@ jobs:
       SRWF_FUP_VERSION: '1.5.13'
       SRWF_ADVS_ZIP: /tmp/srwf-v062-packages/gp-advanced-select-1.1.21.zip
       SRWF_ADVS_URL: ${{ secrets.SRWF_ADVS_1_1_21_URL }}
-      SRWF_ADVS_SHA256: ${{ secrets.SRWF_ADVS_1_1_21_SHA256 }}
+      SRWF_ADVS_SHA256: d83424bfac712e73d772e54e8740b828c52b7c118cfa9aac71646233a6fdcca2
+      SRWF_ADVS_SIZE: '184531'
       SRWF_ADVS_VERSION: '1.1.21'
       SRWF_WP_VERSION: '6.8.3'
       SRWF_PHP_VERSION: '8.2.33'
@@ -124,14 +125,14 @@ jobs:
           unzip -tq "$SRWF_PGR_ZIP" >/dev/null
 
           if [ "$SRWF_V062_RUNTIME_MODE" = 'FULL_STACK' ]; then
-            if [ -z "$SRWF_GP_URL" ] || [ -z "$SRWF_FUP_URL" ] || [ -z "$SRWF_ADVS_URL" ] || [ -z "$SRWF_ADVS_SHA256" ]; then
+            if [ -z "$SRWF_GP_URL" ] || [ -z "$SRWF_FUP_URL" ] || [ -z "$SRWF_ADVS_URL" ]; then
               cat > "$SRWF_ARTIFACT_DIR/lab-evidence.json" <<'JSON'
           {
             "schema_version": "1.0.0",
             "lab_status": "LAB_BLOCKED",
             "scenario": "GF_V062_CURRENT_PG_FULL_STACK_READBACK",
             "boundary": "DISPOSABLE_CI_NOT_STAGING",
-            "blocker": "Exact licensed Gravity Perks / GP File Upload Pro / GP Advanced Select package inputs are not all configured."
+            "blocker": "Exact licensed Gravity Perks / GP File Upload Pro / GP Advanced Select package URLs are not all configured."
           }
           JSON
               exit 78
@@ -141,6 +142,7 @@ jobs:
             curl -L --fail --retry 4 --retry-all-errors -o "$SRWF_ADVS_ZIP" "$SRWF_ADVS_URL"
             test "$(stat -c '%s' "$SRWF_GP_ZIP")" = "$SRWF_GP_SIZE"
             test "$(stat -c '%s' "$SRWF_FUP_ZIP")" = "$SRWF_FUP_SIZE"
+            test "$(stat -c '%s' "$SRWF_ADVS_ZIP")" = "$SRWF_ADVS_SIZE"
             printf '%s  %s\n' "$SRWF_GP_SHA256" "$SRWF_GP_ZIP" | sha256sum -c -
             printf '%s  %s\n' "$SRWF_FUP_SHA256" "$SRWF_FUP_ZIP" | sha256sum -c -
             printf '%s  %s\n' "$SRWF_ADVS_SHA256" "$SRWF_ADVS_ZIP" | sha256sum -c -
