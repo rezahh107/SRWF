@@ -1,12 +1,13 @@
 contract:
   id: SRWF-SFC
-  version: 1.1.0-event86-sync
-  semantic_status: OWNER_APPROVED_CLOSED_THROUGH_EVENT86
+  version: 1.2.0-current-persiangravity-sync
+  semantic_status: OWNER_APPROVED_CURRENT_PERSIANGRAVITY_SYNC
   binding_status: UNBOUND_UNTIL_STAGING_IMPORT_READBACK
-  authority_event: OWNER-20260908-SFC-BATCH-MAIN-FORM-CONSTRUCTION-READY
-  authority_event_seq: 86
-  candidate_artifact: SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json
-  updated_at: '2026-09-08'
+  authority_event: OWNER-20260916-PERSIANGRAVITY-CURRENT-CONTRACT-SYNC
+  authority_event_seq: 92
+  candidate_artifact: SRWF_GravityForms_Import_v0.6.2_PROVISIONAL.json
+  candidate_artifact_sha256: d371ece6587b956d693eed556b5d6d1aa6d0bb60e10c8d40c73f3750607d7ee8
+  updated_at: '2026-09-16'
 semantics:
   include_in_form: existence in scaffold; independent of value_required
   value_required: mandatory value semantics for relevant actor/write path
@@ -50,7 +51,7 @@ main_form_fields:
   canonical_storage: ASCII_10_DIGITS_PRESERVE_LEADING_ZERO
   normalization: Persian/Arabic digits -> ASCII
   server_validation: Iranian checksum; duplicates allowed
-  ui: PersianGravity ir_national_id
+  ui: PersianGravity pgr_national_id
 - contract_id: DATE_OF_BIRTH_JALALI
   machine_purpose: dob_jalali
   include_in_form: true
@@ -59,9 +60,11 @@ main_form_fields:
   officer_visibility: visible
   officer_editability: true
   binding_status: UNBOUND_RUNTIME_ID
-  canonical_storage: YYYY/MM/DD Jalali
-  ui: PersianGravity date/check_jalali
-  server_validation: valid Jalali; no age rule; staging storage read-back required
+  canonical_storage: ASCII YYYY-MM-DD with Jalali calendar semantics
+  display_format: YYYY/MM/DD Jalali
+  ui: PersianGravity pgr_jalali_date
+  ui_format: ymd_slash
+  server_validation: valid Jalali; no age rule
 - contract_id: STUDENT_GENDER
   machine_purpose: gender_code
   include_in_form: true
@@ -615,3 +618,5 @@ materialization_gaps:
   state: BLOCKED_FOR_REAL_PII_ONLY
 - id: GAP-SFC-RUNTIME-BINDINGS
   state: NOT_PROVEN
+- id: GAP-SFC-V062-FULL-STACK-QUALIFICATION
+  state: PASS_DISPOSABLE_CI_NOT_STAGING

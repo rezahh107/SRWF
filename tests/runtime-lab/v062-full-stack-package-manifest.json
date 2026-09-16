@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "purpose": "Content-addressed identity record for the Owner-supplied licensed plugin packages intended for SRWF v0.6.2 FULL_STACK qualification. Licensed ZIP bytes are intentionally not committed to the repository.",
+  "recorded_at": "2026-09-16",
+  "packages": {
+    "gravity_perks": {
+      "plugin_name": "Gravity Perks",
+      "version": "2.3.16",
+      "archive_size_bytes": 156703,
+      "archive_sha256": "a160d166fb7894b0dfc558ae92e0c230a1336ed2a81e78fa1216be72b1024e7c",
+      "archive_top_level_directory": "gravityperks",
+      "main_plugin_file": "gravityperks/gravityperks.php"
+    },
+    "gp_file_upload_pro": {
+      "plugin_name": "GP File Upload Pro",
+      "version": "1.5.13",
+      "archive_size_bytes": 3503920,
+      "archive_sha256": "fdab5621dc0c1b9d33384696f554ef9ac0d646a70f8cee652a1bc05c43f8f7ce",
+      "archive_top_level_directory": "gp-file-upload-pro",
+      "main_plugin_file": "gp-file-upload-pro/gp-file-upload-pro.php"
+    },
+    "gp_advanced_select": {
+      "plugin_name": "GP Advanced Select",
+      "version": "1.1.21",
+      "archive_size_bytes": 184531,
+      "archive_sha256": "d83424bfac712e73d772e54e8740b828c52b7c118cfa9aac71646233a6fdcca2",
+      "archive_top_level_directory": "gp-advanced-select",
+      "main_plugin_file": "gp-advanced-select/gp-advanced-select.php"
+    }
+  },
+  "evidence_semantics": {
+    "owner_supplied_archives_inspected": true,
+    "archive_integrity_verified_locally": true,
+    "licensed_bytes_committed_to_repository": false,
+    "github_actions_full_stack_exercised": false,
+    "staging_exercised": false
+  }
+}

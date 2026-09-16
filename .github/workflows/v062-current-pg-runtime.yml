@@ -1,0 +1,236 @@
+name: SRWF v0.6.2 Current PersianGravity Runtime
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/v062-current-pg-runtime.yml'
+      - 'tests/runtime-lab/**'
+      - 'docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml'
+      - 'docs/contracts/SEMANTIC_FIELD_CONTRACT.md'
+      - 'runtime/CURRENT_STATE.yaml'
+      - 'runtime/DECISION_HISTORY.jsonl'
+  workflow_dispatch:
+    inputs:
+      runtime_mode:
+        description: Runtime scope. FULL_STACK requires exact licensed package URLs in repository secrets; identities are repository-pinned.
+        type: choice
+        required: true
+        default: MINIMAL_CURRENT_PG
+        options:
+          - MINIMAL_CURRENT_PG
+          - FULL_STACK
+
+permissions:
+  contents: read
+
+jobs:
+  v062-runtime:
+    name: Authentic v0.6.2 import/read-back
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      database:
+        image: mariadb:11.4.8@sha256:bc474f00629f0123c10f9e1bca193a45d18af15a274cf0656acda64f1086c3b6
+        env:
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: '1'
+          MARIADB_DATABASE: wordpress
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mariadb-admin ping -h 127.0.0.1 -uroot --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      SRWF_EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+      SRWF_V062_RUNTIME_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.runtime_mode || 'MINIMAL_CURRENT_PG' }}
+      SRWF_WP_PATH: /tmp/srwf-v062-wordpress
+      SRWF_PACKAGE_DIR: /tmp/srwf-v062-packages
+      SRWF_ARTIFACT_DIR: /tmp/srwf-v062-artifacts
+      SRWF_V062_PATH: ${{ github.workspace }}/tests/runtime-lab/fixtures/SRWF_GravityForms_Import_v0.6.2_PROVISIONAL.json
+      SRWF_V062_SHA256: d371ece6587b956d693eed556b5d6d1aa6d0bb60e10c8d40c73f3750607d7ee8
+      SRWF_V062_SIZE: '350906'
+      SRWF_GF_ZIP: /tmp/srwf-v062-packages/gravityforms-3.1.1.1.zip
+      SRWF_GF_URL: 'https://drive.usercontent.google.com/download?id=10pDROZVyqELKzSzIiJrOyEWKjxS8r22Q&export=download&confirm=t'
+      SRWF_GF_SHA256: 542f56ae0747f3661d1474996527298027db3fb8ed3e6469a6391aaabf61069b
+      SRWF_GF_SIZE: '5300290'
+      SRWF_GF_VERSION: '3.1.1.1'
+      SRWF_PGR_ZIP: /tmp/srwf-v062-packages/persian-gravityforms-4.4.0.zip
+      SRWF_PGR_URL: 'https://github.com/rezahh107/PersianGravity/releases/download/v4.4.0/persian-gravityforms-4.4.0.zip'
+      SRWF_PGR_SHA256: 0033ecf1ef1e43b0f73f792e446b09fad4038973511aa17232e310189b5f4780
+      SRWF_PGR_SIZE: '461704'
+      SRWF_PGR_VERSION: '4.4.0'
+      SRWF_GP_ZIP: /tmp/srwf-v062-packages/gravityperks-2.3.16.zip
+      SRWF_GP_URL: ${{ secrets.SRWF_GP_2_3_16_URL }}
+      SRWF_GP_SHA256: a160d166fb7894b0dfc558ae92e0c230a1336ed2a81e78fa1216be72b1024e7c
+      SRWF_GP_SIZE: '156703'
+      SRWF_GP_VERSION: '2.3.16'
+      SRWF_FUP_ZIP: /tmp/srwf-v062-packages/gp-file-upload-pro-1.5.13.zip
+      SRWF_FUP_URL: ${{ secrets.SRWF_FUP_1_5_13_URL }}
+      SRWF_FUP_SHA256: fdab5621dc0c1b9d33384696f554ef9ac0d646a70f8cee652a1bc05c43f8f7ce
+      SRWF_FUP_SIZE: '3503920'
+      SRWF_FUP_VERSION: '1.5.13'
+      SRWF_ADVS_ZIP: /tmp/srwf-v062-packages/gp-advanced-select-1.1.21.zip
+      SRWF_ADVS_URL: ${{ secrets.SRWF_ADVS_1_1_21_URL }}
+      SRWF_ADVS_SHA256: d83424bfac712e73d772e54e8740b828c52b7c118cfa9aac71646233a6fdcca2
+      SRWF_ADVS_SIZE: '184531'
+      SRWF_ADVS_VERSION: '1.1.21'
+      SRWF_WP_VERSION: '6.8.3'
+      SRWF_PHP_VERSION: '8.2.33'
+      SRWF_WP_CLI: /tmp/wp-cli.phar
+      SRWF_WP_CLI_VERSION: '2.12.0'
+      SRWF_WP_CLI_SHA256: ce34ddd838f7351d6759068d09793f26755463b4a4610a5a5c0a97b68220d85c
+
+    steps:
+      - name: Checkout exact source Head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.SRWF_EXPECTED_HEAD }}
+          fetch-depth: 1
+
+      - name: Set up exact PHP runtime
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        with:
+          php-version: '8.2.33'
+          coverage: none
+          extensions: mysqli
+
+      - name: Verify exact Head and fail-closed artifact guards
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(git rev-parse HEAD)" = "$SRWF_EXPECTED_HEAD"
+          test "$(php -r 'echo PHP_VERSION;')" = "$SRWF_PHP_VERSION"
+          php -l tests/runtime-lab/assert-v062-artifact.php
+          php -l tests/runtime-lab/v062-runtime-readback.php
+          test "$(stat -c '%s' "$SRWF_V062_PATH")" = "$SRWF_V062_SIZE"
+          printf '%s  %s\n' "$SRWF_V062_SHA256" "$SRWF_V062_PATH" | sha256sum -c -
+          php tests/runtime-lab/assert-v062-artifact.php "$SRWF_V062_PATH"
+          bash tests/runtime-lab/v062-guard-self-test.sh
+          mkdir -p "$SRWF_WP_PATH" "$SRWF_PACKAGE_DIR" "$SRWF_ARTIFACT_DIR"
+          printf 'head=%s mode=%s php=%s\n' "$(git rev-parse HEAD)" "$SRWF_V062_RUNTIME_MODE" "$(php -r 'echo PHP_VERSION;')"
+
+      - name: Admit required package inputs
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          curl -L --fail --retry 4 --retry-all-errors -o "$SRWF_GF_ZIP" "$SRWF_GF_URL"
+          curl -L --fail --retry 4 --retry-all-errors -o "$SRWF_PGR_ZIP" "$SRWF_PGR_URL"
+          test "$(stat -c '%s' "$SRWF_GF_ZIP")" = "$SRWF_GF_SIZE"
+          test "$(stat -c '%s' "$SRWF_PGR_ZIP")" = "$SRWF_PGR_SIZE"
+          printf '%s  %s\n' "$SRWF_GF_SHA256" "$SRWF_GF_ZIP" | sha256sum -c -
+          printf '%s  %s\n' "$SRWF_PGR_SHA256" "$SRWF_PGR_ZIP" | sha256sum -c -
+          unzip -tq "$SRWF_GF_ZIP" >/dev/null
+          unzip -tq "$SRWF_PGR_ZIP" >/dev/null
+
+          if [ "$SRWF_V062_RUNTIME_MODE" = 'FULL_STACK' ]; then
+            if [ -z "$SRWF_GP_URL" ] || [ -z "$SRWF_FUP_URL" ] || [ -z "$SRWF_ADVS_URL" ]; then
+              cat > "$SRWF_ARTIFACT_DIR/lab-evidence.json" <<'JSON'
+          {
+            "schema_version": "1.0.0",
+            "lab_status": "LAB_BLOCKED",
+            "scenario": "GF_V062_CURRENT_PG_FULL_STACK_READBACK",
+            "boundary": "DISPOSABLE_CI_NOT_STAGING",
+            "blocker": "Exact licensed Gravity Perks / GP File Upload Pro / GP Advanced Select package URLs are not all configured."
+          }
+          JSON
+              exit 78
+            fi
+            curl -L --fail --retry 4 --retry-all-errors -o "$SRWF_GP_ZIP" "$SRWF_GP_URL"
+            curl -L --fail --retry 4 --retry-all-errors -o "$SRWF_FUP_ZIP" "$SRWF_FUP_URL"
+            curl -L --fail --retry 4 --retry-all-errors -o "$SRWF_ADVS_ZIP" "$SRWF_ADVS_URL"
+            test "$(stat -c '%s' "$SRWF_GP_ZIP")" = "$SRWF_GP_SIZE"
+            test "$(stat -c '%s' "$SRWF_FUP_ZIP")" = "$SRWF_FUP_SIZE"
+            test "$(stat -c '%s' "$SRWF_ADVS_ZIP")" = "$SRWF_ADVS_SIZE"
+            printf '%s  %s\n' "$SRWF_GP_SHA256" "$SRWF_GP_ZIP" | sha256sum -c -
+            printf '%s  %s\n' "$SRWF_FUP_SHA256" "$SRWF_FUP_ZIP" | sha256sum -c -
+            printf '%s  %s\n' "$SRWF_ADVS_SHA256" "$SRWF_ADVS_ZIP" | sha256sum -c -
+            unzip -tq "$SRWF_GP_ZIP" >/dev/null
+            unzip -tq "$SRWF_FUP_ZIP" >/dev/null
+            unzip -tq "$SRWF_ADVS_ZIP" >/dev/null
+          fi
+
+      - name: Install exact WordPress and WP-CLI
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          curl -L --fail --retry 3 -o "$SRWF_WP_CLI" \
+            "https://github.com/wp-cli/wp-cli/releases/download/v${SRWF_WP_CLI_VERSION}/wp-cli-${SRWF_WP_CLI_VERSION}.phar"
+          printf '%s  %s\n' "$SRWF_WP_CLI_SHA256" "$SRWF_WP_CLI" | sha256sum -c -
+          php "$SRWF_WP_CLI" core download --path="$SRWF_WP_PATH" --version="$SRWF_WP_VERSION" --force --skip-content
+          php "$SRWF_WP_CLI" config create --path="$SRWF_WP_PATH" \
+            --dbname=wordpress --dbuser=root --dbpass='' --dbhost=127.0.0.1:3306 --skip-check
+          admin_password="$(openssl rand -hex 24)"
+          php "$SRWF_WP_CLI" core install --path="$SRWF_WP_PATH" \
+            --url=http://127.0.0.1:8080 --title='SRWF v0.6.2 Runtime Lab' \
+            --admin_user=runtime_admin --admin_password="$admin_password" \
+            --admin_email='runtime@example.invalid' --skip-email
+          unset admin_password
+          test "$(php "$SRWF_WP_CLI" core version --path="$SRWF_WP_PATH")" = "$SRWF_WP_VERSION"
+
+      - name: Install and activate authentic plugin stack
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          unzip -q "$SRWF_GF_ZIP" -d "$SRWF_WP_PATH/wp-content/plugins"
+          unzip -q "$SRWF_PGR_ZIP" -d "$SRWF_WP_PATH/wp-content/plugins"
+          grep -q '^Version: 3\.1\.1\.1$' "$SRWF_WP_PATH/wp-content/plugins/gravityforms/gravityforms.php"
+          php "$SRWF_WP_CLI" plugin activate gravityforms --path="$SRWF_WP_PATH"
+          php "$SRWF_WP_CLI" plugin activate persian-gravityforms --path="$SRWF_WP_PATH"
+          test "$(php "$SRWF_WP_CLI" plugin get gravityforms --field=version --path="$SRWF_WP_PATH")" = "$SRWF_GF_VERSION"
+          test "$(php "$SRWF_WP_CLI" plugin get persian-gravityforms --field=version --path="$SRWF_WP_PATH")" = "$SRWF_PGR_VERSION"
+
+          if [ "$SRWF_V062_RUNTIME_MODE" = 'FULL_STACK' ]; then
+            unzip -q "$SRWF_GP_ZIP" -d "$SRWF_WP_PATH/wp-content/plugins"
+            unzip -q "$SRWF_FUP_ZIP" -d "$SRWF_WP_PATH/wp-content/plugins"
+            unzip -q "$SRWF_ADVS_ZIP" -d "$SRWF_WP_PATH/wp-content/plugins"
+            php "$SRWF_WP_CLI" plugin activate gravityperks --path="$SRWF_WP_PATH"
+            php "$SRWF_WP_CLI" plugin activate gp-file-upload-pro --path="$SRWF_WP_PATH"
+            php "$SRWF_WP_CLI" plugin activate gp-advanced-select --path="$SRWF_WP_PATH"
+            test "$(php "$SRWF_WP_CLI" plugin get gravityperks --field=version --path="$SRWF_WP_PATH")" = "$SRWF_GP_VERSION"
+            test "$(php "$SRWF_WP_CLI" plugin get gp-file-upload-pro --field=version --path="$SRWF_WP_PATH")" = "$SRWF_FUP_VERSION"
+            test "$(php "$SRWF_WP_CLI" plugin get gp-advanced-select --field=version --path="$SRWF_WP_PATH")" = "$SRWF_ADVS_VERSION"
+          fi
+
+      - name: Import v0.6.2 and prove current PersianGravity read-back
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          php "$SRWF_WP_CLI" --path="$SRWF_WP_PATH" eval-file tests/runtime-lab/v062-runtime-readback.php
+          evidence="$SRWF_ARTIFACT_DIR/v062-runtime-evidence.json"
+          test -s "$evidence"
+          grep -q '"lab_status": "LAB_PASS"' "$evidence"
+          grep -q '"national_type": "pgr_national_id"' "$evidence"
+          grep -q '"dob_type": "pgr_jalali_date"' "$evidence"
+          grep -q '"dob_canonical_sample": "1400-01-02"' "$evidence"
+          test -s "$SRWF_ARTIFACT_DIR/v062-authentic-gf-roundtrip-export.json"
+
+      - name: Publish concise runtime summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '## SRWF v0.6.2 Runtime Lab'
+            echo
+            echo "- exact head: \`$SRWF_EXPECTED_HEAD\`"
+            echo "- mode: \`$SRWF_V062_RUNTIME_MODE\`"
+            echo "- candidate: \`$SRWF_V062_SHA256\` / $SRWF_V062_SIZE bytes"
+            echo "- Gravity Forms: \`$SRWF_GF_VERSION\` / \`$SRWF_GF_SHA256\`"
+            echo "- PersianGravity: \`$SRWF_PGR_VERSION\` / \`$SRWF_PGR_SHA256\`"
+            if [ -s "$SRWF_ARTIFACT_DIR/lab-evidence.json" ]; then
+              echo
+              echo '```json'
+              cat "$SRWF_ARTIFACT_DIR/lab-evidence.json"
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload runtime evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: srwf-v062-current-pg-runtime-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/srwf-v062-artifacts
+          if-no-files-found: warn
+          retention-days: 14

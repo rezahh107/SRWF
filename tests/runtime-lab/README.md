@@ -1,43 +1,63 @@
 # SRWF CI Runtime Lab
 
-This directory owns the smallest disposable CI preflight for the current Stage 0 Gravity Forms scaffold. It is a test harness only; it is not a staging controller, workflow authority, persistent executor, or deployment system.
+This directory owns bounded disposable CI preflights for Stage 0 Gravity Forms scaffold candidates. It is a test harness only; it is not a staging controller, workflow authority, persistent executor, or deployment system.
 
-## Current scenario
+## Current successor qualification — v0.6.2
 
-`GF_V060_IMPORT_READBACK`:
+`GF_V062_CURRENT_PG_MINIMAL_READBACK` qualifies the material change from the historical v0.6.1 candidate against the maintained PersianGravity release:
 
-1. Admit only the exact `SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json` bytes whose pinned SHA-256 is `445f146b6c6d9ecf7badecce23b19be9dee59b653ec7c78c4537decaa3b31c89`.
-2. Boot disposable WordPress + MariaDB on a GitHub-hosted runner.
-3. Install the real Owner-authorized Gravity Forms `3.1.1.1` package pinned by SHA-256 `542f56ae0747f3661d1474996527298027db3fb8ed3e6469a6391aaabf61069b`.
-4. Import through Gravity Forms' own `GFExport::import_file()` path.
-5. Force the imported form inactive as a fail-safe and read it back through `GFAPI`.
-6. Compare source-defined form and field settings against runtime read-back. `confirmations` and `notifications` are source-defined settings and participate in equivalence; only demonstrated runtime-owned form identity/state properties are excluded.
-7. Record generated CI Form/Field IDs as evidence only. They are disposable and must never populate `docs/contracts/IMPLEMENTATION_MAPPING.yaml`.
+1. Admit only the repository-managed raw JSON at `tests/runtime-lab/fixtures/SRWF_GravityForms_Import_v0.6.2_PROVISIONAL.json` with exact SHA-256 `d371ece6587b956d693eed556b5d6d1aa6d0bb60e10c8d40c73f3750607d7ee8` and size `350906` bytes.
+2. Run the fail-closed static contract guard plus its negative self-tests.
+3. Boot disposable WordPress `6.8.3` + MariaDB on a GitHub-hosted runner.
+4. Install authentic Gravity Forms `3.1.1.1` pinned by SHA-256 `542f56ae0747f3661d1474996527298027db3fb8ed3e6469a6391aaabf61069b`.
+5. Install the published PersianGravity `4.4.0` release artifact pinned by SHA-256 `0033ecf1ef1e43b0f73f792e446b09fad4038973511aa17232e310189b5f4780`.
+6. Import through Gravity Forms' own `GFExport::import_file()` path, keep the form inactive, and read it back through `GFAPI`.
+7. Require `national_id` to hydrate as `PGR_GF_Field_National_ID` / `pgr_national_id` and prove Persian-digit normalization, canonical ten-ASCII-digit persistence, valid checksum acceptance, and invalid checksum rejection.
+8. Require `dob_jalali` to hydrate as `PGR_GF_Field_Jalali_Date` / `pgr_jalali_date`, prove `ymd_slash` Jalali presentation, canonical ASCII `YYYY-MM-DD` persistence, valid Jalali acceptance, and invalid Jalali rejection.
+9. Preserve the unchanged school/photo metadata and perform authentic Gravity Forms export preparation to prove the current custom field types survive round-trip serialization.
 
-The first scenario intentionally does not activate Gravity Flow, PersianGravity, Gravity Perks, GravityView, GNM, or finance/cheque components because it tests import/read-back persistence only. Behavior owned by those plugins remains outside this scenario until a concrete SRWF test requires it.
+The v0.6.2 automatic lane deliberately proves only the changed Gravity Forms + PersianGravity boundary. It does **not** convert historical paid-stack evidence into new v0.6.2 proof.
 
-## Source admission
+### v0.6.2 full-stack mode
 
-The exact scaffold may be supplied through a repository-managed fixture or an explicit Owner-authorized public dispatch URL.
+`GF_V062_CURRENT_PG_FULL_STACK_READBACK` additionally requires the exact authentic paid stack:
 
-The repository-managed representation may be either:
+- Gravity Perks `2.3.16`, SHA-256 `a160d166fb7894b0dfc558ae92e0c230a1336ed2a81e78fa1216be72b1024e7c`;
+- GP File Upload Pro `1.5.13`, SHA-256 `fdab5621dc0c1b9d33384696f554ef9ac0d646a70f8cee652a1bc05c43f8f7ce`;
+- GP Advanced Select `1.1.21`, SHA-256 `d83424bfac712e73d772e54e8740b828c52b7c118cfa9aac71646233a6fdcca2`.
 
-- the raw JSON at `tests/runtime-lab/fixtures/SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json`; or
-- the deterministic gzip+base64 transport split across `tests/runtime-lab/fixtures/SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json.gz.b64.part-{00..03}` (with a single `.json.gz.b64` file also supported).
+The manual FULL_STACK lane obtains licensed package URLs/hashes only from repository secrets. Missing exact inputs produce `LAB_BLOCKED`; they are never replaced with mocks, guessed metadata, stale signed URLs, or substitute packages. When admitted, the probe also verifies the File Upload Pro 3:4 crop/max-dimension interpretation and GP Advanced Select recognition of `school_code`.
 
-The encoded fixture is transport only: CI reconstructs the original JSON bytes before use. Every repository-managed or dispatch-source path is admitted only after the reconstructed/downloaded JSON matches the same pinned SHA-256. An absent or mismatching scaffold is not replaced, regenerated, mocked, or treated as success.
+Exact-head FULL_STACK run `35135801470` on `d2364109d7aa267801e61d67ebed1499a4f7cea7` passed with the exact paid-stack identities above. v0.6.2 is therefore the current provisional staging-import candidate. Acceptance is synchronized in runtime decision events `92` and `93`. This remains disposable CI evidence only: staging was not exercised, CI IDs are non-authoritative, and `LAB_PASS` is not staging or production proof.
 
-## Canonical terminal evidence
+## Historical accepted preflight — v0.6.0
 
-`tests/runtime-lab/finalize-evidence.py` is the single terminal evidence finalizer for all reachable Lab phases after checkout. It preserves an already valid scenario evidence file when the completed phase outcomes are consistent with it; otherwise it deterministically materializes the first relevant terminal `LAB_BLOCKED` or `LAB_FAIL` state. Missing or corrupt terminal evidence is itself finalized as `LAB_FAIL` and cannot produce a green job.
+`GF_V060_IMPORT_READBACK` remains historical evidence for the exact v0.6.0 scaffold:
 
-The GitHub Step Summary and final enforcement read the same finalized `lab-evidence.json`, verify its recorded SHA-256, and the artifact upload contains that canonical file plus its checksum. Phase-local helpers do not independently manufacture authoritative terminal evidence.
+1. Admit only `SRWF_GravityForms_Import_v0.6.0_PROVISIONAL.json` bytes whose pinned SHA-256 is `445f146b6c6d9ecf7badecce23b19be9dee59b653ec7c78c4537decaa3b31c89`.
+2. Boot disposable WordPress + MariaDB.
+3. Install authentic Gravity Forms `3.1.1.1`.
+4. Import through `GFExport::import_file()`.
+5. Keep the imported form inactive and read it back through `GFAPI`.
+6. Treat generated CI Form/Field IDs as disposable evidence only.
 
-## Evidence states
+The existing `.github/workflows/ci-runtime-lab.yml` remains the implementation of that historical reusable lane. Its accepted v0.6.0 result does not prove current PersianGravity custom-field behavior.
 
-- `LAB_PASS`: the exact admitted scaffold completed the real Gravity Forms import/read-back assertions in disposable CI.
-- `LAB_FAIL`: the scenario/runtime/assertion or Lab guard executed and a required check failed.
-- `LAB_BLOCKED`: a required exact input or pre-runtime dependency prevented the intended runtime boundary from being exercised.
-- `NOT_TESTED`: used only for explicitly unexercised sub-boundaries.
+## Historical v0.6.1 paid-stack evidence
 
-`LAB_BLOCKED` and `LAB_FAIL` remain failing job outcomes. A Lab result is never `OBSERVED_IN_STAGING`, staging PASS, production proof, or production readiness. Finance/manual-cheque behavior and the GP Nested Forms cheque POC remain suspended/deferred and are not tested here.
+The closed evidence-only PR #11 / run `35014441345` proved the exact v0.6.1 candidate with authentic Gravity Forms `3.1.1.1`, Gravity Perks `2.3.16`, and GP File Upload Pro `1.5.13`. That run established executable/readable `student_photo` crop `3:4`, max `1200x1600`, no min/exact dimensions, frontend localization, and Gravity Forms round-trip preservation.
+
+That evidence remains valid historical evidence for those exact bytes and plugin identities. It does not prove the v0.6.2 successor, GP Advanced Select `1.1.21`, staging, or production behavior.
+
+## Source admission and evidence semantics
+
+Exact hashes are admission boundaries, not documentation hints. An absent/mismatching artifact or package is not regenerated, mocked, silently upgraded, or treated as success.
+
+Evidence states:
+
+- `LAB_PASS`: the exact admitted inputs completed the assertions in disposable CI.
+- `LAB_FAIL`: the runtime/assertion or guard executed and a required check failed.
+- `LAB_BLOCKED`: a required exact input prevented the intended boundary from being exercised.
+- `NOT_TESTED`: an explicitly unexercised sub-boundary.
+
+`LAB_PASS` is never `OBSERVED_IN_STAGING`, staging PASS, production proof, or production readiness. CI Form/Field IDs are disposable and must never populate `docs/contracts/IMPLEMENTATION_MAPPING.yaml`. Synthetic values only. Finance/manual-cheque behavior and the GP Nested Forms cheque POC remain suspended/deferred and are not activated or validated by these lanes.
