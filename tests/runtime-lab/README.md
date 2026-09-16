@@ -28,7 +28,7 @@ The v0.6.2 automatic lane deliberately proves only the changed Gravity Forms + P
 
 The manual FULL_STACK lane obtains licensed package URLs/hashes only from repository secrets. Missing exact inputs produce `LAB_BLOCKED`; they are never replaced with mocks, guessed metadata, stale signed URLs, or substitute packages. When admitted, the probe also verifies the File Upload Pro 3:4 crop/max-dimension interpretation and GP Advanced Select recognition of `school_code`.
 
-Exact-head FULL_STACK run `35135801470` on `d2364109d7aa267801e61d67ebed1499a4f7cea7` passed with the exact paid-stack identities above. v0.6.2 is therefore the current provisional staging-import candidate. This remains disposable CI evidence only: staging was not exercised, CI IDs are non-authoritative, and `LAB_PASS` is not staging or production proof.
+Exact-head FULL_STACK run `35135801470` on `d2364109d7aa267801e61d67ebed1499a4f7cea7` passed with the exact paid-stack identities above. v0.6.2 is therefore the current provisional staging-import candidate. Acceptance is synchronized in runtime decision events `92` and `93`. This remains disposable CI evidence only: staging was not exercised, CI IDs are non-authoritative, and `LAB_PASS` is not staging or production proof.
 
 ## Historical accepted preflight — v0.6.0
 
