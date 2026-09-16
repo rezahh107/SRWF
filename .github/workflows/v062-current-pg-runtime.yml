@@ -1,0 +1,31 @@
+name: SRWF v0.6.2 Current PersianGravity Runtime
+
+# Registration-only shim for GitHub workflow_dispatch discovery on the default branch.
+# The reviewed PR branch contains the full qualification workflow at this same path.
+# GitHub dispatches the workflow version from the selected ref; this default-branch
+# shim must never be treated as runtime qualification evidence by itself.
+on:
+  workflow_dispatch:
+    inputs:
+      runtime_mode:
+        description: Runtime scope. FULL_STACK must target an explicitly reviewed qualification branch.
+        type: choice
+        required: true
+        default: MINIMAL_CURRENT_PG
+        options:
+          - MINIMAL_CURRENT_PG
+          - FULL_STACK
+
+permissions:
+  contents: read
+
+jobs:
+  registration-guard:
+    name: Default-branch dispatch guard
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Refuse execution of registration shim
+        shell: bash
+        run: |
+          echo "::error::Registration shim only. Dispatch this workflow against the explicitly reviewed qualification branch containing the full workflow."
+          exit 78
