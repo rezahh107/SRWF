@@ -24,11 +24,11 @@ The v0.6.2 automatic lane deliberately proves only the changed Gravity Forms + P
 
 - Gravity Perks `2.3.16`, SHA-256 `a160d166fb7894b0dfc558ae92e0c230a1336ed2a81e78fa1216be72b1024e7c`;
 - GP File Upload Pro `1.5.13`, SHA-256 `fdab5621dc0c1b9d33384696f554ef9ac0d646a70f8cee652a1bc05c43f8f7ce`;
-- GP Advanced Select `1.1.21`, with its exact Owner-authorized package SHA-256 supplied alongside the package.
+- GP Advanced Select `1.1.21`, SHA-256 `d83424bfac712e73d772e54e8740b828c52b7c118cfa9aac71646233a6fdcca2`.
 
 The manual FULL_STACK lane obtains licensed package URLs/hashes only from repository secrets. Missing exact inputs produce `LAB_BLOCKED`; they are never replaced with mocks, guessed metadata, stale signed URLs, or substitute packages. When admitted, the probe also verifies the File Upload Pro 3:4 crop/max-dimension interpretation and GP Advanced Select recognition of `school_code`.
 
-Until an exact-head FULL_STACK run passes, v0.6.2 remains a successor **under qualification** and must not be promoted as the governed staging-import candidate merely because the minimal current-PersianGravity lane passes.
+Exact-head FULL_STACK run `35135801470` on `d2364109d7aa267801e61d67ebed1499a4f7cea7` passed with the exact paid-stack identities above. v0.6.2 is therefore the current provisional staging-import candidate. This remains disposable CI evidence only: staging was not exercised, CI IDs are non-authoritative, and `LAB_PASS` is not staging or production proof.
 
 ## Historical accepted preflight — v0.6.0
 

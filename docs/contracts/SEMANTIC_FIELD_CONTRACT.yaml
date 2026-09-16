@@ -5,9 +5,8 @@ contract:
   binding_status: UNBOUND_UNTIL_STAGING_IMPORT_READBACK
   authority_event: OWNER-20260916-PERSIANGRAVITY-CURRENT-CONTRACT-SYNC
   authority_event_seq: 92
-  candidate_artifact: SRWF_GravityForms_Import_v0.6.1_PROVISIONAL.json
-  candidate_artifact_under_qualification: SRWF_GravityForms_Import_v0.6.2_PROVISIONAL.json
-  candidate_artifact_under_qualification_sha256: d371ece6587b956d693eed556b5d6d1aa6d0bb60e10c8d40c73f3750607d7ee8
+  candidate_artifact: SRWF_GravityForms_Import_v0.6.2_PROVISIONAL.json
+  candidate_artifact_sha256: d371ece6587b956d693eed556b5d6d1aa6d0bb60e10c8d40c73f3750607d7ee8
   updated_at: '2026-09-16'
 semantics:
   include_in_form: existence in scaffold; independent of value_required
@@ -620,4 +619,4 @@ materialization_gaps:
 - id: GAP-SFC-RUNTIME-BINDINGS
   state: NOT_PROVEN
 - id: GAP-SFC-V062-FULL-STACK-QUALIFICATION
-  state: PENDING
+  state: PASS_DISPOSABLE_CI_NOT_STAGING

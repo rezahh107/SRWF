@@ -7,7 +7,7 @@
 
 این projection تصمیم‌های semantic Owner تا همگام‌سازی 2026-09-16 با PersianGravity جاری را خلاصه می‌کند. وجود field با اجباری بودن value یکی نیست. تصمیم scope مورخ 2026-09-15 semantic rows مالی را بازنویسی نمی‌کند؛ فقط تعیین می‌کند فعلاً اجرای آن‌ها در مسیر جاری لازم نیست.
 
-`SRWF_GravityForms_Import_v0.6.1_PROVISIONAL.json` آخرین staging candidate دارای full-stack qualification پذیرفته‌شده است. `SRWF_GravityForms_Import_v0.6.2_PROVISIONAL.json` successor تحت qualification است و تا exact-head FULL_STACK PASS نباید صرفاً بر مبنای minimal current-PersianGravity PASS به staging candidate ارتقا یابد.
+`SRWF_GravityForms_Import_v0.6.2_PROVISIONAL.json` با SHA-256 `d371ece6587b956d693eed556b5d6d1aa6d0bb60e10c8d40c73f3750607d7ee8` اکنون staging candidate موقت جاری است. exact-head FULL_STACK run `35135801470` روی `d2364109d7aa267801e61d67ebed1499a4f7cea7` با PersianGravity 4.4.0 و paid stack واقعی `LAB_PASS` شد؛ این فقط disposable-CI proof است و Import واقعی staging هنوز انجام نشده است.
 
 ## فرم عمومی
 
@@ -60,4 +60,4 @@ Host آینده انتخاب‌شده `GP Nested Forms` است و POC همچنا
 
 ## Gate باقی‌مانده
 
-SFC semantics فرم اصلی با PersianGravity جاری همگام است، اما `DOCUMENTED != OBSERVED_IN_STAGING`: v0.6.2 full-stack qualification، Import واقعی staging، ID mapping، server bindings فعالِ غیرمالی، school filtering، `V-01/V-03` و سایر validationهای active scope هنوز `NOT_PROVEN` هستند. Finance/manual-cheque bindings و Nested Forms POC فعلاً deferred هستند و blocker جاری نیستند. تا Privacy/Retention sign-off فقط synthetic data.
+SFC semantics فرم اصلی با PersianGravity جاری همگام است و v0.6.2 exact-head FULL_STACK در disposable CI پاس شده، اما `LAB_PASS != OBSERVED_IN_STAGING`: Import واقعی staging، ID mapping، server bindings فعالِ غیرمالی، school filtering، `V-01/V-03` و سایر validationهای active scope هنوز `NOT_PROVEN` هستند. Finance/manual-cheque bindings و Nested Forms POC فعلاً deferred هستند و blocker جاری نیستند. تا Privacy/Retention sign-off فقط synthetic data.
