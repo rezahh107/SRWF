@@ -1,0 +1,275 @@
+name: SRWF v0.6.2 Acceptance State Sync
+
+on:
+  push:
+    branches:
+      - fix/v062-current-persiangravity-artifact
+
+permissions:
+  contents: write
+
+jobs:
+  sync-accepted-evidence:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout qualification branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: fix/v062-current-persiangravity-artifact
+          fetch-depth: 1
+
+      - name: Apply fail-closed SSOT acceptance sync
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python3 <<'PY'
+          from pathlib import Path
+          import json
+
+          RUN = 35135801470
+          HEAD = "d2364109d7aa267801e61d67ebed1499a4f7cea7"
+          ARTIFACT_ID = 10462764699
+          ARTIFACT_DIGEST = "sha256:538e9b2fce0c5169fd310d4fd0859dde5ccb2d99c2ac5fe25c3e3f923c78a094"
+          EVIDENCE_SHA = "b06df5607c4f62c14fbe250adf7bd5edbe18587fa1eada169fe66ecf0b763a1f"
+          ROUNDTRIP_SHA = "417b4c05f24625ef4d8ce46a4e6749d504401d44abeac47d0878696056c72fdc"
+          CANDIDATE = "SRWF_GravityForms_Import_v0.6.2_PROVISIONAL.json"
+          CANDIDATE_SHA = "d371ece6587b956d693eed556b5d6d1aa6d0bb60e10c8d40c73f3750607d7ee8"
+
+          def replace_once(text, old, new, label):
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"{label}: expected exactly one match, found {count}")
+              return text.replace(old, new, 1)
+
+          # Runtime CURRENT_STATE: record the Owner sync (event92) and the observed
+          # exact-head FULL_STACK qualification (event93) without claiming staging.
+          state_path = Path("runtime/CURRENT_STATE.yaml")
+          state = state_path.read_text(encoding="utf-8")
+          state = replace_once(state, "state_version: 19\n", "state_version: 21\n", "state_version")
+          state = replace_once(state, "updated_at: '2026-09-15'\n", "updated_at: '2026-09-16'\n", "updated_at")
+          state = replace_once(state, "  decision: OBS-20260915-CI-RUNTIME-LAB-V061-FUP-PASS\n", "  decision: OBS-20260916-CI-RUNTIME-LAB-V062-FULL-STACK-PASS\n", "current.decision")
+          state = replace_once(state, "  candidate: GF_IMPORT_SCAFFOLD_V061_PROVISIONAL\n", "  candidate: GF_IMPORT_SCAFFOLD_V062_PROVISIONAL\n", "current.candidate")
+          state = replace_once(
+              state,
+              "  last_observed_result: CI_RUNTIME_LAB_V061_FUP_PASS / EXACT_CANDIDATE_SHA_VERIFIED / GF_3_1_1_1_GP_2_3_16_FUP_1_5_13_REAL_IMPORT_READBACK_PASS / STUDENT_PHOTO_3_4_MAX_1200X1600_RUNTIME_AND_FRONTEND_LOCALIZATION_PASS / GF_ROUNDTRIP_EXPORT_PRESERVED / FORM_INACTIVE / 37_FIELDS / STAGING_IMPORT_UNEXECUTED / FINANCE_SUSPENSION_PRESERVED\n",
+              "  last_observed_result: CI_RUNTIME_LAB_V062_FULL_STACK_PASS / EXACT_CANDIDATE_SHA_VERIFIED / GF_3_1_1_1_PG_4_4_0_GP_2_3_16_FUP_1_5_13_ADVS_1_1_21_REAL_IMPORT_READBACK_PASS / PGR_NATIONAL_ID_AND_JALALI_DATE_RUNTIME_PASS / STUDENT_PHOTO_3_4_MAX_1200X1600_RUNTIME_PASS / GP_ADVANCED_SELECT_SCHOOL_CODE_RECOGNIZED / GF_ROUNDTRIP_EXPORT_PRESERVED / FORM_INACTIVE / 37_FIELDS / STAGING_IMPORT_UNEXECUTED / FINANCE_SUSPENSION_PRESERVED\n",
+              "current.last_observed_result",
+          )
+          state = replace_once(state, "  next_action_id: STAGING_IMPORT_GF_V061_SYNTHETIC\n", "  next_action_id: STAGING_IMPORT_GF_V062_SYNTHETIC\n", "current.next_action_id")
+
+          lines = state.splitlines()
+          next_idx = next((i for i, line in enumerate(lines) if line.startswith("  next_action: ")), None)
+          if next_idx is None:
+              raise SystemExit("current.next_action not found")
+          lines[next_idx] = (
+              "  next_action: Execute the governed real staging import of the exact "
+              f"{CANDIDATE} bytes matching SHA-256 {CANDIDATE_SHA} while the form remains inactive and using synthetic data only, "
+              "then read back actual staging Form/Field IDs and critical settings including maintained PersianGravity national_id/dob field types, "
+              "GP File Upload Pro 3:4 crop and maximum 1200x1600, and GP Advanced Select recognition/configuration for school_code before Implementation Mapping is bound. "
+              "Never bind disposable CI Form/Field IDs into Implementation Mapping. Current executor must use an existing authorized staging identity/control path; "
+              "do not introduce a standalone remote-control platform/plugin merely to obtain staging access."
+          )
+
+          blocker_idx = next((i for i, line in enumerate(lines) if line == "- id: GF_STAGING_IMPORT_UNEXECUTED"), None)
+          if blocker_idx is None or blocker_idx + 1 >= len(lines) or not lines[blocker_idx + 1].startswith("  effect: "):
+              raise SystemExit("GF_STAGING_IMPORT_UNEXECUTED blocker shape changed")
+          lines[blocker_idx + 1] = (
+              "  effect: exact v0.6.2 disposable authentic FULL_STACK import/read-back passed on run 35135801470 with Gravity Forms 3.1.1.1, "
+              "PersianGravity 4.4.0, Gravity Perks 2.3.16, GP File Upload Pro 1.5.13 and GP Advanced Select 1.1.21; maintained national_id/dob types, "
+              "student_photo 3:4 crop/max 1200x1600/no min-or-exact dimensions, school_code Advanced Select recognition, and authentic GF round-trip preservation passed; "
+              "actual Gravity Forms staging import/post-import settings/ID read-back remains unexecuted; CI-generated IDs are disposable and must not be bound into Implementation Mapping"
+          )
+          state = "\n".join(lines) + "\n"
+
+          qualification_block = f"""  v062_full_stack_runtime_qualification:
+            observed_status: LAB_PASS
+            scenario: GF_V062_CURRENT_PG_FULL_STACK_READBACK
+            boundary: DISPOSABLE_CI_NOT_STAGING
+            source_artifact: {CANDIDATE}
+            source_artifact_sha256: {CANDIDATE_SHA}
+            source_artifact_size: 350906
+            lab_run: {RUN}
+            lab_head: {HEAD}
+            evidence_artifact_id: {ARTIFACT_ID}
+            evidence_artifact_digest: {ARTIFACT_DIGEST}
+            evidence_file_sha256: {EVIDENCE_SHA}
+            roundtrip_export_sha256: {ROUNDTRIP_SHA}
+            wordpress_version: 6.8.3
+            php_version: 8.2.33
+            database: MariaDB 11.4.8
+            gravityforms_version: 3.1.1.1
+            gravityforms_package_sha256: 542f56ae0747f3661d1474996527298027db3fb8ed3e6469a6391aaabf61069b
+            persiangravity_version: 4.4.0
+            persiangravity_package_sha256: 0033ecf1ef1e43b0f73f792e446b09fad4038973511aa17232e310189b5f4780
+            gravity_perks_version: 2.3.16
+            gravity_perks_package_sha256: a160d166fb7894b0dfc558ae92e0c230a1336ed2a81e78fa1216be72b1024e7c
+            gp_file_upload_pro_version: 1.5.13
+            gp_file_upload_pro_package_sha256: fdab5621dc0c1b9d33384696f554ef9ac0d646a70f8cee652a1bc05c43f8f7ce
+            gp_advanced_select_version: 1.1.21
+            gp_advanced_select_package_sha256: d83424bfac712e73d772e54e8740b828c52b7c118cfa9aac71646233a6fdcca2
+            form_inactive: true
+            field_count: 37
+            national_type: pgr_national_id
+            dob_type: pgr_jalali_date
+            student_photo_aspect_ratio: 0.75
+            student_photo_max_width: 1200
+            student_photo_max_height: 1600
+            student_photo_min_dimensions: null
+            student_photo_exact_dimensions: null
+            gp_advanced_select_school_code_recognized: true
+            authentic_gf_roundtrip_preserved: true
+            full_paid_stack_exercised: true
+            staging_exercised: false
+            ci_ids_authoritative_for_mapping: false
+            proof_pr: 12
+          """
+          if "  v062_full_stack_runtime_qualification:\n" in state:
+              raise SystemExit("v062 qualification block already exists unexpectedly")
+          state = replace_once(state, "  project_package:\n", qualification_block + "  project_package:\n", "qualification insertion")
+          state = replace_once(state, "  last_event_seq: 91\n", "  last_event_seq: 93\n", "history.last_event_seq")
+          state = replace_once(state, "  last_event_id: OBS-20260915-CI-RUNTIME-LAB-V061-FUP-PASS\n", "  last_event_id: OBS-20260916-CI-RUNTIME-LAB-V062-FULL-STACK-PASS\n", "history.last_event_id")
+          state_path.write_text(state, encoding="utf-8")
+
+          # Decision history: event92 is the Owner semantic synchronization already
+          # referenced by the contract; event93 records the actual exact-head runtime proof.
+          history_path = Path("runtime/DECISION_HISTORY.jsonl")
+          history_text = history_path.read_text(encoding="utf-8")
+          history_rows = [json.loads(line) for line in history_text.splitlines() if line.strip()]
+          if history_rows[-1].get("event_seq") != 91:
+              raise SystemExit(f"expected event_seq 91, got {history_rows[-1].get('event_seq')}")
+
+          event92 = {
+              "schema_version": 1,
+              "event_seq": 92,
+              "date_time": "2026-09-16",
+              "stage_gate": "STAGE_0 / SEMANTIC_FIELD_CONTRACT_CURRENT_PERSIANGRAVITY_SYNC",
+              "decision_id": "OWNER-20260916-PERSIANGRAVITY-CURRENT-CONTRACT-SYNC",
+              "need": "Reconcile SRWF Gravity Forms field semantics and the next reproducible scaffold with the maintained current PersianGravity release instead of preserving historical custom/native field contracts that are no longer maintained.",
+              "candidates": "Preserve historical ir_national_id/native-date semantics; invent compatibility aliases; synchronize SRWF to maintained PersianGravity 4.4.0 field contracts while preserving unrelated SRWF semantics.",
+              "probe_or_evidence": "Owner explicitly instructed SRWF to align with current PersianGravity. Maintained PersianGravity 4.4.0 release package SHA-256 0033ecf1ef1e43b0f73f792e446b09fad4038973511aa17232e310189b5f4780 registers pgr_national_id and pgr_jalali_date. The repository-managed v0.6.2 successor SHA-256 d371ece6587b956d693eed556b5d6d1aa6d0bb60e10c8d40c73f3750607d7ee8 materializes those current types with jalali_format=ymd_slash while preserving the unrelated 37-field SRWF scaffold contract.",
+              "observed_result": "Historical ir_national_id and native Gravity Forms date/check_jalali serialization are not the maintained current PersianGravity contract. v0.6.2 statically materializes pgr_national_id and pgr_jalali_date plus the previously locked school/photo/catalog semantics; no staging import occurred as part of this Owner synchronization decision.",
+              "decision": "Synchronize SRWF to maintained PersianGravity: national_id uses pgr_national_id with canonical ten ASCII digits preserving leading zero; dob_jalali uses pgr_jalali_date with ymd_slash presentation and canonical ASCII YYYY-MM-DD Jalali persistence; no age rule is added. Preserve all unrelated SRWF semantics and require authentic exact-head qualification before v0.6.2 becomes the governed staging-import candidate.",
+              "reopen_condition": "Maintained PersianGravity field contracts materially change, Owner supersedes the synchronization, or authentic runtime/staging evidence contradicts the accepted current-field semantics.",
+              "status": "OWNER_DECISION_CONFIRMED / CURRENT_PERSIANGRAVITY_SYNC / V062_EXACT_HEAD_QUALIFICATION_REQUIRED / STAGING_IMPORT_UNEXECUTED",
+              "source": {
+                  "kind": "OWNER_DECISION_AND_MAINTAINED_PERSIANGRAVITY_4_4_0",
+                  "persiangravity_version": "4.4.0",
+                  "persiangravity_package_sha256": "0033ecf1ef1e43b0f73f792e446b09fad4038973511aa17232e310189b5f4780",
+                  "candidate": CANDIDATE,
+                  "candidate_sha256": CANDIDATE_SHA,
+              },
+          }
+          event93 = {
+              "schema_version": 1,
+              "event_seq": 93,
+              "date_time": "2026-09-16T18:40:48Z",
+              "stage_gate": "STAGE_0 / CI_RUNTIME_LAB_V062_CURRENT_PERSIANGRAVITY_FULL_STACK_ACCEPTANCE",
+              "decision_id": "OBS-20260916-CI-RUNTIME-LAB-V062-FULL-STACK-PASS",
+              "need": "Close the event92 exact-head qualification gate for the repository-managed v0.6.2 successor using the materially relevant authentic current PersianGravity plus paid Gravity Perks stack before any real staging import.",
+              "candidates": "Rely on minimal current-PersianGravity proof; reuse historical v0.6.1 paid-stack evidence; execute v0.6.2 exact-head FULL_STACK import/read-back with exact admitted packages and fail-closed assertions.",
+              "probe_or_evidence": f"GitHub Actions run {RUN} event=workflow_dispatch completed success on exact head {HEAD} in FULL_STACK mode. Candidate SHA-256 {CANDIDATE_SHA} / 350906 bytes passed static and negative guards. Authentic WordPress 6.8.3, PHP 8.2.33, MariaDB 11.4.8, Gravity Forms 3.1.1.1, PersianGravity 4.4.0, Gravity Perks 2.3.16, GP File Upload Pro 1.5.13 and GP Advanced Select 1.1.21 were admitted by exact size/SHA and activated. Artifact {ARTIFACT_ID} digest {ARTIFACT_DIGEST}; lab/runtime evidence SHA-256 {EVIDENCE_SHA}; authentic GF round-trip export SHA-256 {ROUNDTRIP_SHA}.",
+              "observed_result": "LAB_PASS / GF_V062_CURRENT_PG_FULL_STACK_READBACK. One inactive 37-field form imported through GFExport::import_file. national_id hydrated as PGR_GF_Field_National_ID/pgr_national_id and normalized Persian digits to canonical ASCII 0000000019 with valid checksum accepted and invalid checksum rejected. dob_jalali hydrated as PGR_GF_Field_Jalali_Date/pgr_jalali_date with ymd_slash and canonical 1400-01-02; valid Jalali accepted and invalid Jalali rejected. GP File Upload Pro runtime/localization proved required 3:4 crop, max 1200x1600 and no min/exact dimensions. GP Advanced Select runtime recognized school_code. Authentic Gravity Forms round-trip preserved current custom field types. Staging was not exercised and CI IDs remain disposable/non-authoritative.",
+              "decision": "Promote v0.6.2 as the current provisional staging-import candidate and supersede v0.6.1 for the next action. The next action is governed real staging import/read-back of the exact v0.6.2 bytes while inactive and using synthetic data only, followed by real staging ID/settings read-back before any Implementation Mapping binding. LAB_PASS is not staging or production proof.",
+              "reopen_condition": "The exact candidate/package replay fails materially, staging import/read-back changes or drops a locked setting, maintained PersianGravity or paid-plugin contracts materially change, or Owner supersedes the current contract.",
+              "status": "LAB_PASS / EXACT_CANDIDATE_SHA_VERIFIED / AUTHENTIC_GF_3_1_1_1_PG_4_4_0_GP_2_3_16_FUP_1_5_13_ADVS_1_1_21_IMPORT_READBACK_PASS / CURRENT_PG_FIELDS_PASS / FUP_3_4_MAX_1200X1600_PASS / ADVS_SCHOOL_CODE_RECOGNIZED / FORM_INACTIVE / 37_FIELDS / GF_ROUNDTRIP_PRESERVED / STAGING_IMPORT_UNEXECUTED / CI_IDS_NON_AUTHORITATIVE / FINANCE_SUSPENSION_PRESERVED",
+              "source": {
+                  "kind": "GITHUB_PR12_V062_FULL_STACK_RUNTIME_LAB",
+                  "pr": 12,
+                  "lab_run": RUN,
+                  "lab_head": HEAD,
+                  "lab_artifact_id": ARTIFACT_ID,
+                  "lab_artifact_digest": ARTIFACT_DIGEST,
+                  "lab_evidence_sha256": EVIDENCE_SHA,
+                  "roundtrip_export_sha256": ROUNDTRIP_SHA,
+                  "candidate_sha256": CANDIDATE_SHA,
+                  "gravityforms_version": "3.1.1.1",
+                  "persiangravity_version": "4.4.0",
+                  "gravity_perks_version": "2.3.16",
+                  "gp_file_upload_pro_version": "1.5.13",
+                  "gp_advanced_select_version": "1.1.21",
+                  "field_count": 37,
+                  "staging_exercised": False,
+              },
+          }
+          with history_path.open("a", encoding="utf-8") as fh:
+              for event in (event92, event93):
+                  fh.write(json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n")
+
+          # Canonical SFC machine projection: event92 remains the semantic authority;
+          # event93 closes only the disposable-CI qualification gap.
+          sfc_path = Path("docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml")
+          sfc = sfc_path.read_text(encoding="utf-8")
+          sfc = replace_once(
+              sfc,
+              "  candidate_artifact: SRWF_GravityForms_Import_v0.6.1_PROVISIONAL.json\n  candidate_artifact_under_qualification: SRWF_GravityForms_Import_v0.6.2_PROVISIONAL.json\n  candidate_artifact_under_qualification_sha256: d371ece6587b956d693eed556b5d6d1aa6d0bb60e10c8d40c73f3750607d7ee8\n",
+              "  candidate_artifact: SRWF_GravityForms_Import_v0.6.2_PROVISIONAL.json\n  candidate_artifact_sha256: d371ece6587b956d693eed556b5d6d1aa6d0bb60e10c8d40c73f3750607d7ee8\n",
+              "SFC candidate block",
+          )
+          sfc = replace_once(
+              sfc,
+              "- id: GAP-SFC-V062-FULL-STACK-QUALIFICATION\n  state: PENDING\n",
+              "- id: GAP-SFC-V062-FULL-STACK-QUALIFICATION\n  state: PASS_DISPOSABLE_CI_NOT_STAGING\n",
+              "SFC v062 gap",
+          )
+          sfc_path.write_text(sfc, encoding="utf-8")
+
+          sfc_md_path = Path("docs/contracts/SEMANTIC_FIELD_CONTRACT.md")
+          sfc_md = sfc_md_path.read_text(encoding="utf-8")
+          sfc_md = replace_once(
+              sfc_md,
+              "`SRWF_GravityForms_Import_v0.6.1_PROVISIONAL.json` آخرین staging candidate دارای full-stack qualification پذیرفته‌شده است. `SRWF_GravityForms_Import_v0.6.2_PROVISIONAL.json` successor تحت qualification است و تا exact-head FULL_STACK PASS نباید صرفاً بر مبنای minimal current-PersianGravity PASS به staging candidate ارتقا یابد.",
+              "`SRWF_GravityForms_Import_v0.6.2_PROVISIONAL.json` با SHA-256 `d371ece6587b956d693eed556b5d6d1aa6d0bb60e10c8d40c73f3750607d7ee8` اکنون staging candidate موقت جاری است. exact-head FULL_STACK run `35135801470` روی `d2364109d7aa267801e61d67ebed1499a4f7cea7` با PersianGravity 4.4.0 و paid stack واقعی `LAB_PASS` شد؛ این فقط disposable-CI proof است و Import واقعی staging هنوز انجام نشده است.",
+              "SFC human candidate paragraph",
+          )
+          sfc_md = replace_once(
+              sfc_md,
+              "SFC semantics فرم اصلی با PersianGravity جاری همگام است، اما `DOCUMENTED != OBSERVED_IN_STAGING`: v0.6.2 full-stack qualification، Import واقعی staging، ID mapping، server bindings فعالِ غیرمالی، school filtering، `V-01/V-03` و سایر validationهای active scope هنوز `NOT_PROVEN` هستند. Finance/manual-cheque bindings و Nested Forms POC فعلاً deferred هستند و blocker جاری نیستند. تا Privacy/Retention sign-off فقط synthetic data.",
+              "SFC semantics فرم اصلی با PersianGravity جاری همگام است و v0.6.2 exact-head FULL_STACK در disposable CI پاس شده، اما `LAB_PASS != OBSERVED_IN_STAGING`: Import واقعی staging، ID mapping، server bindings فعالِ غیرمالی، school filtering، `V-01/V-03` و سایر validationهای active scope هنوز `NOT_PROVEN` هستند. Finance/manual-cheque bindings و Nested Forms POC فعلاً deferred هستند و blocker جاری نیستند. تا Privacy/Retention sign-off فقط synthetic data.",
+              "SFC human gate paragraph",
+          )
+          sfc_md_path.write_text(sfc_md, encoding="utf-8")
+
+          readme_path = Path("tests/runtime-lab/README.md")
+          readme = readme_path.read_text(encoding="utf-8")
+          readme = replace_once(
+              readme,
+              "- GP Advanced Select `1.1.21`, with its exact Owner-authorized package SHA-256 supplied alongside the package.",
+              "- GP Advanced Select `1.1.21`, SHA-256 `d83424bfac712e73d772e54e8740b828c52b7c118cfa9aac71646233a6fdcca2`.",
+              "README ADVS identity",
+          )
+          readme = replace_once(
+              readme,
+              "Until an exact-head FULL_STACK run passes, v0.6.2 remains a successor **under qualification** and must not be promoted as the governed staging-import candidate merely because the minimal current-PersianGravity lane passes.",
+              "Exact-head FULL_STACK run `35135801470` on `d2364109d7aa267801e61d67ebed1499a4f7cea7` passed with the exact paid-stack identities above. v0.6.2 is therefore the current provisional staging-import candidate. This remains disposable CI evidence only: staging was not exercised, CI IDs are non-authoritative, and `LAB_PASS` is not staging or production proof.",
+              "README qualification status",
+          )
+          readme_path.write_text(readme, encoding="utf-8")
+
+          # Parse every history row after the append and assert the synchronized terminal state.
+          parsed = [json.loads(line) for line in history_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+          if [parsed[-2]["event_seq"], parsed[-1]["event_seq"]] != [92, 93]:
+              raise SystemExit("history terminal event sequence is not 92,93")
+          if parsed[-1]["decision_id"] != "OBS-20260916-CI-RUNTIME-LAB-V062-FULL-STACK-PASS":
+              raise SystemExit("history terminal decision mismatch")
+          PY
+
+          git diff --check
+          grep -Fq 'state_version: 21' runtime/CURRENT_STATE.yaml
+          grep -Fq 'last_event_seq: 93' runtime/CURRENT_STATE.yaml
+          grep -Fq 'candidate: GF_IMPORT_SCAFFOLD_V062_PROVISIONAL' runtime/CURRENT_STATE.yaml
+          grep -Fq 'PASS_DISPOSABLE_CI_NOT_STAGING' docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml
+          grep -Fq '35135801470' docs/contracts/SEMANTIC_FIELD_CONTRACT.md
+          grep -Fq '35135801470' tests/runtime-lab/README.md
+
+      - name: Commit synchronized acceptance state and remove one-shot workflow
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/v062-state-acceptance-sync.yml
+          git add runtime/CURRENT_STATE.yaml runtime/DECISION_HISTORY.jsonl docs/contracts/SEMANTIC_FIELD_CONTRACT.yaml docs/contracts/SEMANTIC_FIELD_CONTRACT.md tests/runtime-lab/README.md
+          git diff --cached --check
+          git commit -m 'runtime: accept v0.6.2 full-stack qualification'
+          git push origin HEAD:fix/v062-current-persiangravity-artifact
